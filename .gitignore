@@ -3,7 +3,7 @@
 *.pot
 *.pyc
 *.py*
-*.swp
+*.sw*
 __pycache__/
 local_settings.py
 db.sqlite3
