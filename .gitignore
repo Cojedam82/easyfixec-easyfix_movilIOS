@@ -1,0 +1,13 @@
+### Django ###
+*.log
+*.pot
+*.pyc
+*.py*
+*.swp
+__pycache__/
+local_settings.py
+db.sqlite3
+media
+
+### Enviroment ###
+env/
