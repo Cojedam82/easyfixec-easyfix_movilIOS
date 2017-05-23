@@ -1,0 +1,233 @@
+<resources>
+    <!-- Default screen margins -->
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
+
+    <!-- App toolbar title size-->
+    <dimen name="toolbar_app_name_text_size">18sp</dimen>
+    <dimen name="toolbar_app_message_text_size">16sp</dimen>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dimen name="nav_header_vertical_spacing">6dp</dimen>
+    <dimen name="nav_header_height">290dp</dimen>
+
+
+    <!-- Default screen margins, per the Android Design guidelines. -->
+
+    <dimen name="fab_margin">16dp</dimen>
+
+
+
+    <!-- App header image margins-->
+    <dimen name="header_image_height">120dp</dimen>
+    <dimen name="header_image_width">120dp</dimen>
+
+    <dimen name="header_vertical_margin">10dp</dimen>
+    <dimen name="header_vertical_inverse_margin">-15dp</dimen>
+
+    <!-- App header title size-->
+    <dimen name="header_title_1_text_size">30sp</dimen>
+    <dimen name="header_title_2_text_size">52sp</dimen>
+
+    <!-- Initiation margins-->
+    <dimen name="initiation_option_margin">40dp</dimen>
+    <dimen name="initiation_button_between_margin">10dp</dimen>
+    <dimen name="initiation_button_text_size">16sp</dimen>
+
+    <item name="initiation_separator_line_weight" type="dimen" format="float">0.28</item>
+    <item name="initiation_separator_text_weight" type="dimen" format="float">0.44</item>
+    <dimen name="initiation_separator_text_size">14sp</dimen>
+    <dimen name="initiation_separator_line_height">1dp</dimen>
+
+    <dimen name="initiation_social_network_margin_top">20dp</dimen>
+    <dimen name="initiation_social_network_separator">40dp</dimen>
+    <dimen name="initiation_social_network_size">40dp</dimen>
+
+    <!-- Recovery password margins-->
+    <dimen name="recovery_password_input_margin">20dp</dimen>
+    <dimen name="recovery_password_input_height">50dp</dimen>
+    <dimen name="recovery_password_input_drawable_margin">10dp</dimen>
+    <dimen name="recovery_password_button_submit_size">90dp</dimen>
+    <dimen name="recovery_password_button_submit_text_size">18sp</dimen>
+
+    <!-- Login margins-->
+    <dimen name="login_input_margin">20dp</dimen>
+    <dimen name="login_input_between_margin">10dp</dimen>
+    <dimen name="login_input_height">50dp</dimen>
+    <dimen name="login_input_drawable_margin">10dp</dimen>
+    <dimen name="login_input_text_size">18sp</dimen>
+    <dimen name="login_button_submit_size">90dp</dimen>
+    <dimen name="login_button_submit_text_size">18sp</dimen>
+    <dimen name="login_recovery_password_text_size">16sp</dimen>
+
+
+    <!-- Profile image margins -->
+    <dimen name="profile_image_height">130dp</dimen>
+    <dimen name="profile_image_width">130dp</dimen>
+
+    <dimen name="profile_image_height_bk_1">170dp</dimen>
+    <dimen name="profile_image_width_bk_1">170dp</dimen>
+
+    <dimen name="profile_image_height_bk_2">210dp</dimen>
+    <dimen name="profile_image_width_bk_2">210dp</dimen>
+
+    <!-- Profile image border -->
+    <dimen name="profile_image_border_width">3dp</dimen>
+    <dimen name="profile_image_border_width_bk">2dp</dimen>
+
+    <!-- Profile name -->
+    <dimen name="profile_name_text_size">16sp</dimen>
+    <dimen name="profile_membership_text_size">12sp</dimen>
+
+
+    <!-- Training row margins-->
+    <dimen name="training_row_divider">10dp</dimen>
+    <dimen name="training_vertical_margin">10dp</dimen>
+    <dimen name="training_row_horizontal_margin">20dp</dimen>
+    <dimen name="training_row_vertical_margin">16dp</dimen>
+
+    <!-- Training row principal image-->
+    <dimen name="training_image_size">80dp</dimen>
+
+    <!-- Training row cycle image-->
+    <dimen name="training_cycle_size">40dp</dimen>
+
+    <!-- Training row details-->
+    <dimen name="training_name_text_size">18sp</dimen>
+    <dimen name="training_date_text_size">12sp</dimen>
+
+
+    <!-- Reminder -->
+    <dimen name="reminder_horizontal_margin">20dp</dimen>
+    <dimen name="reminder_vertical_margin">10dp</dimen>
+    <dimen name="reminder_title_vertical_separator_margin">10dp</dimen>
+    <dimen name="reminder_task_vertical_separator_margin">20dp</dimen>
+    <dimen name="reminder_task_margin_bottom">10dp</dimen>
+
+    <dimen name="reminder_image_size">80dp</dimen>
+
+    <dimen name="reminder_thumb_size">30dp</dimen>
+    <dimen name="reminder_track_size">30dp</dimen>
+
+    <dimen name="reminder_hour_vertical_padding">8dp</dimen>
+    <dimen name="reminder_hour_horizontal_padding">12dp</dimen>
+    <dimen name="reminder_hour_separator_horizontal_padding">2dp</dimen>
+
+    <dimen name="reminder_title_text_size">14sp</dimen>
+    <dimen name="reminder_hour_text_size">24sp</dimen>
+    <dimen name="reminder_hour_format_text_size">12sp</dimen>
+    <dimen name="reminder_switch_text_size">14sp</dimen>
+    <dimen name="reminder_button_text_size">16sp</dimen>
+
+    <dimen name="reminder_button_height">40dp</dimen>
+    <item name="reminder_button_separator_weight" type="dimen" format="float">0.1</item>
+    <item name="reminder_button_weight" type="dimen" format="float">0.45</item>
+
+
+    <!-- Payment code -->
+    <dimen name="payment_code_horizontal_margin">20dp</dimen>
+    <dimen name="payment_code_vertical_margin">20dp</dimen>
+
+    <dimen name="payment_code_image_size">80dp</dimen>
+
+    <dimen name="payment_code_title_text_size">18sp</dimen>
+    <dimen name="payment_code_input_height">50dp</dimen>
+
+    <dimen name="payment_code_button_submit_size">90dp</dimen>
+    <dimen name="payment_code_button_submit_text_size">18sp</dimen>
+
+
+    <!-- About -->
+    <dimen name="about_header_vertical_margin">10dp</dimen>
+
+    <dimen name="about_header_image_height">100dp</dimen>
+    <dimen name="about_header_image_width">100dp</dimen>
+
+    <dimen name="about_header_title_1_text_size">30sp</dimen>
+    <dimen name="about_header_title_2_text_size">52sp</dimen>
+    <dimen name="about_info_text_size">18sp</dimen>
+    <dimen name="about_developer_text_size">12sp</dimen>
+
+
+    <!-- Membership -->
+    <dimen name="membership_header_title_1_text_size">24sp</dimen>
+    <dimen name="membership_header_title_2_text_size">42sp</dimen>
+
+    <dimen name="membership_image_size">60dp</dimen>
+
+    <dimen name="membership_input_name_margin_bottom">5dp</dimen>
+    <dimen name="membership_input_name_text_size">14sp</dimen>
+    <dimen name="membership_input_text_size">16sp</dimen>
+    <dimen name="membership_input_height">40dp</dimen>
+    <dimen name="membership_list_height">30dp</dimen>
+
+
+    <!-- FAQ row details-->
+    <dimen name="faq_row_height">130dp</dimen>
+    <dimen name="faq_question_text_size">20sp</dimen>
+    <dimen name="faq_answer_text_size">16sp</dimen>
+    <dimen name="faq_date_text_size">12sp</dimen>
+
+
+    <!-- Info Display -->
+    <dimen name="info_display_image_size">60dp</dimen>
+    <dimen name="info_display_text_size">14sp</dimen>
+
+
+    <!-- Training Menu -->
+    <dimen name="training_menu_image_menu_size">120dp</dimen>
+    <dimen name="training_menu_image_option_size">90dp</dimen>
+
+    <dimen name="training_menu_axis_radius">174dp</dimen>
+    <dimen name="training_menu_radius">219dp</dimen>
+
+    <dimen name="training_menu_text_option_size">14dp</dimen>
+    <dimen name="training_menu_text_option_height">130dp</dimen>
+
+
+    <!-- Training Audio -->
+    <dimen name="training_audio_option_height">40dp</dimen>
+    <dimen name="training_audio_author_text_size">20sp</dimen>
+    <dimen name="training_audio_track_text_size">18sp</dimen>
+
+    <dimen name="training_audio_action_bg_size">90dp</dimen>
+    <dimen name="training_audio_action_size">70dp</dimen>
+
+
+    <!-- Training Text Size -->
+    <dimen name="training_text_1_size">32sp</dimen>
+    <dimen name="training_text_2_size">52sp</dimen>
+
+
+    <!-- Intro -->
+    <dimen name="intro_image_size">80dp</dimen>
+
+    <dimen name="intro_title_text_size">14sp</dimen>
+    <dimen name="intro_description_text_size">12sp</dimen>
+    <dimen name="intro_read_more_text_size">10sp</dimen>
+
+
+    <!-- Tip -->
+    <dimen name="tip_horizontal_margin">16dp</dimen>
+    <dimen name="tip_vertical_margin">64dp</dimen>
+
+    <dimen name="tip_title_text_size">18sp</dimen>
+
+
+    <!-- Splash-->
+    <dimen name="splash_image_size">250dp</dimen>
+    <dimen name="splash_title_1_text_size">40sp</dimen>
+    <dimen name="splash_title_2_text_size">68sp</dimen>
+
+</resources>

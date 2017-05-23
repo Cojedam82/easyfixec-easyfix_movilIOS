@@ -1,0 +1,26 @@
+<resources>
+    <string name="app_name">EasyFix</string>
+    <string name="app_message">Servicios para tu hogar</string>
+
+    <!-- Strings related to login -->
+    <string name="prompt_email">Correo electrónico</string>
+    <string name="prompt_password">Contraseña</string>
+
+    <string name="action_sign_in">Ingresar</string>
+
+    <string name="error_incorrect_email">El correo electrónico no existe</string>
+    <string name="error_invalid_email">El correo electrónico es inválido</string>
+    <string name="error_incorrect_password">La contraseña es incorrecta</string>
+
+
+
+
+
+
+    <string name="error_invalid_password">La contraseña debe tener más de 4 caracteres</string>
+    <string name="error_field_required">Este campo es requerido</string>
+    <string name="permission_rationale">"Contacts permissions are needed for providing email
+        completions."
+    </string>
+
+</resources>
