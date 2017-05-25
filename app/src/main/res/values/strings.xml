@@ -13,14 +13,19 @@
     <string name="error_incorrect_password">La contraseña es incorrecta</string>
 
 
-
-
-
-
     <string name="error_invalid_password">La contraseña debe tener más de 4 caracteres</string>
     <string name="error_field_required">Este campo es requerido</string>
     <string name="permission_rationale">"Contacts permissions are needed for providing email
         completions."
     </string>
+
+
+    <string name="tabBusqueda">BÚSQUEDA</string>
+    <string name="tabAgenda">AGENDA</string>
+    <string name="tabHistorial">HISTORIAL TÉCNICO</string>
+    <string name="tabConfiguracion">CONFIGURACIÓN</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 </resources>

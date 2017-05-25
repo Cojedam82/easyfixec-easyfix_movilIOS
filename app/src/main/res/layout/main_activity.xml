@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:orientation="vertical"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:background="@color/blackOverlay"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <android.support.design.widget.AppBarLayout
+        android:background="@color/colorPrimary"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="10dp">
+
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <Button
+                    android:id="@+id/main_usuario"
+                    android:elevation="0dp"
+                    android:background="@drawable/button_round"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp" />
+                <TextView
+                    android:textSize="18sp"
+                    android:textColor="@android:color/white"
+                    android:textAlignment="center"
+                    android:id="@+id/main_toolbar_text"
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content" />
+
+                <Button
+                    android:id="@+id/main_configuracion"
+                    android:elevation="0dp"
+                    android:background="@drawable/button_round"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp" />
+            </LinearLayout>
+
+
+
+
+    </android.support.design.widget.AppBarLayout>
+
+
+    <android.support.v4.view.ViewPager
+        android:id="@+id/viewPager"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"/>
+    <android.support.design.widget.TabLayout
+        app:tabIndicatorColor="@android:color/transparent"
+        android:background="@drawable/borde_superior_azul"
+        android:id="@+id/tabs"
+        android:padding="0dp"
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        />
+
+</LinearLayout>
