@@ -1,8 +1,6 @@
 package com.easyfixapp.easyfix.activities;
 
 import android.content.Context;
-import android.graphics.PorterDuff;
-import android.graphics.drawable.Drawable;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -11,14 +9,11 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -27,7 +22,7 @@ import com.easyfixapp.easyfix.R;
 import com.easyfixapp.easyfix.fragments.AgendaFragment;
 import com.easyfixapp.easyfix.fragments.ConfiguracionFragment;
 import com.easyfixapp.easyfix.fragments.HistorialFragment;
-import com.easyfixapp.easyfix.fragments.UserFragment;
+import com.easyfixapp.easyfix.fragments.BusquedaFragment;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -37,7 +32,7 @@ public class MainActivity extends AppCompatActivity {
     private ViewPagerAdapter viewPagerAdapter;
     private Button usuario,configuracion;
     private TextView titulo;
-    private int[] arr_text = new int[]{R.string.tabAgenda,R.string.tabBusqueda,R.string.tabHistorial,R.string.tabConfiguracion};
+    private int[] arr_text = new int[]{R.string.tabBusqueda,R.string.tabAgenda,R.string.tabHistorial,R.string.tabConfiguracion};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -150,7 +145,7 @@ public class MainActivity extends AppCompatActivity {
 
             switch (position) {
                 case 0:
-                    return new UserFragment();
+                    return new BusquedaFragment();
                 case 1:
                     return new AgendaFragment();
                 case 2:
