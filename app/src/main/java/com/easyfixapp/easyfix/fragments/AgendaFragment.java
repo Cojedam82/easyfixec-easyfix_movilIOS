@@ -2,6 +2,7 @@ package com.easyfixapp.easyfix.fragments;
 
 
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
@@ -21,6 +22,7 @@ import com.easyfixapp.easyfix.models.Servicio;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -93,6 +95,10 @@ public class AgendaFragment extends Fragment {
             categoria.setText(servicio.getCategoria().getNombre());
             fecha.setText(servicio.getFecha());
             hora.setText(servicio.getHora());
+
+            Random rnd = new Random();
+            int color = Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));
+            categoria.setTextColor(color);
 
             return convertView;
         }
