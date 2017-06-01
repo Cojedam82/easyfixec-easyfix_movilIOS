@@ -2,22 +2,60 @@
     <string name="app_name">EasyFix</string>
     <string name="app_message">Servicios para tu hogar</string>
 
-    <!-- Strings related to login -->
+    <!-- Strings related to login and signup -->
+    <string name="prompt_first_name">Nombres</string>
+    <string name="prompt_last_name">Apellidos</string>
     <string name="prompt_email">Correo electrónico</string>
     <string name="prompt_password">Contraseña</string>
+    <string name="prompt_phone">Número telefónico</string>
+    <string name="prompt_sign_up">Crear nueva cuenta</string>
+    <string name="prompt_log_in">Tengo una cuenta</string>
+    <string name="prompt_recovery">Recordar contraseña</string>
+    <string name="prompt_legacy">Al concluir con el registro usted delara que ha leído y acepta nuestras
+        <a href="http://easyfix.com/">condiciones de uso</a> y
+        <a href="http://easyfix.com/">política de privacidad</a>
+    </string>
 
     <string name="action_sign_in">Ingresar</string>
+    <string name="action_sign_up">Crear cuenta</string>
 
+    <string name="error_invalid_first_name">El nombre es muy corto</string>
+    <string name="error_invalid_last_name">El apellido es muy corto</string>
     <string name="error_incorrect_email">El correo electrónico no existe</string>
     <string name="error_invalid_email">El correo electrónico es inválido</string>
     <string name="error_incorrect_password">La contraseña es incorrecta</string>
-
-
     <string name="error_invalid_password">La contraseña debe tener más de 4 caracteres</string>
+    <string name="error_invalid_phone">El número de teléfono es inválido</string>
     <string name="error_field_required">Este campo es requerido</string>
     <string name="permission_rationale">"Contacts permissions are needed for providing email
         completions."
     </string>
+
+
+
+
+    <!-- Strings related to service requests -->
+    <!-- Loging and Signup-->
+    <string name="message_login_request">Iniciando Sesión</string>
+    <string name="message_signup_request">Enviando registro</string>
+
+
+    <!-- Strings related to service responses -->
+    <!-- Loging and Signup-->
+    <string name="message_login_response_success">Se ha iniciado sesión correctamente</string>
+    <string name="message_login_response_failed">Hubo problemas, revise los datos enviados o el correo ya se encuentre registrado</string>
+    <string name="message_signup_response_success">Se ha registrado correctamente</string>
+
+
+    <!-- Strings related to network -->
+    <string name="message_network_local_failed">Hubo problemas, revise su conexión a internet e intente nuevamente</string>
+    <string name="message_network_connectivity_failed">No hay conexión a internet</string>
+
+
+    <!-- Strings related to service -->
+    <string name="message_service_server_empty">No se encontraron registros</string>
+    <string name="message_service_server_failed">Hubo problemas, intente nuevamente en unos minutos</string>
+
 
 
     <string name="tabBusqueda">BÚSQUEDA</string>
@@ -27,5 +65,16 @@
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+
+
+
+    <!-- Preferences -->
+    <string name="preferences_user_id">USER_ID</string>
+    <string name="preferences_user_first_name">USER_FIRST_NAME</string>
+    <string name="preferences_user_last_name">USER_LAST_NAME</string>
+    <string name="preferences_user_email">USER_EMAIL</string>
+    <string name="preferences_profile_phone">PROFILE_PHONE</string>
+    <string name="preferences_profile_role">PROFILE_ROLE</string>
+    <string name="preferences_profile_token">PROFILE_TOKEN</string>
 
 </resources>

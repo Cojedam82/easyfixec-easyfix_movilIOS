@@ -2,7 +2,24 @@
 <resources>
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
-    <color name="colorAccent">#FF4081</color>
+    <color name="colorAccent">#000</color>
     <color name="blackOverlay">#f4eaed</color>
     <color name="blackOverlayDark">#aba3a5</color>
+
+    <color name="white">#FFFFFFFF</color>
+    <color name="white_75">#BFFFFFFF</color>
+    <color name="white_70">#B3FFFFFF</color>
+    <color name="white_65">#A6FFFFFF</color>
+    <color name="white_50">#80FFFFFF</color>
+    <color name="white_35">#59FFFFFF</color>
+    <color name="white_25">#40FFFFFF</color>
+
+    <color name="black">#000</color>
+    <color name="black_75">#BF000000</color>
+    <color name="black_50">#80000000</color>
+    <color name="black_35">#59000000</color>
+    <color name="black_25">#40000000</color>
+    <color name="black_10">#1A000000</color>
+    <color name="black_5">#0D000000</color>
+
 </resources>
