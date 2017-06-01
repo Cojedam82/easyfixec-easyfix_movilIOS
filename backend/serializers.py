@@ -38,3 +38,17 @@ class UserSerializer(serializers.ModelSerializer):
                 setattr(instance, attr, value)
         instance.save()
         return instance
+
+
+class CategorySerializer(serializers.ModelSerializer):
+
+  class Meta:
+      model = Category
+      depth = 1
+      fields = ('id', 'name', 'services')
+
+
+class ServiceSerializer(serializers.ModelSerializer):
+  class Meta:
+      model = Service
+      fields = ('id', 'name', 'image')

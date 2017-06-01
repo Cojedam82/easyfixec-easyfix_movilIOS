@@ -25,3 +25,23 @@ class UserPermission(permissions.BasePermission):
 
         # Check owner.
         return obj == request.user
+
+
+class CategoryPermission(permissions.BasePermission):
+
+    def has_permission(self, request, view):
+        user = request.user
+        if user and user.is_authenticated():
+            if user.is_staff or user.profile.role == 2:
+                return True
+        return False
+
+
+class ServicePermission(permissions.BasePermission):
+
+    def has_permission(self, request, view):
+        user = request.user
+        if user and user.is_authenticated():
+            if user.is_staff or user.profile.role == 1:
+                return True
+        return False

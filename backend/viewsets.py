@@ -95,3 +95,17 @@ class UserViewSet(viewsets.ModelViewSet):
         user = self.request.user
         serializer = UserSerializer(user)
         return Response(serializer.data)
+
+
+class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Category.objects.filter(is_active=True)
+    serializer_class = CategorySerializer
+    authentication_classes = (SessionAuthentication, TokenAuthentication)
+    permission_classes = (CategoryPermission,)
+
+
+class ServiceViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Service.objects.filter(is_active=True)
+    serializer_class = ServiceSerializer
+    authentication_classes = (SessionAuthentication, TokenAuthentication)
+    permission_classes = (ServicePermission,)

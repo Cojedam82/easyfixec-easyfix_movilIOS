@@ -6,6 +6,8 @@ from . import viewsets
 
 
 router = routers.DefaultRouter()
+router.register(r'categories', viewsets.CategoryViewSet)
+router.register(r'services', viewsets.ServiceViewSet)
 router.register(r'users', viewsets.UserViewSet)
 
 urlpatterns = [
