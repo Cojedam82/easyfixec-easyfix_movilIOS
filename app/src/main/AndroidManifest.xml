@@ -16,34 +16,26 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-
         <activity
-            android:theme="@style/AppTheme.NoActionBar"
-            android:name=".activities.SplashActivity">
-        </activity>
-
+            android:name=".activities.SplashActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:theme="@style/AppTheme.NoActionBar"
-            android:name=".activities.LoginActivity">
-
+            android:name=".activities.LoginActivity"
+            android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-
         </activity>
-
         <activity
-            android:theme="@style/AppTheme.NoActionBar"
-            android:name=".activities.SignupActivity">
-        </activity>
-
-
+            android:name=".activities.SignupActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:theme="@style/AppTheme.NoActionBar"
-            android:name=".activities.MainActivity">
-        </activity>
-
+            android:name=".activities.MainActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".activities.Menu1" />
+        <activity android:name=".activities.Menu2"></activity>
     </application>
 
 </manifest>

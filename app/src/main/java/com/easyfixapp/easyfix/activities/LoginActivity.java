@@ -135,6 +135,9 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
      */
     public void attemptLogin(View v) {
 
+
+
+
         // Reset errors.
         mEmailView.setError(null);
         mPasswordView.setError(null);
@@ -142,6 +145,11 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         // Store values at the time of the login attempt.
         String email = mEmailView.getText().toString();
         String password = mPasswordView.getText().toString();
+
+        //TODO: Remove this por production
+        if(email.equals("prueba")){
+            startActivity(new Intent(getApplicationContext(),MainActivity.class));
+        }
 
         boolean cancel = false;
         View focusView = null;

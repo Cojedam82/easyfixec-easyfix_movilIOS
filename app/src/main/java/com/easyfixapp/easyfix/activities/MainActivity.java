@@ -1,6 +1,7 @@
 package com.easyfixapp.easyfix.activities;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -120,6 +121,20 @@ public class MainActivity extends AppCompatActivity {
         }
 
         titulo.setText(arr_text[0]);
+
+        usuario.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(getApplicationContext(),Menu1.class));
+            }
+        });
+
+        configuracion.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(getApplicationContext(),Menu2.class));
+            }
+        });
 
 
 

@@ -32,8 +32,6 @@
     </string>
 
 
-
-
     <!-- Strings related to service requests -->
     <!-- Loging and Signup-->
     <string name="message_login_request">Iniciando Sesión</string>
@@ -57,7 +55,6 @@
     <string name="message_service_server_failed">Hubo problemas, intente nuevamente en unos minutos</string>
 
 
-
     <string name="tabBusqueda">BÚSQUEDA</string>
     <string name="tabAgenda">AGENDA</string>
     <string name="tabHistorial">HISTORIAL TÉCNICO</string>
@@ -65,7 +62,6 @@
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
-
 
 
     <!-- Preferences -->
