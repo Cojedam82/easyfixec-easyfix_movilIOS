@@ -12,10 +12,10 @@ import com.easyfixapp.easyfix.R;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class ConfiguracionFragment extends Fragment {
+public class ConfigurationFragment extends Fragment {
 
 
-    public ConfiguracionFragment() {
+    public ConfigurationFragment() {
         // Required empty public constructor
     }
 
@@ -24,7 +24,7 @@ public class ConfiguracionFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.configuracion_fragment, container, false);
+        return inflater.inflate(R.layout.configuration_fragment, container, false);
     }
 
 }

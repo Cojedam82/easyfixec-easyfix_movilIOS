@@ -3,6 +3,7 @@ package com.easyfixapp.easyfix.util;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
+import android.text.TextUtils;
 
 import com.easyfixapp.easyfix.R;
 import com.easyfixapp.easyfix.models.Profile;
@@ -46,8 +47,8 @@ public class SessionManager {
 
         user.setId(mSharedPreferences.getInt(mResources.getString(R.string.preferences_user_id), -1));
         user.setFirstName(mSharedPreferences.getString(mResources.getString(R.string.preferences_user_first_name), null));
-        user.setFirstName(mSharedPreferences.getString(mResources.getString(R.string.preferences_user_last_name), null));
-        user.setFirstName(mSharedPreferences.getString(mResources.getString(R.string.preferences_user_email), null));
+        user.setLastName(mSharedPreferences.getString(mResources.getString(R.string.preferences_user_last_name), null));
+        user.setEmail(mSharedPreferences.getString(mResources.getString(R.string.preferences_user_email), null));
 
         profile.setPhone(mSharedPreferences.getString(mResources.getString(R.string.preferences_profile_phone), null));
         profile.setToken(mSharedPreferences.getString(mResources.getString(R.string.preferences_profile_token), null));
@@ -57,8 +58,12 @@ public class SessionManager {
         return user;
     }
 
+    public boolean hasToken(){
+        return !TextUtils.isEmpty(mSharedPreferences.getString(mResources.getString(R.string.preferences_profile_token), null));
+    }
+
     public String getToken(){
-        return mSharedPreferences.getString(mResources.getString(R.string.preferences_profile_token), null);
+        return "Token " + mSharedPreferences.getString(mResources.getString(R.string.preferences_profile_token), null);
     }
 
     public void clear(){

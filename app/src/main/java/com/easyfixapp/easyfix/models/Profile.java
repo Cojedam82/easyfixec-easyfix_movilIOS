@@ -6,7 +6,7 @@ package com.easyfixapp.easyfix.models;
 
 public class Profile {
     private int role;
-    private String phone, token;
+    private String phone, token, image;
 
     public Profile(){};
 
@@ -32,5 +32,13 @@ public class Profile {
 
     public void setToken(String token) {
         this.token = token;
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
     }
 }

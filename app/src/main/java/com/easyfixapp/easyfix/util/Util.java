@@ -29,8 +29,8 @@ public class Util {
     /**
      * URL
      **/
-    public static final String BASE_URL = "http://192.168.1.142:9999/";
-    public static final String API_URL = "http://192.168.1.142:9999/api/v1/";
+    public static final String BASE_URL = "http://192.168.0.104:9999/";
+    public static final String API_URL = "http://192.168.0.104:9999/api/v1/";
 
 
     /**
@@ -52,6 +52,8 @@ public class Util {
     public static final String TAG_KEY = "SM-KEY";
     public static final String TAG_LOGIN = "SM-LOGIN";
     public static final String TAG_SIGNUP = "SM-SIGNUP";
+    public static final String TAG_SEARCH = "SM-SEARCH";
+    public static final String TAG_AGENDA = "SM-AGENDA";
 
 
     /**

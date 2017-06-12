@@ -3,22 +3,24 @@
     android:orientation="vertical"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/blackOverlay">
+    android:layout_height="match_parent">
 
     <TextView
-        android:background="@android:color/transparent"
-        android:textColor="@color/blackOverlayDark"
-        android:textAlignment="center"
-        android:layout_gravity="center"
-        android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_gravity="center"
+        android:paddingLeft="@dimen/fragment_horizontal_margin"
+        android:paddingRight="@dimen/fragment_horizontal_margin"
+        android:paddingTop="@dimen/agenda_fragment_padding"
+        android:paddingBottom="@dimen/agenda_fragment_padding"
+        android:background="@color/blackOverlayDark"
+        android:textColor="@color/blackOverlay"
         android:text="Servicios solicitados" />
 
     <ListView
-        android:id="@+id/agenda_lista"
+        android:id="@+id/lv_agenda"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"/>
+        android:layout_weight="1" />
 
 </LinearLayout>

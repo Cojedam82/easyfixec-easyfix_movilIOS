@@ -35,6 +35,14 @@ public class User {
         this.last_name = last_name;
     }
 
+    public String getShortName() {
+        return getFirstName().split(" ")[0] + ' ' + getLastName().split(" ")[0];
+    }
+
+    public String getFullName() {
+        return getFirstName() + ' ' + getLastName();
+    }
+
     public String getEmail() {
         return email;
     }

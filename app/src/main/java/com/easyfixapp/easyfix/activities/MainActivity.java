@@ -1,11 +1,7 @@
 package com.easyfixapp.easyfix.activities;
 
-import android.content.Context;
 import android.content.Intent;
 import android.support.design.widget.TabLayout;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
@@ -14,178 +10,126 @@ import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TableLayout;
 import android.widget.TextView;
 
 import com.easyfixapp.easyfix.R;
-import com.easyfixapp.easyfix.fragments.AgendaFragment;
-import com.easyfixapp.easyfix.fragments.ConfiguracionFragment;
-import com.easyfixapp.easyfix.fragments.HistorialFragment;
-import com.easyfixapp.easyfix.fragments.BusquedaFragment;
+import com.easyfixapp.easyfix.adapters.MenuAdapter;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 public class MainActivity extends AppCompatActivity {
 
-    private TabLayout tabLayout;
-    //private Toolbar toolbar;
-    private ViewPager viewPager;
-    private ViewPagerAdapter viewPagerAdapter;
-    private Button usuario,configuracion;
-    private TextView titulo;
-    private int[] arr_text = new int[]{R.string.tabBusqueda,R.string.tabAgenda,R.string.tabHistorial,R.string.tabConfiguracion};
+    private TabLayout mTabLayout;
+    private ViewPager mViewPager;
+    private MenuAdapter mViewPagerAdapter;
+    private CircleImageView mMenuProfileView, mMenuInfoView;
+    private TextView mTitleView;
+
+    private int[] arr_text = new int[]{
+            R.string.tab_menu_search,
+            R.string.tab_menu_agenda,
+            R.string.tab_menu_record,
+            R.string.tab_menu_configuration
+    };
+
+    private int[] arr_drawable = new int[]{
+            R.drawable.ic_menu_search,
+            R.drawable.ic_menu_agenda,
+            R.drawable.ic_menu_record,
+            R.drawable.ic_menu_configuration
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity);
 
-        tabLayout = (TabLayout) findViewById(R.id.tabs);
-        //toolbar = (Toolbar) findViewById(R.id.toolbar);
-        viewPager = (ViewPager) findViewById(R.id.viewPager);
-        usuario = (Button) findViewById(R.id.main_usuario);
-        configuracion = (Button) findViewById(R.id.main_configuracion);
-        titulo = (TextView) findViewById(R.id.main_toolbar_text);
+        mTabLayout = (TabLayout) findViewById(R.id.tab_menu);
+        mViewPager = (ViewPager) findViewById(R.id.view_pager);
+        mMenuProfileView = (CircleImageView) findViewById(R.id.img_menu_profile);
+        mMenuInfoView = (CircleImageView) findViewById(R.id.img_menu_info);
+        mTitleView = (TextView) findViewById(R.id.txt_toolbar_title);
 
+        /* Adding tabs */
+        mTabLayout.addTab(mTabLayout.newTab());
+        mTabLayout.addTab(mTabLayout.newTab());
+        mTabLayout.addTab(mTabLayout.newTab());
+        mTabLayout.addTab(mTabLayout.newTab());
 
+        /* View Pager */
+        mViewPagerAdapter = new MenuAdapter(getSupportFragmentManager(),
+                getApplicationContext(), 4);
+        mViewPager.setAdapter(mViewPagerAdapter);
 
-        tabLayout.addTab(tabLayout.newTab());
-        tabLayout.addTab(tabLayout.newTab());
-        tabLayout.addTab(tabLayout.newTab());
-        tabLayout.addTab(tabLayout.newTab());
-
-        //setSupportActionBar(toolbar);
-        viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager(),getApplicationContext(),4);
-        viewPager.setAdapter(viewPagerAdapter);
-        tabLayout.setupWithViewPager(viewPager);
-
-        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+        /* Action Tabs */
+        mTabLayout.setupWithViewPager(mViewPager);
+        mTabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
-
-
                 LinearLayout linearLayout = (LinearLayout) tab.getCustomView();
+
                 ImageView imageView = (ImageView) linearLayout.getChildAt(0);
                 imageView.setColorFilter(ContextCompat.getColor(getApplicationContext(),R.color.colorPrimary));
+
                 TextView textView = (TextView) linearLayout.getChildAt(1);
                 textView.setTextColor(getResources().getColor(R.color.colorPrimary));
 
-                titulo.setText(arr_text[tab.getPosition()]);
-
+                mTitleView.setText(arr_text[tab.getPosition()]);
 
             }
 
             @Override
             public void onTabUnselected(TabLayout.Tab tab) {
                 LinearLayout linearLayout = (LinearLayout) tab.getCustomView();
+
                 ImageView imageView = (ImageView) linearLayout.getChildAt(0);
                 imageView.setColorFilter(ContextCompat.getColor(getApplicationContext(),R.color.blackOverlayDark));
+
                 TextView textView = (TextView) linearLayout.getChildAt(1);
                 textView.setTextColor(getResources().getColor(R.color.blackOverlayDark));
-
-
             }
 
             @Override
-            public void onTabReselected(TabLayout.Tab tab) {
-
-            }
+            public void onTabReselected(TabLayout.Tab tab) {}
         });
 
+        populateTabsMenu();
+    }
 
-        //tabLayout.setPadding(0,0,0,0);
-        int[] arr_drawable = new int[]{android.R.drawable.ic_btn_speak_now, android.R.drawable.ic_dialog_email, android.R.drawable.ic_dialog_email, android.R.drawable.ic_dialog_email};
+    void populateTabsMenu(){
 
-        for (int i = 0; i < tabLayout.getTabCount(); i++) {
+        for (int i = 0; i < mTabLayout.getTabCount(); i++) {
+
             LinearLayout linearLayout = new LinearLayout(getApplicationContext());
             linearLayout.setLayoutParams(new ViewGroup.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.MATCH_PARENT));
             linearLayout.setOrientation(LinearLayout.VERTICAL);
+
             ImageView imageView = new ImageView(getApplicationContext());
             imageView.setImageResource(arr_drawable[i]);
             imageView.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
-            imageView.setColorFilter(ContextCompat.getColor(getApplicationContext(),i==0?R.color.colorPrimary:R.color.blackOverlayDark));
+            imageView.setColorFilter(
+                    ContextCompat.getColor(getApplicationContext(),
+                            i==0?R.color.colorPrimary:R.color.blackOverlayDark));
+
             TextView textView = new TextView(getApplicationContext());
+            textView.setAllCaps(true);
             textView.setText(getResources().getString(arr_text[i]));
             textView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
-            textView.setTextSize(TypedValue.COMPLEX_UNIT_SP,10);
+            textView.setTextSize(getResources().getDimension(R.dimen.tab_menu_text_size));
             textView.setTextColor(getResources().getColor(i==0?R.color.colorPrimary:R.color.blackOverlayDark));
+
             linearLayout.addView(imageView);
             linearLayout.addView(textView);
             linearLayout.setGravity(Gravity.CENTER);
 
-            tabLayout.getTabAt(i).setCustomView(linearLayout);
-
-
+            mTabLayout.getTabAt(i).setCustomView(linearLayout);
         }
 
-        titulo.setText(arr_text[0]);
-
-        usuario.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(getApplicationContext(),Menu1.class));
-            }
-        });
-
-        configuracion.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(getApplicationContext(),Menu2.class));
-            }
-        });
-
-
-
-
-
+        mTitleView.setText(arr_text[0]);
     }
-
-
-    private class ViewPagerAdapter extends FragmentPagerAdapter {
-        int tabCount;
-        Context mContext;
-
-
-        public ViewPagerAdapter(FragmentManager fm, Context context, int tabCount) {
-            super(fm);
-            this.tabCount = tabCount;
-            this.mContext = context;
-        }
-
-        @Override
-        public Fragment getItem(int position) {
-
-
-            switch (position) {
-                case 0:
-                    return new BusquedaFragment();
-                case 1:
-                    return new AgendaFragment();
-                case 2:
-                    return new HistorialFragment();
-                case 3:
-                    return new ConfiguracionFragment();
-                default:
-                    return null;
-            }
-        }
-
-
-        @Override
-        public int getItemPosition(Object object) {
-            return POSITION_NONE;
-        }
-
-
-
-
-        @Override
-        public int getCount() {
-            return tabCount;
-
-        }
-    }
-
 }

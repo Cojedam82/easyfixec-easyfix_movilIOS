@@ -12,19 +12,15 @@ import com.easyfixapp.easyfix.R;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class HistorialFragment extends Fragment {
+public class RecordFragment extends Fragment {
 
-
-    public HistorialFragment() {
-        // Required empty public constructor
-    }
-
+    public RecordFragment() {}
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.historial_fragment, container, false);
+        return inflater.inflate(R.layout.record_fragment, container, false);
     }
 
 }

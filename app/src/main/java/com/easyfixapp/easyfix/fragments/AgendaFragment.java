@@ -4,10 +4,10 @@ package com.easyfixapp.easyfix.fragments;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,90 +17,104 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.easyfixapp.easyfix.R;
-import com.easyfixapp.easyfix.models.Categoria;
-import com.easyfixapp.easyfix.models.Servicio;
+import com.easyfixapp.easyfix.adapters.AgendaAdapter;
+import com.easyfixapp.easyfix.models.Reservation;
+import com.easyfixapp.easyfix.models.Service;
+import com.easyfixapp.easyfix.util.ApiService;
+import com.easyfixapp.easyfix.util.ServiceGenerator;
+import com.easyfixapp.easyfix.util.SessionManager;
+import com.easyfixapp.easyfix.util.Util;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 /**
  * A simple {@link Fragment} subclass.
  */
 public class AgendaFragment extends Fragment {
 
-    private ListView listView;
-    private AgendaAdapter adapter;
-    private ArrayList<Servicio> servicios;
-
-    public AgendaFragment() {
-        // Required empty public constructor
-    }
-
+    private ListView mListView;
+    private AgendaAdapter mAgendaAdapter;
+    private List<Reservation> mReservationList = new ArrayList<>();
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View rootview = inflater.inflate(R.layout.agenda_fragment, container, false);
-        listView = (ListView) rootview.findViewById(R.id.agenda_lista);
-
-        servicios = new ArrayList<>();
-        adapter = new AgendaAdapter(getActivity().getApplicationContext(),servicios);
-        listView.setAdapter(adapter);
-
-        for (int i=0;i<5;i++){
-            Servicio s = new Servicio();
-            s.setNombre("Elvis Tomalá");
-            Categoria c = new Categoria();
-            c.setNombre("Electricidad - Lavadora");
-            s.setCategoria(c);
-            s.setFecha("Jueves 14");
-            s.setHora("15:00");
-            servicios.add(s);
-        }
-        adapter.notifyDataSetChanged();
 
 
+        mAgendaAdapter = new AgendaAdapter(getActivity().getApplicationContext(), mReservationList);
+
+        mListView = (ListView) rootview.findViewById(R.id.lv_agenda);
+        mListView.setAdapter(mAgendaAdapter);
 
         return rootview;
     }
 
-    private class AgendaAdapter extends ArrayAdapter<Servicio>{
-        private ArrayList<Servicio> servicios;
-        private Context context;
+    @Override
+    public void onResume() {
+        super.onResume();
 
-        public AgendaAdapter(Context context, ArrayList<Servicio> objects) {
-            super(context, 0,objects);
-            this.servicios=objects;
-            this.context=context;
+        if (mReservationList.isEmpty()) {
+            // fetch agenda
+            reservationTask();
         }
 
-        @NonNull
-        @Override
-        public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-            //super.getView(position, convertView, parent);
 
-            convertView = LayoutInflater.from(context).inflate(R.layout.item_agenda,parent,false);
+    }
 
-            Servicio servicio = servicios.get(position);
 
-            ImageView foto = (ImageView) convertView.findViewById(R.id.item_agenda_foto);
-            TextView nombre = (TextView)convertView.findViewById(R.id.item_agenda_nombre);
-            TextView categoria = (TextView)convertView.findViewById(R.id.item_agenda_categoria);
-            TextView fecha = (TextView)convertView.findViewById(R.id.item_agenda_fecha);
-            TextView hora = (TextView) convertView.findViewById(R.id.item_agenda_hora);
+    /** Fetch reservations **/
+    private void reservationTask(){
+        Util.showLoading(getActivity(), getString(R.string.message_reservation_agenda_request));
 
-            nombre.setText(servicio.getNombre());
-            categoria.setText(servicio.getCategoria().getNombre());
-            fecha.setText(servicio.getFecha());
-            hora.setText(servicio.getHora());
+        SessionManager sessionManager = new SessionManager(getContext());
+        ApiService apiService = ServiceGenerator.createApiService();
+        String token = sessionManager.getToken();
 
-            Random rnd = new Random();
-            int color = Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));
-            categoria.setTextColor(color);
+        Call<List<Reservation>> call = apiService.getAgenda(token);
+        call.enqueue(new Callback<List<Reservation>>() {
+            @Override
+            public void onResponse(Call<List<Reservation>> call, Response<List<Reservation>> response) {
+                if (response.isSuccessful()) {
+                    Log.i(Util.TAG_AGENDA, "Agenda result: success!");
 
-            return convertView;
-        }
+                    List<Reservation> reservationList = response.body();
+                    if (!reservationList.isEmpty()) {
+                        mReservationList.clear();
+
+                        for (Reservation reservation : reservationList){
+                            mReservationList.add(reservation);
+                        }
+                        mAgendaAdapter.notifyDataSetChanged();
+
+                    } else {
+                        Util.longToast(getContext(),
+                                getString(R.string.message_service_server_empty));
+                    }
+                    Util.hideLoading();
+
+                } else {
+                    Log.i(Util.TAG_AGENDA, "Agenda result: " + response.toString());
+                    Util.longToast(getContext(),
+                            getString(R.string.message_service_server_failed));
+                }
+                Util.hideLoading();
+            }
+
+            @Override
+            public void onFailure(Call<List<Reservation>> call, Throwable t) {
+                Log.i(Util.TAG_AGENDA, "Agenda result: failed, " + t.getMessage());
+                Util.longToast(getContext(),
+                        getString(R.string.message_network_local_failed));
+                Util.hideLoading();
+            }
+        });
     }
 }
