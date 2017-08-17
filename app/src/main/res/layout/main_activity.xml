@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <android.support.design.widget.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="@dimen/app_toolbar_button_menu_vertical_padding"
+        android:paddingBottom="@dimen/app_toolbar_button_menu_vertical_padding"
+        android:paddingLeft="@dimen/app_toolbar_button_menu_horizontal_padding"
+        android:paddingRight="@dimen/app_toolbar_button_menu_horizontal_padding">
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <de.hdodenhof.circleimageview.CircleImageView
+                    android:id="@+id/img_menu_profile"
+                    android:layout_width="@dimen/app_toolbar_button_menu_size"
+                    android:layout_height="@dimen/app_toolbar_button_menu_size"
+                    android:background="@drawable/button_main_round"
+                    android:src="@drawable/profile"
+                    app:civ_border_width="1dp"
+                    app:civ_border_color="@color/textColorPrimary"/>
+
+                <TextView
+                    android:id="@+id/txt_toolbar_title"
+                    android:layout_height="match_parent"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:textColor="@color/textColorPrimary"
+                    android:textSize="@dimen/app_toolbar_tile_text_size"
+                    android:textAlignment="center"
+                    android:gravity="center"
+                    tools:text="Búsqueda"/>
+
+                <de.hdodenhof.circleimageview.CircleImageView
+                    android:id="@+id/img_menu_info"
+                    android:layout_width="@dimen/app_toolbar_button_menu_size"
+                    android:layout_height="@dimen/app_toolbar_button_menu_size"
+                    android:background="@drawable/button_main_round"
+                    android:src="@drawable/profile"
+                    app:civ_border_width="1dp"
+                    app:civ_border_color="@color/textColorPrimary"/>
+
+            </LinearLayout>
+
+    </android.support.design.widget.AppBarLayout>
+
+
+    <android.support.v4.view.ViewPager
+        android:id="@+id/view_pager"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+
+    <android.support.design.widget.TabLayout
+        android:id="@+id/tab_menu"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:padding="0dp"
+        app:tabPadding="0dp"
+        app:tabIndicatorColor="@android:color/transparent" />
+
+</LinearLayout>

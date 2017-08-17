@@ -1,0 +1,62 @@
+<resources>
+    <!-- Default screen margins -->
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
+
+    <dimen name="fragment_horizontal_margin">16dp</dimen>
+    <dimen name="fragment_vertical_margin">16dp</dimen>
+
+
+    <!-- Splash Activity -->
+    <dimen name="splash_activity_image_size">250dp</dimen>
+    <dimen name="splash_activity_title_1_text_size">40sp</dimen>
+    <dimen name="splash_activity_title_2_text_size">68sp</dimen>
+
+
+
+    <!-- App header main-->
+    <dimen name="app_header_main_image_size">120dp</dimen>
+    <dimen name="app_header_main_name_text_size">18sp</dimen>
+    <dimen name="app_header_main_message_text_size">16sp</dimen>
+
+
+
+    <!-- App Toolbar -->
+    <dimen name="app_toolbar_button_menu_vertical_padding">8dp</dimen>
+    <dimen name="app_toolbar_button_menu_horizontal_padding">16dp</dimen>
+    <dimen name="app_toolbar_button_menu_size">45dp</dimen>
+    <dimen name="app_toolbar_tile_text_size">20sp</dimen>
+
+
+
+    <!-- Tab Menu -->
+    <dimen name="tab_menu_text_size">2.8sp</dimen>
+
+
+
+    <!-- Search -->
+    <!-- Item -->
+    <dimen name="search_item_margin">10dp</dimen>
+    <dimen name="search_item_padding">3dp</dimen>
+    <dimen name="search_item_image_size">60dp</dimen>
+    <dimen name="search_item_text_size">12sp</dimen>
+
+    <!-- Fragment -->
+    <dimen name="search_fragemnt_title_text_size">22sp</dimen>
+    <dimen name="search_fragment_title_margin">40dp</dimen>
+    <dimen name="search_fragment_list_margin">20dp</dimen>
+    <dimen name="search_fragment_list_padding">10dp</dimen>
+
+
+
+    <!-- Agenda -->
+    <!-- Item -->
+    <dimen name="agenda_item_image_size">50dp</dimen>
+    <dimen name="agenda_item_info_text_size">12sp</dimen>
+    <dimen name="agenda_item_name_text_size">16sp</dimen>
+    <dimen name="agenda_item_margin">10dp</dimen>
+
+    <!-- Fragment -->
+    <dimen name="agenda_fragment_padding">5dp</dimen>
+
+</resources>
