@@ -10,7 +10,6 @@ import com.easyfixapp.easyfix.R;
 import com.easyfixapp.easyfix.models.User;
 import com.easyfixapp.easyfix.util.SessionManager;
 
-
 public class SplashActivity extends AppCompatActivity {
 
     @Override

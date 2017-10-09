@@ -136,8 +136,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     public void attemptLogin(View v) {
 
 
-
-
         // Reset errors.
         mEmailView.setError(null);
         mPasswordView.setError(null);
