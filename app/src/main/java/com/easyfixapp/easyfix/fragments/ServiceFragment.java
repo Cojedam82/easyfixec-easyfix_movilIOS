@@ -29,7 +29,7 @@ import retrofit2.Response;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class SearchFragment extends Fragment {
+public class ServiceFragment extends Fragment {
 
     private RecyclerView mRecyclerView;
     private GridLayoutManager mGridLayoutManager;

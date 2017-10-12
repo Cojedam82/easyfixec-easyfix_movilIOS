@@ -1,24 +1,23 @@
 package com.easyfixapp.easyfix.activities;
 
-import android.content.Intent;
+import android.content.Context;
 import android.support.design.widget.TabLayout;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.TableLayout;
 import android.widget.TextView;
 
 import com.easyfixapp.easyfix.R;
 import com.easyfixapp.easyfix.adapters.MenuAdapter;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -29,10 +28,10 @@ public class MainActivity extends AppCompatActivity {
     private TextView mTitleView;
 
     private int[] arr_text = new int[]{
-            R.string.tab_menu_search,
-            R.string.tab_menu_agenda,
-            R.string.tab_menu_record,
-            R.string.tab_menu_configuration
+            R.string.tab_menu_service,
+            R.string.tab_menu_notifications,
+            R.string.tab_menu_account,
+            R.string.tab_menu_setting
     };
 
     private int[] arr_drawable = new int[]{
@@ -99,6 +98,11 @@ public class MainActivity extends AppCompatActivity {
         populateTabsMenu();
     }
 
+    @Override
+    protected void attachBaseContext(Context context) {
+        super.attachBaseContext(CalligraphyContextWrapper.wrap(context));
+    }
+
     void populateTabsMenu(){
 
         for (int i = 0; i < mTabLayout.getTabCount(); i++) {
@@ -108,6 +112,7 @@ public class MainActivity extends AppCompatActivity {
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.MATCH_PARENT));
             linearLayout.setOrientation(LinearLayout.VERTICAL);
+
 
             ImageView imageView = new ImageView(getApplicationContext());
             imageView.setImageResource(arr_drawable[i]);

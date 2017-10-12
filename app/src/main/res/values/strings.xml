@@ -67,10 +67,10 @@
 
 
     <!-- Strings related to tab menus -->
-    <string name="tab_menu_search">Búsqueda</string>
-    <string name="tab_menu_agenda">Agenda</string>
-    <string name="tab_menu_record">Historial</string>
-    <string name="tab_menu_configuration">Configuración</string>
+    <string name="tab_menu_service">Servicio</string>
+    <string name="tab_menu_notifications">Notificaciones</string>
+    <string name="tab_menu_account">Mi Cuenta</string>
+    <string name="tab_menu_setting">Configuración</string>
 
 
 

@@ -29,8 +29,8 @@ public class Util {
     /**
      * URL
      **/
-    public static final String BASE_URL = "http://192.168.0.103:9999/";
-    public static final String API_URL = "http://192.168.0.103:9999/api/v1/";
+    public static final String BASE_URL = "http://206.225.95.194:8000/";
+    public static final String API_URL = "http://206.225.95.194:8000/api/v1/";
 
 
     /**

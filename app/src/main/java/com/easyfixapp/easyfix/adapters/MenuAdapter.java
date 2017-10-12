@@ -5,10 +5,10 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
-import com.easyfixapp.easyfix.fragments.AgendaFragment;
-import com.easyfixapp.easyfix.fragments.SearchFragment;
-import com.easyfixapp.easyfix.fragments.ConfigurationFragment;
-import com.easyfixapp.easyfix.fragments.RecordFragment;
+import com.easyfixapp.easyfix.fragments.NotificationFragment;
+import com.easyfixapp.easyfix.fragments.ServiceFragment;
+import com.easyfixapp.easyfix.fragments.SettingFragment;
+import com.easyfixapp.easyfix.fragments.AccountFragment;
 
 /**
  * Created by julio on 08/06/17.
@@ -31,13 +31,13 @@ public class MenuAdapter extends FragmentPagerAdapter {
 
         switch (position) {
             case 0:
-                return new SearchFragment();
+                return new ServiceFragment();
             case 1:
-                return new AgendaFragment();
+                return new NotificationFragment();
             case 2:
-                return new RecordFragment();
+                return new AccountFragment();
             case 3:
-                return new ConfigurationFragment();
+                return new SettingFragment();
             default:
                 return null;
         }

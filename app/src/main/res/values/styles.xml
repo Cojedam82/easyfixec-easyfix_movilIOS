@@ -1,15 +1,8 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light">
-        <!-- Customize your theme here. -->
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
-        <item name="android:editTextColor">@color/colorAccent</item>
-        <item name="android:textColorPrimary">@color/textColorPrimary</item>
+    <style name="AppTheme" parent="AppTheme.NoActionBar">
     </style>
-
 
     <style name="AppTheme.NoActionBar" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="android:windowNoTitle">true</item>
@@ -20,6 +13,11 @@
         <item name="colorAccent">@color/colorAccent</item>
         <item name="android:editTextColor">@color/colorAccent</item>
         <item name="android:textColorPrimary">@color/textColorPrimary</item>
+    </style>
+
+    <style name="TabLayout" parent="@android:style/TextAppearance.Widget.TabWidget">
+        <item name="textAllCaps">false</item>
+        <item name="android:textSize">16sp</item>
     </style>
 
 </resources>

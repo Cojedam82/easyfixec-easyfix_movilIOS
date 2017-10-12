@@ -12,10 +12,10 @@ import com.easyfixapp.easyfix.R;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class ConfigurationFragment extends Fragment {
+public class SettingFragment extends Fragment {
 
 
-    public ConfigurationFragment() {
+    public SettingFragment() {
         // Required empty public constructor
     }
 

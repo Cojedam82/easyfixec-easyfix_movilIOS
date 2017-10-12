@@ -65,6 +65,7 @@
         android:id="@+id/tab_menu"
         android:layout_width="match_parent"
         android:layout_height="60dp"
+        android:background="@drawable/borde_superior_azul"
         android:padding="0dp"
         app:tabPadding="0dp"
         app:tabIndicatorColor="@android:color/transparent" />

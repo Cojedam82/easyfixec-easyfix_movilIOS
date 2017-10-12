@@ -19,33 +19,25 @@
         android:theme="@style/AppTheme">
 
         <activity
-            android:name=".activities.SplashActivity"
-            android:theme="@style/AppTheme.NoActionBar">
-
+            android:name=".activities.SplashActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-
         </activity>
 
         <activity
-            android:name=".activities.LoginActivity"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:name=".activities.LoginActivity">
         </activity>
 
         <activity
-            android:name=".activities.SignupActivity"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:name=".activities.SignupActivity"/>
 
         <activity
-            android:name=".activities.MainActivity"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:name=".activities.MainActivity">
         </activity>
 
-        <activity android:name=".activities.Menu1" />
-        <activity android:name=".activities.Menu2"></activity>
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="d995fea19637aa88211f84ec1ee41065c5af0a01" />

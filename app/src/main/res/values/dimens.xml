@@ -30,16 +30,16 @@
 
 
     <!-- Tab Menu -->
-    <dimen name="tab_menu_text_size">2.8sp</dimen>
+    <dimen name="tab_menu_text_size">3sp</dimen>
 
 
 
     <!-- Search -->
     <!-- Item -->
-    <dimen name="search_item_margin">10dp</dimen>
+    <dimen name="search_item_margin">5dp</dimen>
     <dimen name="search_item_padding">3dp</dimen>
-    <dimen name="search_item_image_size">60dp</dimen>
-    <dimen name="search_item_text_size">12sp</dimen>
+    <dimen name="search_item_image_size">80dp</dimen>
+    <dimen name="search_item_text_size">13sp</dimen>
 
     <!-- Fragment -->
     <dimen name="search_fragemnt_title_text_size">22sp</dimen>
