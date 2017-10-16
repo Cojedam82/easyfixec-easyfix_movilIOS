@@ -6,33 +6,35 @@
     <dimen name="fragment_horizontal_margin">16dp</dimen>
     <dimen name="fragment_vertical_margin">16dp</dimen>
 
-
-    <!-- Splash Activity -->
-    <dimen name="splash_activity_image_size">250dp</dimen>
-    <dimen name="splash_activity_title_1_text_size">40sp</dimen>
-    <dimen name="splash_activity_title_2_text_size">68sp</dimen>
-
-
+    <dimen name="nav_header_vertical_spacing">16dp</dimen>
+    <dimen name="nav_header_height">160dp</dimen>
 
     <!-- App header main-->
-    <dimen name="app_header_main_image_size">120dp</dimen>
-    <dimen name="app_header_main_name_text_size">18sp</dimen>
-    <dimen name="app_header_main_message_text_size">16sp</dimen>
-
+    <dimen name="app_header_margin">10dp</dimen>
+    <dimen name="app_header_main_image_size">100dp</dimen>
+    <dimen name="app_header_main_name_text_size">22sp</dimen>
+    <dimen name="app_header_main_message_text_size">18sp</dimen>
 
 
     <!-- App Toolbar -->
     <dimen name="app_toolbar_button_menu_vertical_padding">8dp</dimen>
     <dimen name="app_toolbar_button_menu_horizontal_padding">16dp</dimen>
     <dimen name="app_toolbar_button_menu_size">45dp</dimen>
-    <dimen name="app_toolbar_tile_text_size">20sp</dimen>
-
+    <dimen name="app_toolbar_tile_text_size">22sp</dimen>
 
 
     <!-- Tab Menu -->
     <dimen name="tab_menu_text_size">3sp</dimen>
 
+    <!-- Splash Activity -->
+    <dimen name="splash_activity_image_size">250dp</dimen>
+    <dimen name="splash_activity_title_text_size">48sp</dimen>
 
+    <!-- Auth Activity -->
+    <dimen name="auth_activity_extra_margin">16dp</dimen>
+    <dimen name="auth_activity_regular_margin">10dp</dimen>
+    <dimen name="auth_activity_action">20sp</dimen>
+    <dimen name="auth_activity_input">16sp</dimen>
 
     <!-- Search -->
     <!-- Item -->
@@ -46,8 +48,6 @@
     <dimen name="search_fragment_title_margin">40dp</dimen>
     <dimen name="search_fragment_list_margin">20dp</dimen>
     <dimen name="search_fragment_list_padding">10dp</dimen>
-
-
 
     <!-- Agenda -->
     <!-- Item -->

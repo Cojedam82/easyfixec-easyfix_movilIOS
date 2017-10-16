@@ -1,44 +1,65 @@
 package com.easyfixapp.easyfix.activities;
 
 import android.content.Context;
-import android.support.design.widget.TabLayout;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.view.ViewPager;
-import android.support.v7.app.AppCompatActivity;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
-import android.view.Gravity;
+import android.support.annotation.NonNull;
+import android.support.design.widget.BottomNavigationView;
+import android.support.design.widget.NavigationView;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.view.ViewPager;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
+import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.easyfixapp.easyfix.R;
-import com.easyfixapp.easyfix.adapters.MenuAdapter;
+import com.easyfixapp.easyfix.adapters.ViewPagerAdapter;
+import com.easyfixapp.easyfix.util.SessionManager;
+import com.easyfixapp.easyfix.util.Util;
+import com.easyfixapp.easyfix.widget.CustomViewPager;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity
+        implements NavigationView.OnNavigationItemSelectedListener {
 
-    private TabLayout mTabLayout;
-    private ViewPager mViewPager;
-    private MenuAdapter mViewPagerAdapter;
-    private CircleImageView mMenuProfileView, mMenuInfoView;
+    private CustomViewPager mViewPager;
+    private ViewPagerAdapter mViewPagerAdapter;
+    private CircleImageView mMenuProfileView, mMenuSettingView;
     private TextView mTitleView;
+    private MenuItem prevMenuItem;
+    private BottomNavigationView bottomNavigationView;
 
-    private int[] arr_text = new int[]{
-            R.string.tab_menu_service,
-            R.string.tab_menu_notifications,
-            R.string.tab_menu_account,
-            R.string.tab_menu_setting
-    };
+    private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
+            = new BottomNavigationView.OnNavigationItemSelectedListener() {
 
-    private int[] arr_drawable = new int[]{
-            R.drawable.ic_menu_search,
-            R.drawable.ic_menu_agenda,
-            R.drawable.ic_menu_record,
-            R.drawable.ic_menu_configuration
+        @Override
+        public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+            String title = item.getTitle().toString();
+            switch (item.getItemId()) {
+                case R.id.navigation_service:
+                    mViewPager.setCurrentItem(0);
+                    mTitleView.setText(title);
+                    return true;
+                case R.id.navigation_notification:
+                    mViewPager.setCurrentItem(1);
+                    mTitleView.setText(title);
+                    return true;
+                case R.id.navigation_account:
+                    mViewPager.setCurrentItem(2);
+                    mTitleView.setText(title);
+                    return true;
+            }
+            return false;
+        }
+
     };
 
     @Override
@@ -46,56 +67,60 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity);
 
-        mTabLayout = (TabLayout) findViewById(R.id.tab_menu);
-        mViewPager = (ViewPager) findViewById(R.id.view_pager);
+        mViewPager = (CustomViewPager) findViewById(R.id.view_pager);
         mMenuProfileView = (CircleImageView) findViewById(R.id.img_menu_profile);
-        mMenuInfoView = (CircleImageView) findViewById(R.id.img_menu_info);
+        mMenuSettingView = (CircleImageView) findViewById(R.id.img_menu_setting);
         mTitleView = (TextView) findViewById(R.id.txt_toolbar_title);
 
-        /* Adding tabs */
-        mTabLayout.addTab(mTabLayout.newTab());
-        mTabLayout.addTab(mTabLayout.newTab());
-        mTabLayout.addTab(mTabLayout.newTab());
-        mTabLayout.addTab(mTabLayout.newTab());
+
+        /* Settings */
+        mMenuSettingView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // open right drawer
+                DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+                drawer.openDrawer(GravityCompat.END);
+            }
+        });
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
+        addNavigationAction(navigationView);
+
+        /* Menu */
+        bottomNavigationView = (BottomNavigationView) findViewById(R.id.bottom_navigation);
+        bottomNavigationView.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+        bottomNavigationView.setSelectedItemId(R.id.navigation_service);
 
         /* View Pager */
-        mViewPagerAdapter = new MenuAdapter(getSupportFragmentManager(),
-                getApplicationContext(), 4);
+        mViewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager(),
+                getApplicationContext(), bottomNavigationView.getMenu().size());
         mViewPager.setAdapter(mViewPagerAdapter);
-
-        /* Action Tabs */
-        mTabLayout.setupWithViewPager(mViewPager);
-        mTabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+        mViewPager.setPagingEnabled(false);
+        mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
-            public void onTabSelected(TabLayout.Tab tab) {
-                LinearLayout linearLayout = (LinearLayout) tab.getCustomView();
-
-                ImageView imageView = (ImageView) linearLayout.getChildAt(0);
-                imageView.setColorFilter(ContextCompat.getColor(getApplicationContext(),R.color.colorPrimary));
-
-                TextView textView = (TextView) linearLayout.getChildAt(1);
-                textView.setTextColor(getResources().getColor(R.color.colorPrimary));
-
-                mTitleView.setText(arr_text[tab.getPosition()]);
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
 
             }
 
             @Override
-            public void onTabUnselected(TabLayout.Tab tab) {
-                LinearLayout linearLayout = (LinearLayout) tab.getCustomView();
+            public void onPageSelected(int position) {
+                if (prevMenuItem != null) {
+                    prevMenuItem.setChecked(false);
+                } else {
+                    bottomNavigationView.getMenu().getItem(0).setChecked(false);
+                }
+                Log.d("Menu Tab", "onPageSelected: "+position);
+                bottomNavigationView.getMenu().getItem(position).setChecked(true);
+                prevMenuItem = bottomNavigationView.getMenu().getItem(position);
 
-                ImageView imageView = (ImageView) linearLayout.getChildAt(0);
-                imageView.setColorFilter(ContextCompat.getColor(getApplicationContext(),R.color.blackOverlayDark));
-
-                TextView textView = (TextView) linearLayout.getChildAt(1);
-                textView.setTextColor(getResources().getColor(R.color.blackOverlayDark));
             }
 
             @Override
-            public void onTabReselected(TabLayout.Tab tab) {}
+            public void onPageScrollStateChanged(int state) {
+
+            }
         });
 
-        populateTabsMenu();
     }
 
     @Override
@@ -103,38 +128,70 @@ public class MainActivity extends AppCompatActivity {
         super.attachBaseContext(CalligraphyContextWrapper.wrap(context));
     }
 
-    void populateTabsMenu(){
 
-        for (int i = 0; i < mTabLayout.getTabCount(); i++) {
+    @Override
+    public void onBackPressed() {
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        if (drawer.isDrawerOpen(GravityCompat.END)) {
+            drawer.closeDrawer(GravityCompat.END);
+        } else {
+            super.onBackPressed();
+        }
+    }
 
-            LinearLayout linearLayout = new LinearLayout(getApplicationContext());
-            linearLayout.setLayoutParams(new ViewGroup.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.MATCH_PARENT));
-            linearLayout.setOrientation(LinearLayout.VERTICAL);
+    @SuppressWarnings("StatementWithEmptyBody")
+    @Override
+    public boolean onNavigationItemSelected(MenuItem item) {
+        // Handle navigation view item clicks here.
+        int id = item.getItemId();
 
+        if (id == R.id.nav_policies) {
+            // Handle the camera action
+        } else if (id == R.id.nav_terms) {
 
-            ImageView imageView = new ImageView(getApplicationContext());
-            imageView.setImageResource(arr_drawable[i]);
-            imageView.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
-            imageView.setColorFilter(
-                    ContextCompat.getColor(getApplicationContext(),
-                            i==0?R.color.colorPrimary:R.color.blackOverlayDark));
+        } else if (id == R.id.nav_help) {
 
-            TextView textView = new TextView(getApplicationContext());
-            textView.setAllCaps(true);
-            textView.setText(getResources().getString(arr_text[i]));
-            textView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
-            textView.setTextSize(getResources().getDimension(R.dimen.tab_menu_text_size));
-            textView.setTextColor(getResources().getColor(i==0?R.color.colorPrimary:R.color.blackOverlayDark));
-
-            linearLayout.addView(imageView);
-            linearLayout.addView(textView);
-            linearLayout.setGravity(Gravity.CENTER);
-
-            mTabLayout.getTabAt(i).setCustomView(linearLayout);
+        } else if (id == R.id.nav_logout) {
+            logout();
         }
 
-        mTitleView.setText(arr_text[0]);
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawer.closeDrawer(GravityCompat.END);
+        return true;
+    }
+
+    private void addNavigationAction(NavigationView navigationView) {
+        for (int i=0; i<navigationView.getMenu().size(); i++)
+            navigationView.getMenu().getItem(i).setActionView(R.layout.horizontal_arrow);
+    }
+
+    /**
+     *
+     * Settings Actions
+     *
+     **/
+    private void logout(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this, R.style.AlertDialog);
+        builder.setMessage(R.string.message_logout_dialog)
+                .setPositiveButton(R.string.message_dialog_yes, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+
+                        // Clean preferences
+                        SessionManager sessionManager = new SessionManager(getApplicationContext());
+                        sessionManager.clear();
+
+                        Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+                        startActivity(intent);
+                        finish();
+
+                        Util.longToast(getApplicationContext(), getString(R.string.message_logout));
+                    }
+                })
+                .setNegativeButton(R.string.message_dialog_no, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                    }
+                });
+
+        builder.show();
     }
 }

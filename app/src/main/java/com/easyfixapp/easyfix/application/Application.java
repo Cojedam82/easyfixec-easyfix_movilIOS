@@ -1,5 +1,8 @@
 package com.easyfixapp.easyfix.application;
 
+import android.content.Context;
+import android.support.multidex.MultiDex;
+
 import com.crashlytics.android.Crashlytics;
 import com.easyfixapp.easyfix.R;
 
@@ -26,5 +29,12 @@ public class Application extends android.app.Application{
                 .build()
         );
     }
+
+    @Override
+    protected void attachBaseContext(Context base) {
+        super.attachBaseContext(base);
+        MultiDex.install(this);
+    }
+
 
 }

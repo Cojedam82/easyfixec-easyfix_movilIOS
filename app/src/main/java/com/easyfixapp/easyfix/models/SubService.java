@@ -2,8 +2,6 @@ package com.easyfixapp.easyfix.models;
 
 import com.google.gson.annotations.SerializedName;
 
-import java.util.List;
-
 /**
  * Created by cristian on 30/05/17.
  */

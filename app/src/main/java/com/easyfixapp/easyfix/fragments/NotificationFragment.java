@@ -1,25 +1,17 @@
 package com.easyfixapp.easyfix.fragments;
 
 
-import android.content.Context;
-import android.graphics.Color;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.TextView;
 
 import com.easyfixapp.easyfix.R;
 import com.easyfixapp.easyfix.adapters.AgendaAdapter;
 import com.easyfixapp.easyfix.models.Reservation;
-import com.easyfixapp.easyfix.models.Service;
 import com.easyfixapp.easyfix.util.ApiService;
 import com.easyfixapp.easyfix.util.ServiceGenerator;
 import com.easyfixapp.easyfix.util.SessionManager;
@@ -27,7 +19,6 @@ import com.easyfixapp.easyfix.util.Util;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -46,7 +37,7 @@ public class NotificationFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View rootview = inflater.inflate(R.layout.agenda_fragment, container, false);
+        View rootview = inflater.inflate(R.layout.notification_fragment, container, false);
 
 
         mAgendaAdapter = new AgendaAdapter(getActivity().getApplicationContext(), mReservationList);
@@ -72,7 +63,7 @@ public class NotificationFragment extends Fragment {
 
     /** Fetch reservations **/
     private void reservationTask(){
-        Util.showLoading(getActivity(), getString(R.string.message_reservation_agenda_request));
+        Util.showLoading(getActivity(), getString(R.string.message_notification_request));
 
         SessionManager sessionManager = new SessionManager(getContext());
         ApiService apiService = ServiceGenerator.createApiService();

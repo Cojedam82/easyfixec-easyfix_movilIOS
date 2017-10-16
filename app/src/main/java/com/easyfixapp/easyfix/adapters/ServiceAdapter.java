@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.RequestOptions;
 import com.easyfixapp.easyfix.R;
 import com.easyfixapp.easyfix.models.Service;
 
@@ -25,6 +26,10 @@ public class ServiceAdapter extends RecyclerView.Adapter<ServiceAdapter.ServiceV
 
     private List<Service> mServiceList;
     private Context mContext;
+    private RequestOptions options = new RequestOptions()
+            .error(R.drawable.logo)
+            .placeholder(R.drawable.logo)
+            .diskCacheStrategy(DiskCacheStrategy.ALL);
 
     public ServiceAdapter(Context context, List<Service> serviceList) {
         this.mServiceList = serviceList;
@@ -77,10 +82,7 @@ public class ServiceAdapter extends RecyclerView.Adapter<ServiceAdapter.ServiceV
         CircleImageView mServiceImageView = serviceHolder.mServiceImageView;
         Glide.with(getContext())
                 .load(mService.getImage())
-                .dontAnimate()
-                .error(R.drawable.logo)
-                .placeholder(R.drawable.logo)
-                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .apply(options)
                 .into(mServiceImageView);
 
         // Set service name

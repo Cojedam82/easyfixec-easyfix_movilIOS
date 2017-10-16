@@ -8,11 +8,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.RequestOptions;
 import com.easyfixapp.easyfix.R;
 import com.easyfixapp.easyfix.models.Reservation;
 import com.easyfixapp.easyfix.models.Service;
@@ -20,7 +20,6 @@ import com.easyfixapp.easyfix.models.User;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Random;
@@ -34,6 +33,10 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class AgendaAdapter extends ArrayAdapter<Reservation> {
     private List<Reservation> mReservationList;
     private Context mContext;
+    private RequestOptions options = new RequestOptions()
+            .error(R.drawable.logo)
+            .placeholder(R.drawable.logo)
+            .diskCacheStrategy(DiskCacheStrategy.ALL);
 
     public AgendaAdapter(Context context, List<Reservation> reservationList) {
         super(context, -1, reservationList);
@@ -51,7 +54,7 @@ public class AgendaAdapter extends ArrayAdapter<Reservation> {
 
         View rowView = LayoutInflater
                 .from(getContext())
-                .inflate(R.layout.agenda_item, parent, false);
+                .inflate(R.layout.notification_item, parent, false);
 
         Reservation mReservation = mReservationList.get(position);
         Service mService = mReservation.getService();
@@ -61,10 +64,7 @@ public class AgendaAdapter extends ArrayAdapter<Reservation> {
         CircleImageView mProviderImageView = (CircleImageView) rowView.findViewById(R.id.img_provider);
         Glide.with(getContext())
                 .load(mProvider.getProfile().getImage())
-                .dontAnimate()
-                .error(R.drawable.logo)
-                .placeholder(R.drawable.logo)
-                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .apply(options)
                 .into(mProviderImageView);
 
         TextView nameView = (TextView) rowView.findViewById(R.id.txt_provider_name);

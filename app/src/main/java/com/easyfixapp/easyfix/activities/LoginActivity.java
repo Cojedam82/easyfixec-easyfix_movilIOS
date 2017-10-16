@@ -2,6 +2,7 @@ package com.easyfixapp.easyfix.activities;
 
 import android.annotation.TargetApi;
 import android.app.LoaderManager.LoaderCallbacks;
+import android.content.Context;
 import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.Loader;
@@ -40,6 +41,7 @@ import java.util.Map;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 import static android.Manifest.permission.READ_CONTACTS;
 
@@ -82,6 +84,11 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 return false;
             }
         });
+    }
+
+    @Override
+    protected void attachBaseContext(Context context) {
+        super.attachBaseContext(CalligraphyContextWrapper.wrap(context));
     }
 
     private void populateAutoComplete() {
@@ -248,7 +255,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         // Init Signup
         Intent intent = new Intent(LoginActivity.this, SignupActivity.class);
         startActivity(intent);
-        finish();
+        //finish();
     }
 
     /**

@@ -26,10 +26,14 @@
 
             <include layout="@layout/app_header_main" ></include>
 
-            <android.support.design.widget.TextInputLayout
+            <View
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp">
+                android:layout_margin="@dimen/auth_activity_extra_margin"/>
+
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
 
                 <AutoCompleteTextView
                     android:id="@+id/email"
@@ -39,7 +43,8 @@
                     android:imeOptions="actionNext"
                     android:inputType="textEmailAddress"
                     android:maxLines="1"
-                    android:singleLine="true" />
+                    android:singleLine="true"
+                    android:textSize="@dimen/auth_activity_input"/>
 
             </android.support.design.widget.TextInputLayout>
 
@@ -56,7 +61,8 @@
                     android:imeOptions="actionDone"
                     android:inputType="textPassword"
                     android:maxLines="1"
-                    android:singleLine="true" />
+                    android:singleLine="true"
+                    android:textSize="@dimen/auth_activity_input"/>
 
             </android.support.design.widget.TextInputLayout>
 
@@ -65,18 +71,19 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:text="@string/prompt_sign_up"
-                android:layout_marginTop="16dp"
-                android:onClick="signup"/>
+                android:layout_marginTop="@dimen/auth_activity_extra_margin"
+                android:onClick="signup"
+                android:textSize="@dimen/auth_activity_action"/>
 
             <Button
                 android:id="@+id/email_sign_in_button"
                 style="?android:textAppearanceSmall"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:background="@android:color/holo_blue_dark"
+                android:layout_marginTop="@dimen/auth_activity_extra_margin"
+                android:background="@color/colorPrimaryDark"
                 android:text="@string/action_sign_in"
-                android:textSize="16sp"
+                android:textSize="@dimen/auth_activity_action"
                 android:textColor="@color/white"
                 android:textAllCaps="false"
                 android:onClick="attemptLogin"/>
@@ -84,8 +91,10 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/auth_activity_regular_margin"
                 android:gravity="center"
-                android:text="@string/prompt_recovery"/>
+                android:text="@string/prompt_recovery"
+                android:textSize="@dimen/auth_activity_action"/>
 
         </LinearLayout>
     </ScrollView>

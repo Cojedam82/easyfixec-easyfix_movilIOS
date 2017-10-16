@@ -5,21 +5,21 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
+import com.easyfixapp.easyfix.fragments.AccountFragment;
 import com.easyfixapp.easyfix.fragments.NotificationFragment;
 import com.easyfixapp.easyfix.fragments.ServiceFragment;
 import com.easyfixapp.easyfix.fragments.SettingFragment;
-import com.easyfixapp.easyfix.fragments.AccountFragment;
 
 /**
  * Created by julio on 08/06/17.
  */
 
-public class MenuAdapter extends FragmentPagerAdapter {
+public class ViewPagerAdapter extends FragmentPagerAdapter {
     int tabCount;
     Context mContext;
 
 
-    public MenuAdapter(FragmentManager fm, Context context, int tabCount) {
+    public ViewPagerAdapter(FragmentManager fm, Context context, int tabCount) {
         super(fm);
         this.tabCount = tabCount;
         this.mContext = context;

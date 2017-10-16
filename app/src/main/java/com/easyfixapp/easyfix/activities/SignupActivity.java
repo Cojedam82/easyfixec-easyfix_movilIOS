@@ -1,5 +1,6 @@
 package com.easyfixapp.easyfix.activities;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -9,10 +10,7 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
-import android.widget.Button;
 import android.widget.EditText;
-import android.widget.RadioButton;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -20,22 +18,22 @@ import com.easyfixapp.easyfix.R;
 import com.easyfixapp.easyfix.models.AuthResponse;
 import com.easyfixapp.easyfix.models.Profile;
 import com.easyfixapp.easyfix.models.User;
-import com.easyfixapp.easyfix.util.ApiService;
 import com.easyfixapp.easyfix.util.AuthService;
 import com.easyfixapp.easyfix.util.ServiceGenerator;
-import com.easyfixapp.easyfix.util.SessionManager;
 import com.easyfixapp.easyfix.util.Util;
 import com.hbb20.CountryCodePicker;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 
 public class SignupActivity extends AppCompatActivity {
 
     private EditText mFirstNameView, mLastNameView, mEmailView, mPasswordView, mPhoneNumberView;
     private CountryCodePicker mPhoneCodeView;
+    private TextView mCountryView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,10 +44,9 @@ public class SignupActivity extends AppCompatActivity {
         mLastNameView = (EditText) findViewById(R.id.txt_last_name);
         mEmailView = (EditText) findViewById(R.id.txt_email);
         mPasswordView = (EditText) findViewById(R.id.txt_password);
+        mCountryView = (TextView) findViewById(R.id.txt_country);
 
         mPhoneNumberView = (EditText) findViewById(R.id.txt_phone_number);
-        mPhoneCodeView = (CountryCodePicker) findViewById(R.id.txt_phone_code);
-        mPhoneCodeView.registerCarrierNumberEditText(mPhoneNumberView);
         mPhoneNumberView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
@@ -62,9 +59,23 @@ public class SignupActivity extends AppCompatActivity {
             }
         });
 
+        mPhoneCodeView = (CountryCodePicker) findViewById(R.id.txt_phone_code);
+        mPhoneCodeView.registerCarrierNumberEditText(mPhoneNumberView);
+        mCountryView.setText(mPhoneCodeView.getDefaultCountryName());
+        mPhoneCodeView.setOnCountryChangeListener(new CountryCodePicker.OnCountryChangeListener() {
+            @Override
+            public void onCountrySelected() {
+                mCountryView.setText(mPhoneCodeView.getSelectedCountryName());
+            }
+        });
+
         populateInformation();
     }
 
+    @Override
+    protected void attachBaseContext(Context context) {
+        super.attachBaseContext(CalligraphyContextWrapper.wrap(context));
+    }
 
     /**
      * Fill Information
@@ -204,8 +215,8 @@ public class SignupActivity extends AppCompatActivity {
                         Util.longToast(getApplicationContext(), userResponse.getMsg());
 
                         // Init Login
-                        Intent intent = new Intent(SignupActivity.this, LoginActivity.class);
-                        startActivity(intent);
+                        //Intent intent = new Intent(SignupActivity.this, LoginActivity.class);
+                        //startActivity(intent);
                         finish();
 
                     } else {

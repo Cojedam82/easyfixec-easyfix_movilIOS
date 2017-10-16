@@ -14,35 +14,36 @@
     android:gravity="center"
     android:background="@color/white">
 
+    <include
+        android:id="@+id/ly_app_header_main"
+        layout="@layout/app_header_main" ></include>
+
     <ScrollView
         android:id="@+id/scroll_form"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_below="@+id/ly_app_header_main"
         android:layout_above="@+id/btn_signup"
         android:scrollbars="none">
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:orientation="vertical"
             android:gravity="center">
-
-            <include layout="@layout/app_header_main" ></include>
 
             <EditText
                 android:id="@+id/txt_first_name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
                 android:gravity="center_vertical"
                 android:drawableStart="@android:drawable/ic_menu_camera"
-                android:drawablePadding="10dp"
+                android:drawablePadding="@dimen/auth_activity_regular_margin"
                 android:inputType="textCapWords|textPersonName"
-                android:textColor="@color/black"
-                android:textColorHint="@color/black_35"
                 android:hint="@string/prompt_first_name"
                 android:ellipsize="start"
-                android:singleLine="true" />
+                android:maxLines="1"
+                android:textSize="@dimen/auth_activity_input" />
 
             <EditText
                 android:id="@+id/txt_last_name"
@@ -50,13 +51,12 @@
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
                 android:drawableStart="@android:drawable/ic_menu_camera"
-                android:drawablePadding="10dp"
+                android:drawablePadding="@dimen/auth_activity_regular_margin"
                 android:inputType="textCapWords|textPersonName"
-                android:textColor="@color/black"
-                android:textColorHint="@color/black_35"
                 android:hint="@string/prompt_last_name"
                 android:ellipsize="start"
-                android:singleLine="true" />
+                android:maxLines="1"
+                android:textSize="@dimen/auth_activity_input"/>
 
             <EditText
                 android:id="@+id/txt_email"
@@ -64,13 +64,12 @@
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
                 android:drawableStart="@android:drawable/ic_menu_camera"
-                android:drawablePadding="10dp"
+                android:drawablePadding="@dimen/auth_activity_regular_margin"
                 android:inputType="textEmailAddress"
-                android:textColor="@color/black"
-                android:textColorHint="@color/black_35"
                 android:hint="@string/prompt_email"
                 android:ellipsize="start"
-                android:maxLines="1" />
+                android:maxLines="1"
+                android:textSize="@dimen/auth_activity_input"/>
 
             <EditText
                 android:id="@+id/txt_password"
@@ -78,37 +77,83 @@
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
                 android:drawableStart="@android:drawable/ic_menu_camera"
-                android:drawablePadding="10dp"
+                android:drawablePadding="@dimen/auth_activity_regular_margin"
                 android:inputType="textPassword"
-                android:textColor="@color/black"
-                android:textColorHint="@color/black_35"
                 android:hint="@string/prompt_password"
                 android:ellipsize="start"
-                android:maxLines="1" />
+                android:maxLines="1"
+                android:textSize="@dimen/auth_activity_input"/>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center_vertical">
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
 
-                <com.hbb20.CountryCodePicker
-                    android:id="@+id/txt_phone_code"
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    app:defaultNameCode="EC"
-                    app:ccpLanguage="SPANISH"
-                    app:textSize="16sp" />
+                    android:layout_weight=".3"
+                    android:gravity="center_vertical"
+                    android:background="@drawable/input_border_bottom"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="5dp"
+                        android:src="@android:drawable/ic_menu_camera" />
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:gravity="center">
+
+                        <TextView
+                            android:id="@+id/txt_country"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="18sp"
+                            android:ellipsize="end"
+                            android:maxLines="1"
+                            android:maxLength="7"
+                            tools:text="Ecuador"/>
+
+                        <com.hbb20.CountryCodePicker
+                            android:id="@+id/txt_phone_code"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:paddingTop="10dp"
+                            app:ccp_arrowSize="20dp"
+                            app:ccp_showFlag="false"
+                            app:ccp_showNameCode="true"
+                            app:ccp_defaultNameCode="EC"
+                            app:ccp_defaultLanguage="SPANISH"
+                            app:ccp_textSize="@dimen/auth_activity_input" />
+
+                    </RelativeLayout>
+
+                </LinearLayout>
+
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="match_parent"/>
 
                 <EditText
                     android:id="@+id/txt_phone_number"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight=".7"
+                    android:paddingTop="21dp"
+                    android:paddingBottom="22dp"
                     android:hint="@string/prompt_phone"
                     android:imeOptions="actionDone"
                     android:inputType="phone"
+                    android:maxLength="10"
                     android:maxLines="1"
-                    android:singleLine="true"
-                    android:maxLength="10"/>
+                    android:textSize="@dimen/auth_activity_input"/>
+
             </LinearLayout>
 
         </LinearLayout>
@@ -118,12 +163,12 @@
         android:id="@+id/btn_signup"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="@dimen/auth_activity_extra_margin"
         android:layout_above="@+id/txt_login"
         android:gravity="center"
         android:text="@string/action_sign_up"
-        android:background="@android:color/holo_blue_dark"
-        android:textSize="16sp"
+        android:background="@color/colorPrimaryDark"
+        android:textSize="@dimen/auth_activity_action"
         android:textColor="@color/white"
         android:textAllCaps="false"
         android:onClick="attemptSignUp"/>
@@ -132,17 +177,18 @@
         android:id="@+id/txt_login"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="@dimen/auth_activity_regular_margin"
         android:layout_above="@+id/txt_legacy"
         android:gravity="center"
         android:text="@string/prompt_log_in"
+        android:textSize="@dimen/auth_activity_action"
         android:onClick="login"/>
 
     <TextView
         android:id="@+id/txt_legacy"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="@dimen/auth_activity_extra_margin"
         android:layout_alignParentBottom="true"
         android:gravity="center"
         android:text="@string/prompt_legacy"/>

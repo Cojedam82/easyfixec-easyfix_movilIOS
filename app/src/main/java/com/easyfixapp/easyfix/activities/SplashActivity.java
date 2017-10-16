@@ -1,14 +1,15 @@
 package com.easyfixapp.easyfix.activities;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
-import android.text.TextUtils;
 
 import com.easyfixapp.easyfix.R;
-import com.easyfixapp.easyfix.models.User;
 import com.easyfixapp.easyfix.util.SessionManager;
+
+import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 public class SplashActivity extends AppCompatActivity {
 
@@ -22,6 +23,11 @@ public class SplashActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         initialize();
+    }
+
+    @Override
+    protected void attachBaseContext(Context context) {
+        super.attachBaseContext(CalligraphyContextWrapper.wrap(context));
     }
 
 
