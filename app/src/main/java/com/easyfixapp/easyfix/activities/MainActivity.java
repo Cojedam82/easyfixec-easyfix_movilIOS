@@ -1,126 +1,36 @@
 package com.easyfixapp.easyfix.activities;
 
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.design.widget.BottomNavigationView;
-import android.support.design.widget.NavigationView;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.view.ViewPager;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.AlertDialog;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
-import android.view.MenuItem;
-import android.view.MotionEvent;
-import android.view.View;
-import android.widget.TextView;
 
 import com.easyfixapp.easyfix.R;
-import com.easyfixapp.easyfix.adapters.ViewPagerAdapter;
-import com.easyfixapp.easyfix.util.SessionManager;
-import com.easyfixapp.easyfix.util.Util;
-import com.easyfixapp.easyfix.widget.CustomViewPager;
+import com.easyfixapp.easyfix.fragments.MenuFragment;
 
-import de.hdodenhof.circleimageview.CircleImageView;
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
-public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
 
-    private CustomViewPager mViewPager;
-    private ViewPagerAdapter mViewPagerAdapter;
-    private CircleImageView mMenuProfileView, mMenuSettingView;
-    private TextView mTitleView;
-    private MenuItem prevMenuItem;
-    private BottomNavigationView bottomNavigationView;
+public class MainActivity extends AppCompatActivity {
 
-    private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
-            = new BottomNavigationView.OnNavigationItemSelectedListener() {
-
-        @Override
-        public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-            String title = item.getTitle().toString();
-            switch (item.getItemId()) {
-                case R.id.navigation_service:
-                    mViewPager.setCurrentItem(0);
-                    mTitleView.setText(title);
-                    return true;
-                case R.id.navigation_notification:
-                    mViewPager.setCurrentItem(1);
-                    mTitleView.setText(title);
-                    return true;
-                case R.id.navigation_account:
-                    mViewPager.setCurrentItem(2);
-                    mTitleView.setText(title);
-                    return true;
-            }
-            return false;
-        }
-
-    };
+    private MenuFragment mMenuFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.main_activity);
+        setContentView(R.layout.activity_main);
 
-        mViewPager = (CustomViewPager) findViewById(R.id.view_pager);
-        mMenuProfileView = (CircleImageView) findViewById(R.id.img_menu_profile);
-        mMenuSettingView = (CircleImageView) findViewById(R.id.img_menu_setting);
-        mTitleView = (TextView) findViewById(R.id.txt_toolbar_title);
+        if (savedInstanceState == null) {
+            // withholding the previously created fragment from being created again
+            // On orientation change, it will prevent fragment recreation
+            // its necessary to reserving the fragment stack inside each tab
+            initScreen();
 
-
-        /* Settings */
-        mMenuSettingView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // open right drawer
-                DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-                drawer.openDrawer(GravityCompat.END);
-            }
-        });
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
-        addNavigationAction(navigationView);
-
-        /* Menu */
-        bottomNavigationView = (BottomNavigationView) findViewById(R.id.bottom_navigation);
-        bottomNavigationView.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
-        bottomNavigationView.setSelectedItemId(R.id.navigation_service);
-
-        /* View Pager */
-        mViewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager(),
-                getApplicationContext(), bottomNavigationView.getMenu().size());
-        mViewPager.setAdapter(mViewPagerAdapter);
-        mViewPager.setPagingEnabled(false);
-        mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-            @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-
-            }
-
-            @Override
-            public void onPageSelected(int position) {
-                if (prevMenuItem != null) {
-                    prevMenuItem.setChecked(false);
-                } else {
-                    bottomNavigationView.getMenu().getItem(0).setChecked(false);
-                }
-                Log.d("Menu Tab", "onPageSelected: "+position);
-                bottomNavigationView.getMenu().getItem(position).setChecked(true);
-                prevMenuItem = bottomNavigationView.getMenu().getItem(position);
-
-            }
-
-            @Override
-            public void onPageScrollStateChanged(int state) {
-
-            }
-        });
-
+        } else {
+            // restoring the previously created fragment
+            // and getting the reference
+            mMenuFragment = (MenuFragment) getSupportFragmentManager().getFragments().get(0);
+        }
     }
 
     @Override
@@ -128,70 +38,40 @@ public class MainActivity extends AppCompatActivity
         super.attachBaseContext(CalligraphyContextWrapper.wrap(context));
     }
 
-
+    /**
+     * Only Activity has this special callback method
+     * Fragment doesn't have any onBackPressed callback
+     *
+     * Logic:
+     * Each time when the back button is pressed, this Activity will propagate the call to the
+     * container Fragment and that Fragment will propagate the call to its each tab Fragment
+     * those Fragments will propagate this method call to their child Fragments and
+     * eventually all the propagated calls will get back to this initial method
+     *
+     * If the container Fragment or any of its Tab Fragments and/or Tab child Fragments couldn't
+     * handle the onBackPressed propagated call then this Activity will handle the callback itself
+     */
     @Override
     public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        if (drawer.isDrawerOpen(GravityCompat.END)) {
-            drawer.closeDrawer(GravityCompat.END);
-        } else {
+
+        if (!mMenuFragment.onBackPressed()) {
+            // container Fragment or its associates couldn't handle the back pressed task
+            // delegating the task to super class
             super.onBackPressed();
+
+        } else {
+            // menu fragment handled the back pressed task
+            // do not call super
         }
     }
 
-    @SuppressWarnings("StatementWithEmptyBody")
-    @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
-        // Handle navigation view item clicks here.
-        int id = item.getItemId();
+    private void initScreen() {
+        // Creating the ViewPager container fragment once
+        mMenuFragment = new MenuFragment();
 
-        if (id == R.id.nav_policies) {
-            // Handle the camera action
-        } else if (id == R.id.nav_terms) {
-
-        } else if (id == R.id.nav_help) {
-
-        } else if (id == R.id.nav_logout) {
-            logout();
-        }
-
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        drawer.closeDrawer(GravityCompat.END);
-        return true;
-    }
-
-    private void addNavigationAction(NavigationView navigationView) {
-        for (int i=0; i<navigationView.getMenu().size(); i++)
-            navigationView.getMenu().getItem(i).setActionView(R.layout.horizontal_arrow);
-    }
-
-    /**
-     *
-     * Settings Actions
-     *
-     **/
-    private void logout(){
-        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this, R.style.AlertDialog);
-        builder.setMessage(R.string.message_logout_dialog)
-                .setPositiveButton(R.string.message_dialog_yes, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-
-                        // Clean preferences
-                        SessionManager sessionManager = new SessionManager(getApplicationContext());
-                        sessionManager.clear();
-
-                        Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-                        startActivity(intent);
-                        finish();
-
-                        Util.longToast(getApplicationContext(), getString(R.string.message_logout));
-                    }
-                })
-                .setNegativeButton(R.string.message_dialog_no, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                    }
-                });
-
-        builder.show();
+        final FragmentManager fragmentManager = getSupportFragmentManager();
+        fragmentManager.beginTransaction()
+                .replace(R.id.container, mMenuFragment)
+                .commit();
     }
 }

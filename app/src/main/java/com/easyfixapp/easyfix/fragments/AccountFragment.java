@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class AccountFragment extends Fragment {
+public class AccountFragment extends RootFragment {
 
     private TabLayout tabLayout;
     private ViewPager viewPager;

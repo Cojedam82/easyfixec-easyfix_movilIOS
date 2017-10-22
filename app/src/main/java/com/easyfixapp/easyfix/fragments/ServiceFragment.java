@@ -29,7 +29,7 @@ import retrofit2.Response;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class ServiceFragment extends Fragment {
+public class ServiceFragment extends RootFragment {
 
     private RecyclerView mRecyclerView;
     private GridLayoutManager mGridLayoutManager;
@@ -37,11 +37,13 @@ public class ServiceFragment extends Fragment {
     private TextView mWelcomeView;
     private List<Service> mServiceList = new ArrayList<>();
 
+    public ServiceFragment(){}
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        View rootview = inflater.inflate(R.layout.search_fragment, container, false);
+        View rootview = inflater.inflate(R.layout.fragment_service, container, false);
 
         mWelcomeView = (TextView) rootview.findViewById(R.id.txt_welcome);
         mRecyclerView = (RecyclerView) rootview.findViewById(R.id.rv_services);

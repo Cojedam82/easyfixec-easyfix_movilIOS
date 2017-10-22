@@ -27,8 +27,8 @@ public class ServiceAdapter extends RecyclerView.Adapter<ServiceAdapter.ServiceV
     private List<Service> mServiceList;
     private Context mContext;
     private RequestOptions options = new RequestOptions()
-            .error(R.drawable.logo)
-            .placeholder(R.drawable.logo)
+            .error(R.drawable.ic_settings)
+            .placeholder(R.drawable.ic_settings)
             .diskCacheStrategy(DiskCacheStrategy.ALL);
 
     public ServiceAdapter(Context context, List<Service> serviceList) {
@@ -65,7 +65,7 @@ public class ServiceAdapter extends RecyclerView.Adapter<ServiceAdapter.ServiceV
 
         // Inflate the custom layout
         View serviceView = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.search_item, parent, false);
+                .inflate(R.layout.service_item, parent, false);
 
         // Return a new holder instance
         ServiceViewHolder serviceViewHolder = new ServiceViewHolder(serviceView);

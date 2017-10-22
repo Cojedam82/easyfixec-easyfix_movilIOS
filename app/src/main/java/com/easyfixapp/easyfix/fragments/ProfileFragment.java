@@ -12,11 +12,9 @@ import com.easyfixapp.easyfix.R;
  * Created by julio on 09/10/17.
  */
 
-public class ProfileFragment extends Fragment{
+public class ProfileFragment extends RootFragment{
 
-    public ProfileFragment() {
-        // Required empty public constructor
-    }
+    public ProfileFragment() {}
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
