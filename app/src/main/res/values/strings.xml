@@ -31,6 +31,12 @@
         completions."
     </string>
 
+    <!-- Strings related to service -->
+    <string name="action_service_detail_now">Ahora</string>
+    <string name="action_service_detail_schedule">Agendar</string>
+    <string name="action_service_detail">Solicitar Técnico</string>
+    <string name="message_service_detail_empty">No se encontro servicio, intente nuevamente</string>
+
 
     <!-- Strings related to service requests -->
     <!-- Loging and Signup-->
@@ -64,7 +70,7 @@
     <string name="message_service_server_empty">No se encontraron registros</string>
     <string name="message_service_server_failed">Hubo problemas, intente nuevamente en unos minutos</string>
 
-    <!-- Strings related to Logout -->
+    <!-- Strings related to logout -->
     <string name="message_logout_dialog">¿Estás seguro de cerrar sesión?</string>
     <string name="message_logout">Sesión cerrada correctamente</string>
 

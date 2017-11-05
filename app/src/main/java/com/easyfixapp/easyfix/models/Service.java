@@ -2,13 +2,14 @@ package com.easyfixapp.easyfix.models;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
  * Created by cristian on 30/05/17.
  */
 
-public class Service {
+public class Service implements Serializable {
     @SerializedName("id")
     private int id;
 
@@ -21,8 +22,11 @@ public class Service {
     @SerializedName("is_parent")
     private boolean isParent;
 
-    @SerializedName("sub_service")
-    private List<SubService> subServiceList;
+    @SerializedName("sub_services")
+    private List<Service> subServiceList;
+
+    @SerializedName("artifacts")
+    private List<Artifact> artifactList;
 
     public int getId() {
         return id;
@@ -56,11 +60,19 @@ public class Service {
         isParent = parent;
     }
 
-    public List<SubService> getSubServiceList() {
+    public List<Service> getSubServiceList() {
         return subServiceList;
     }
 
-    public void setSubServiceList(List<SubService> subServiceList) {
+    public void setSubServiceList(List<Service> subServiceList) {
         this.subServiceList = subServiceList;
+    }
+
+    public List<Artifact> getArtifactList() {
+        return artifactList;
+    }
+
+    public void setArtifactList(List<Artifact> artifactList) {
+        this.artifactList = artifactList;
     }
 }

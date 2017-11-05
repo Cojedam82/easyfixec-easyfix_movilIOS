@@ -28,9 +28,18 @@ public class Util {
     /**
      * URL
      **/
-    public static final String BASE_URL = "http://206.225.95.194:8000/";
-    public static final String API_URL = "http://206.225.95.194:8000/api/v1/";
+    public static final String BASE_URL = "http://206.225.95.194:8000";
+    public static final String API_URL = BASE_URL + "/api/v1/";
 
+    public static final String PRIVACY_POLICIES_URL = "file:///android_asset/htmls/policies.html";
+    public static final String TERMS_URL = "file:///android_asset/htmls/terms.html";
+    public static final String HELP_URL = "file:///android_asset/htmls/help.html";
+
+
+    /**
+     * CONSTANTS
+     **/
+    public static final int MAX_IMAGES_SERVICE = 4;
 
     /**
      * RESULT CODES
@@ -51,8 +60,9 @@ public class Util {
     public static final String TAG_KEY = "SM-KEY";
     public static final String TAG_LOGIN = "SM-LOGIN";
     public static final String TAG_SIGNUP = "SM-SIGNUP";
-    public static final String TAG_SEARCH = "SM-SEARCH";
-    public static final String TAG_AGENDA = "SM-AGENDA";
+    public static final String TAG_SERVICE = "SM-SERVICE";
+    public static final String TAG_NOTIFICATION = "SM-NOTIFICATION";
+    public static final String TAG_SERVICE_DETAIL_IMAGE = "EF-SERVICE-DETAIL-IMAGE";
 
 
     /**

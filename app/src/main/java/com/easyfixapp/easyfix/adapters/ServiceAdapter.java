@@ -1,19 +1,28 @@
 package com.easyfixapp.easyfix.adapters;
 
+import android.app.Activity;
 import android.content.Context;
+import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
 import com.easyfixapp.easyfix.R;
+import com.easyfixapp.easyfix.fragments.RootFragment;
+import com.easyfixapp.easyfix.fragments.ServiceDetailFragment;
+import com.easyfixapp.easyfix.fragments.SubServiceFragment;
 import com.easyfixapp.easyfix.models.Service;
+import com.easyfixapp.easyfix.util.Util;
 
+import java.io.Serializable;
 import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -26,19 +35,20 @@ public class ServiceAdapter extends RecyclerView.Adapter<ServiceAdapter.ServiceV
 
     private List<Service> mServiceList;
     private Context mContext;
-    private RequestOptions options = new RequestOptions()
+    private Fragment mFragment;
+    private RequestOptions mOptions = new RequestOptions()
             .error(R.drawable.ic_settings)
             .placeholder(R.drawable.ic_settings)
             .diskCacheStrategy(DiskCacheStrategy.ALL);
 
-    public ServiceAdapter(Context context, List<Service> serviceList) {
+    public ServiceAdapter(Fragment fragment, Context context, List<Service> serviceList) {
         this.mServiceList = serviceList;
         this.mContext = context;
+        this.mFragment = fragment;
     }
 
-    public static class ServiceViewHolder
-            extends RecyclerView.ViewHolder
-            implements View.OnClickListener{
+    static class ServiceViewHolder
+            extends RecyclerView.ViewHolder{
 
         public CircleImageView mServiceImageView;
         public TextView mNameView;
@@ -49,14 +59,47 @@ public class ServiceAdapter extends RecyclerView.Adapter<ServiceAdapter.ServiceV
             mNameView = (TextView) itemView.findViewById(R.id.txt_name);
         }
 
-        @Override
-        public void onClick(View v) {
-            Log.d("click",v.toString());
-        }
-    }
+        public void bind(final Fragment fragment, RequestOptions options, final Service service) {
+            // Set service image
+            Glide.with(itemView.getContext())
+                    .load(Util.BASE_URL + service.getImage())
+                    .apply(options)
+                    .into(mServiceImageView);
 
-    private Context getContext() {
-        return mContext;
+            // Set service name
+            mNameView.setText(service.getName());
+
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override public void onClick(View v) {
+                    ((RootFragment)fragment).setBackPressedIcon();
+                    List<Service> services = service.getSubServiceList();
+
+                    FragmentTransaction transaction = fragment.
+                            getChildFragmentManager().beginTransaction();
+
+                    // Store the Fragment in stack
+                    transaction.addToBackStack(null);
+
+                    if (services.size() > 0) {
+                        Bundle bundle = new Bundle();
+                        bundle.putSerializable("services", (Serializable) services);
+                        SubServiceFragment mSubServiceFragment = new SubServiceFragment();
+                        mSubServiceFragment.setArguments(bundle);
+                        transaction.replace(R.id.sub_container, mSubServiceFragment);
+
+                    } else {
+                        Bundle bundle = new Bundle();
+                        bundle.putSerializable("service", service);
+                        ServiceDetailFragment mServiceDetailFragment = new ServiceDetailFragment();
+                        mServiceDetailFragment.setArguments(bundle);
+                        transaction.replace(R.id.sub_container, mServiceDetailFragment);
+                    }
+
+                    // commit transaction
+                    transaction.commit();
+                }
+            });
+        }
     }
 
     @Override
@@ -74,20 +117,7 @@ public class ServiceAdapter extends RecyclerView.Adapter<ServiceAdapter.ServiceV
 
     @Override
     public void onBindViewHolder(ServiceViewHolder serviceHolder, int position) {
-
-        // Get element
-        Service mService = mServiceList.get(position);
-
-        // Set service image
-        CircleImageView mServiceImageView = serviceHolder.mServiceImageView;
-        Glide.with(getContext())
-                .load(mService.getImage())
-                .apply(options)
-                .into(mServiceImageView);
-
-        // Set service name
-        TextView mNameView = serviceHolder.mNameView;
-        mNameView.setText(mService.getName());
+        serviceHolder.bind(mFragment, mOptions, mServiceList.get(position));
     }
 
     @Override

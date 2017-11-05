@@ -74,7 +74,7 @@ public class NotificationFragment extends Fragment {
             @Override
             public void onResponse(Call<List<Reservation>> call, Response<List<Reservation>> response) {
                 if (response.isSuccessful()) {
-                    Log.i(Util.TAG_AGENDA, "Agenda result: success!");
+                    Log.i(Util.TAG_NOTIFICATION, "Agenda result: success!");
 
                     List<Reservation> reservationList = response.body();
                     if (!reservationList.isEmpty()) {
@@ -92,7 +92,7 @@ public class NotificationFragment extends Fragment {
                     Util.hideLoading();
 
                 } else {
-                    Log.i(Util.TAG_AGENDA, "Agenda result: " + response.toString());
+                    Log.i(Util.TAG_NOTIFICATION, "Agenda result: " + response.toString());
                     Util.longToast(getContext(),
                             getString(R.string.message_service_server_failed));
                 }
@@ -101,7 +101,7 @@ public class NotificationFragment extends Fragment {
 
             @Override
             public void onFailure(Call<List<Reservation>> call, Throwable t) {
-                Log.i(Util.TAG_AGENDA, "Agenda result: failed, " + t.getMessage());
+                Log.i(Util.TAG_NOTIFICATION, "Agenda result: failed, " + t.getMessage());
                 Util.longToast(getContext(),
                         getString(R.string.message_network_local_failed));
                 Util.hideLoading();

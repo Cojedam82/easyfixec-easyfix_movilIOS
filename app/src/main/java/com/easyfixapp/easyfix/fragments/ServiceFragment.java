@@ -43,24 +43,32 @@ public class ServiceFragment extends RootFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        View rootview = inflater.inflate(R.layout.fragment_service, container, false);
+        View view = inflater.inflate(R.layout.fragment_service, container, false);
 
-        mWelcomeView = (TextView) rootview.findViewById(R.id.txt_welcome);
-        mRecyclerView = (RecyclerView) rootview.findViewById(R.id.rv_services);
+        // prevent click under fragment
+        /*view.findViewById(R.id.sub_container).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });*/
+
+        mWelcomeView = (TextView) view.findViewById(R.id.txt_welcome);
+        mRecyclerView = (RecyclerView) view.findViewById(R.id.rv_services);
 
         mGridLayoutManager = new GridLayoutManager(getActivity(), 3);
         mRecyclerView.setHasFixedSize(true);
         mRecyclerView.setLayoutManager(mGridLayoutManager);
 
-        mServiceAdapter = new ServiceAdapter(getActivity().getApplication(), mServiceList);
+        mServiceAdapter = new ServiceAdapter(this, getActivity(), mServiceList);
         mRecyclerView.setAdapter(mServiceAdapter);
 
-        return rootview;
+        return view;
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
 
         // set welcome
         SessionManager sessionManager = new SessionManager(getContext());
@@ -69,6 +77,11 @@ public class ServiceFragment extends RootFragment {
 
         // fetch services
         if (mServiceList.isEmpty()) serviceTask();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
     }
 
     /** Fetch services **/
@@ -84,24 +97,21 @@ public class ServiceFragment extends RootFragment {
             @Override
             public void onResponse(Call<List<Service>> call, Response<List<Service>> response) {
                 if (response.isSuccessful()) {
-                    Log.i(Util.TAG_SEARCH, "Services result: success!");
+                    Log.i(Util.TAG_SERVICE, "Services result: success!");
 
                     List<Service> serviceList = response.body();
                     if (!serviceList.isEmpty()) {
-
                         for (Service service : serviceList){
                             mServiceList.add(service);
                         }
                         mServiceAdapter.notifyDataSetChanged();
-
                     } else {
                         Util.longToast(getContext(),
                                 getString(R.string.message_service_server_empty));
                     }
-                    Util.hideLoading();
 
                 } else {
-                    Log.i(Util.TAG_SEARCH, "Services result: " + response.toString());
+                    Log.i(Util.TAG_SERVICE, "Services result: " + response.toString());
                     Util.longToast(getContext(),
                             getString(R.string.message_service_server_failed));
                 }
@@ -110,7 +120,7 @@ public class ServiceFragment extends RootFragment {
 
             @Override
             public void onFailure(Call<List<Service>> call, Throwable t) {
-                Log.i(Util.TAG_SEARCH, "Services result: failed, " + t.getMessage());
+                Log.i(Util.TAG_SERVICE, "Services result: failed, " + t.getMessage());
                 Util.longToast(getContext(),
                         getString(R.string.message_network_local_failed));
                 Util.hideLoading();
