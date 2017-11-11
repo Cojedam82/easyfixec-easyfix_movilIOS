@@ -9,6 +9,10 @@ import com.easyfixapp.easyfix.R;
 import com.easyfixapp.easyfix.models.Profile;
 import com.easyfixapp.easyfix.models.User;
 
+import io.realm.Realm;
+import io.realm.RealmResults;
+import io.realm.Sort;
+
 /**
  * Created by julio on 29/05/17.
  */
@@ -39,6 +43,20 @@ public class SessionManager {
         mEditor.putInt(mResources.getString(R.string.preferences_profile_role), profile.getRole());
 
         mEditor.apply();
+
+        if (!user.getAddresses().isEmpty()) {
+            Realm realm = Realm.getDefaultInstance();
+            try {
+                realm.beginTransaction();
+                realm.copyToRealm(user.getAddresses());
+                realm.commitTransaction();
+            } catch (Exception ignore){
+
+            } finally {
+                realm.close();
+            }
+
+        }
     }
 
     public User getUser(){

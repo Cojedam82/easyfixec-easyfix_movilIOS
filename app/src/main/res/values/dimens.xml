@@ -11,6 +11,7 @@
     <dimen name="nav_header_vertical_spacing">16dp</dimen>
     <dimen name="nav_header_height">160dp</dimen>
 
+
     <!-- App header main-->
     <dimen name="app_header_margin">10dp</dimen>
     <dimen name="app_header_main_image_size">100dp</dimen>
@@ -28,9 +29,11 @@
     <!-- Tab Menu -->
     <dimen name="tab_menu_text_size">3sp</dimen>
 
+
     <!-- Splash Activity -->
     <dimen name="splash_activity_image_size">250dp</dimen>
     <dimen name="splash_activity_title_text_size">48sp</dimen>
+
 
     <!-- Auth Activity -->
     <dimen name="auth_activity_extra_margin">16dp</dimen>
@@ -38,28 +41,26 @@
     <dimen name="auth_activity_action">20sp</dimen>
     <dimen name="auth_activity_input">16sp</dimen>
 
+
     <!-- Service -->
-    <!-- Item -->
     <dimen name="service_item_margin">5dp</dimen>
     <dimen name="service_item_padding">3dp</dimen>
     <dimen name="service_item_image_size">80dp</dimen>
     <dimen name="service_item_text_size">14sp</dimen>
 
-    <!-- Fragment -->
     <dimen name="service_fragment_text_size">14sp</dimen>
     <dimen name="service_fragemnt_title_text_size">22sp</dimen>
     <dimen name="service_fragment_title_margin">16dp</dimen>
     <dimen name="service_fragment_list_margin">16dp</dimen>
     <dimen name="service_fragment_list_padding">10dp</dimen>
 
-    <!-- Agenda -->
-    <!-- Item -->
-    <dimen name="agenda_item_image_size">50dp</dimen>
-    <dimen name="agenda_item_info_text_size">12sp</dimen>
-    <dimen name="agenda_item_name_text_size">16sp</dimen>
-    <dimen name="agenda_item_margin">10dp</dimen>
 
-    <!-- Fragment -->
+    <!-- Notification -->
+    <dimen name="notification_item_image_size">50dp</dimen>
+    <dimen name="notification_item_info_text_size">12sp</dimen>
+    <dimen name="notification_item_name_text_size">16sp</dimen>
+    <dimen name="notification_item_margin">10dp</dimen>
+
     <dimen name="agenda_fragment_padding">5dp</dimen>
 
 
@@ -68,6 +69,14 @@
     <dimen name="sw_time_stroke_border">5dp</dimen>
     <dimen name="sw_time_conner_radius">20dp</dimen>
 
+
     <!-- Settings -->
     <dimen name="settings_title">20sp</dimen>
+
+
+    <!-- Account - Profile -->
+    <dimen name="profile_header_height">116dp</dimen>
+
+    <!-- Account - Address -->
+    <dimen name="address_item_image_size">30dp</dimen>
 </resources>

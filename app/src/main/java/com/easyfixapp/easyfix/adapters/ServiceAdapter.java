@@ -1,6 +1,5 @@
 package com.easyfixapp.easyfix.adapters;
 
-import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -9,7 +8,6 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -108,7 +106,7 @@ public class ServiceAdapter extends RecyclerView.Adapter<ServiceAdapter.ServiceV
 
         // Inflate the custom layout
         View serviceView = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.service_item, parent, false);
+                .inflate(R.layout.item_service, parent, false);
 
         // Return a new holder instance
         ServiceViewHolder serviceViewHolder = new ServiceViewHolder(serviceView);

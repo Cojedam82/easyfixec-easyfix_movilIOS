@@ -1,6 +1,5 @@
 package com.easyfixapp.easyfix.fragments;
 
-
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -18,7 +17,6 @@ import com.easyfixapp.easyfix.util.ApiService;
 import com.easyfixapp.easyfix.util.ServiceGenerator;
 import com.easyfixapp.easyfix.util.SessionManager;
 import com.easyfixapp.easyfix.util.Util;
-import com.easyfixapp.easyfix.widget.DividerItemDecoration;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,15 +26,16 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 /**
- * A simple {@link Fragment} subclass.
+ * Created by julio on 09/10/17.
  */
-public class NotificationFragment extends Fragment {
+
+public class TechnicalHistoryFragment extends Fragment{
 
     private RecyclerView mReservationView;
     private ReservationAdapter mReservationAdapter;
     private List<Reservation> mReservationList = new ArrayList<>();
 
-    public NotificationFragment() {}
+    public TechnicalHistoryFragment() {}
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -46,19 +45,12 @@ public class NotificationFragment extends Fragment {
 
 
         mReservationAdapter = new ReservationAdapter(getActivity(),
-                mReservationList, Reservation.TYPE_NOTIFICATION);
+                mReservationList, Reservation.TYPE_RECORD);
 
         mReservationView = view.findViewById(R.id.rv_reservation);
-
-        // Set requirements to show recyclerview
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getContext());
         mReservationView.setLayoutManager(mLayoutManager);
-
-        // Set item divider
-        mReservationView.addItemDecoration(new DividerItemDecoration(getContext(), LinearLayoutManager.VERTICAL));
         mReservationView.setItemAnimator(new DefaultItemAnimator());
-
-        // Set adapter
         mReservationView.setAdapter(mReservationAdapter);
 
         return view;
@@ -79,12 +71,12 @@ public class NotificationFragment extends Fragment {
         ApiService apiService = ServiceGenerator.createApiService();
         String token = sessionManager.getToken();
 
-        Call<List<Reservation>> call = apiService.getNotifications(token);
+        Call<List<Reservation>> call = apiService.getRecord(token);
         call.enqueue(new Callback<List<Reservation>>() {
             @Override
             public void onResponse(Call<List<Reservation>> call, Response<List<Reservation>> response) {
                 if (response.isSuccessful()) {
-                    Log.i(Util.TAG_NOTIFICATION, "Notification result: success!");
+                    Log.i(Util.TAG_RESERVATION, "Reservation result: success!");
 
                     List<Reservation> reservationList = response.body();
                     if (!reservationList.isEmpty()) {
@@ -102,7 +94,7 @@ public class NotificationFragment extends Fragment {
                     Util.hideLoading();
 
                 } else {
-                    Log.i(Util.TAG_NOTIFICATION, "Notification result: " + response.toString());
+                    Log.i(Util.TAG_RESERVATION, "Reservation result: " + response.toString());
                     Util.longToast(getContext(),
                             getString(R.string.message_service_server_failed));
                 }
@@ -111,7 +103,7 @@ public class NotificationFragment extends Fragment {
 
             @Override
             public void onFailure(Call<List<Reservation>> call, Throwable t) {
-                Log.i(Util.TAG_NOTIFICATION, "Notification result: failed, " + t.getMessage());
+                Log.i(Util.TAG_RESERVATION, "Reservation result: failed, " + t.getMessage());
                 Util.longToast(getContext(),
                         getString(R.string.message_network_local_failed));
                 Util.hideLoading();

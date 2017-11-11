@@ -1,7 +1,6 @@
 package com.easyfixapp.easyfix.models;
 
 import android.content.Context;
-import android.os.Bundle;
 
 import com.easyfixapp.easyfix.R;
 import com.easyfixapp.easyfix.util.Util;

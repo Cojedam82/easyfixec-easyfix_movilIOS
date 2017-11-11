@@ -9,6 +9,7 @@ buildscript {
 }
 apply plugin: 'com.android.application'
 apply plugin: 'io.fabric'
+apply plugin: 'realm-android'
 
 repositories {
     maven { url 'https://maven.fabric.io/public' }
@@ -32,6 +33,15 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    configurations.all {
+        resolutionStrategy {
+            force 'com.google.code.findbugs:jsr305:3.0.1'
+        }
+    }
+}
+
+realm {
+    syncEnabled = true;
 }
 
 dependencies {
@@ -55,7 +65,6 @@ dependencies {
     compile 'uk.co.chrisjenx:calligraphy:2.3.0'
     compile 'com.github.bumptech.glide:glide:4.2.0'
     compile 'com.nineoldandroids:library:2.4.0'
-    compile 'com.github.florent37:materialleanback:1.0.2'
 
     compile('com.crashlytics.sdk.android:crashlytics:2.6.8@aar') {
         transitive = true;

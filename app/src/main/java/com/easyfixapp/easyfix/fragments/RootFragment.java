@@ -5,8 +5,8 @@ import android.support.v4.app.Fragment;
 import android.widget.ImageView;
 
 import com.easyfixapp.easyfix.R;
-import com.easyfixapp.easyfix.listeners.OnBackPressListener;
 import com.easyfixapp.easyfix.listeners.BackPress;
+import com.easyfixapp.easyfix.listeners.OnBackPressListener;
 
 public class RootFragment extends Fragment implements OnBackPressListener {
 

@@ -16,7 +16,6 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -31,6 +30,7 @@ import com.easyfixapp.easyfix.util.Util;
 import com.easyfixapp.easyfix.widget.CustomViewPager;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+import io.realm.Realm;
 
 public class MenuFragment extends Fragment
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -187,7 +187,7 @@ public class MenuFragment extends Fragment
 
     private void addNavigationAction(NavigationView navigationView) {
         for (int i=0; i<navigationView.getMenu().size(); i++)
-            navigationView.getMenu().getItem(i).setActionView(R.layout.horizontal_arrow);
+            navigationView.getMenu().getItem(i).setActionView(R.layout.item_arrow);
     }
 
     /**
@@ -221,12 +221,29 @@ public class MenuFragment extends Fragment
     private void logout(){
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext(), R.style.AlertDialog);
         builder.setMessage(R.string.message_logout_dialog)
-                .setPositiveButton(R.string.message_dialog_yes, new DialogInterface.OnClickListener() {
+                .setPositiveButton(R.string.dialog_message_yes, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
 
                         // Clean preferences
                         SessionManager sessionManager = new SessionManager(getContext());
                         sessionManager.clear();
+
+                        // Clean database
+                        Realm realm = Realm.getDefaultInstance();
+                        try {
+                            realm.beginTransaction();
+                            realm.deleteAll();
+                            realm.commitTransaction();
+                        } catch (Exception ignore){
+                          // Ignore any error
+                        } finally {
+                            realm.close();
+                        }
+
+                        // Reset FCM token
+                        //try {
+                        //    FirebaseInstanceId.getInstance().deleteInstanceId();
+                        //} catch (Exception ignored){}
 
                         Intent intent = new Intent(getActivity(), LoginActivity.class);
                         startActivity(intent);
@@ -235,7 +252,7 @@ public class MenuFragment extends Fragment
                         Util.longToast(getContext(), getString(R.string.message_logout));
                     }
                 })
-                .setNegativeButton(R.string.message_dialog_no, new DialogInterface.OnClickListener() {
+                .setNegativeButton(R.string.dialog_message_no, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                     }
                 });

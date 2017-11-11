@@ -1,12 +1,26 @@
 package com.easyfixapp.easyfix.models;
 
+import com.google.gson.annotations.SerializedName;
+
+import io.realm.RealmObject;
+
 /**
  * Created by julio on 29/05/17.
  */
 
-public class Profile {
+public class Profile extends RealmObject{
+
+    @SerializedName("role")
     private int role;
-    private String phone, token, image;
+
+    @SerializedName("phone")
+    private String phone;
+
+    @SerializedName("token")
+    private String token;
+
+    @SerializedName("email")
+    private String image;
 
     public Profile(){};
 

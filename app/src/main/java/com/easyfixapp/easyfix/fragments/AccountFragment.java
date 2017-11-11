@@ -1,6 +1,7 @@
 package com.easyfixapp.easyfix.fragments;
 
 
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
@@ -11,6 +12,7 @@ import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.easyfixapp.easyfix.R;
 
@@ -20,7 +22,7 @@ import java.util.List;
 
 public class AccountFragment extends Fragment {
 
-    private TabLayout tabLayout;
+    private TabLayout mTabLayout;
     private ViewPager viewPager;
 
     public AccountFragment() {}
@@ -34,17 +36,23 @@ public class AccountFragment extends Fragment {
         viewPager = (ViewPager) view.findViewById(R.id.viewpager);
         setupViewPager(viewPager);
 
-        tabLayout = (TabLayout) view.findViewById(R.id.tabs);
-        tabLayout.setupWithViewPager(viewPager);
+        mTabLayout = (TabLayout) view.findViewById(R.id.tabs);
+        mTabLayout.setupWithViewPager(viewPager);
 
         return view;
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        init();
     }
 
     private void setupViewPager(ViewPager viewPager) {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getFragmentManager());
         adapter.addFragment(new ProfileFragment(), "Perfil");
-        adapter.addFragment(new ProfileFragment(), "Direcciones");
-        adapter.addFragment(new ProfileFragment(), "Historial Técnico");
+        adapter.addFragment(new AddressFragment(), "Direcciones");
+        adapter.addFragment(new TechnicalHistoryFragment(), "Historial Técnico");
         viewPager.setAdapter(adapter);
     }
 
@@ -77,4 +85,25 @@ public class AccountFragment extends Fragment {
         }
     }
 
+
+    private void init() {
+        // Populate tab style
+        populateTabs();
+    }
+
+    private void populateTabs() {
+        for(int i=0; i < mTabLayout.getTabCount(); i++) {
+            ViewGroup viewGroup = (ViewGroup) ((ViewGroup) mTabLayout.getChildAt(0)).getChildAt(i);
+
+            // Set padding
+            ViewGroup.MarginLayoutParams p = (ViewGroup.MarginLayoutParams) viewGroup.getLayoutParams();
+            p.setMargins(10, 0, 10, 0);
+
+            // Set font
+            Typeface font = Typeface.createFromAsset(getActivity().getAssets(), "fonts/AntipastoRegular.otf");
+            ((TextView) viewGroup.getChildAt(1)).setTypeface(font);
+
+            viewGroup.requestLayout();
+        }
+    }
 }

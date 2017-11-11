@@ -7,6 +7,8 @@ import com.crashlytics.android.Crashlytics;
 import com.easyfixapp.easyfix.R;
 
 import io.fabric.sdk.android.Fabric;
+import io.realm.Realm;
+import io.realm.RealmConfiguration;
 import uk.co.chrisjenx.calligraphy.CalligraphyConfig;
 
 public class Application extends android.app.Application{
@@ -18,6 +20,17 @@ public class Application extends android.app.Application{
         super.onCreate();
 
         Application.application = this;
+
+        // Realm
+        Realm.init(this);
+        RealmConfiguration config = new RealmConfiguration.Builder()
+                .name(getString(R.string.app_name).toLowerCase() + ".realm")
+                //.encryptionKey(getKey())
+                .schemaVersion(1)
+                //.modules(new MySchemaModule())
+                //.migration(new MyMigration())
+                .build();
+        Realm.setDefaultConfiguration(config);
 
         // Fabric
         Fabric.with(this, new Crashlytics());
@@ -35,6 +48,5 @@ public class Application extends android.app.Application{
         super.attachBaseContext(base);
         MultiDex.install(this);
     }
-
 
 }

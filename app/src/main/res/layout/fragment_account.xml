@@ -10,19 +10,21 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@android:color/transparent"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+        android:fitsSystemWindows="true"
+        app:elevation="0dp">
 
         <android.support.design.widget.TabLayout
             android:id="@+id/tabs"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/activity_vertical_margin"
+            android:layout_marginTop="@dimen/activity_vertical_min_margin"
+            app:tabBackground="@drawable/bg_account_tab"
             app:tabIndicatorColor="@color/colorPrimary"
             app:tabIndicatorHeight="3dp"
             app:tabGravity="fill"
             app:tabMode="fixed"
             app:tabSelectedTextColor="@color/black"
-            app:tabTextAppearance="@style/TabLayout"
+            app:tabTextAppearance="@style/AppTheme.CustomTabLayout"
             app:tabTextColor="@color/black_50"
             tools:ignore="MissingPrefix"
             fontPath="fonts/AntipastoExtraLight.otf"/>
