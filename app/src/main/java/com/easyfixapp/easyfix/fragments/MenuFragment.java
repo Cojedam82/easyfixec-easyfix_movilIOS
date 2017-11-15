@@ -28,6 +28,7 @@ import com.easyfixapp.easyfix.models.Settings;
 import com.easyfixapp.easyfix.util.SessionManager;
 import com.easyfixapp.easyfix.util.Util;
 import com.easyfixapp.easyfix.widget.CustomViewPager;
+import com.google.firebase.iid.FirebaseInstanceId;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import io.realm.Realm;
@@ -234,22 +235,20 @@ public class MenuFragment extends Fragment
                             realm.beginTransaction();
                             realm.deleteAll();
                             realm.commitTransaction();
-                        } catch (Exception ignore){
-                          // Ignore any error
+
+                            // Reset FCM token
+                            FirebaseInstanceId.getInstance().deleteInstanceId();
+
+                            Intent intent = new Intent(getActivity(), LoginActivity.class);
+                            startActivity(intent);
+                            getActivity().finish();
+
+                            Util.longToast(getContext(), getString(R.string.message_logout));
+                        } catch (Exception e){
+                            Util.longToast(getContext(), getString(R.string.message_service_server_failed));
                         } finally {
                             realm.close();
                         }
-
-                        // Reset FCM token
-                        //try {
-                        //    FirebaseInstanceId.getInstance().deleteInstanceId();
-                        //} catch (Exception ignored){}
-
-                        Intent intent = new Intent(getActivity(), LoginActivity.class);
-                        startActivity(intent);
-                        getActivity().finish();
-
-                        Util.longToast(getContext(), getString(R.string.message_logout));
                     }
                 })
                 .setNegativeButton(R.string.dialog_message_no, new DialogInterface.OnClickListener() {

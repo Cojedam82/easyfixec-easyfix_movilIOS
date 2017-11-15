@@ -47,7 +47,7 @@ import static android.Manifest.permission.CALL_PHONE;
  * Created by julio on 08/06/17.
  */
 
-public class ReservationAdapter extends RecyclerView.Adapter<ReservationAdapter.ReservationViewHolder> {
+public class ReservationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private List<Reservation> mReservationList;
     private Activity mActivity;
@@ -64,14 +64,16 @@ public class ReservationAdapter extends RecyclerView.Adapter<ReservationAdapter.
     }
 
     @Override
-    public ReservationViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
+    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
         View view = LayoutInflater.from(viewGroup.getContext())
                 .inflate(R.layout.item_reservation, viewGroup, false);
+
+        mReservationList.get()
         return new ReservationViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(ReservationViewHolder holder, int position) {
+    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         holder.bind(position);
     }
 
@@ -101,7 +103,7 @@ public class ReservationAdapter extends RecyclerView.Adapter<ReservationAdapter.
      * View Holders
      */
 
-    public class ReservationViewHolder
+    public class NotificationViewHolder
             extends RecyclerView.ViewHolder{
 
         public CircleImageView mProviderImageView;
@@ -110,7 +112,7 @@ public class ReservationAdapter extends RecyclerView.Adapter<ReservationAdapter.
 
         public LinearLayout mInfoView, mActionView;
 
-        public ReservationViewHolder(View itemView) {
+        public NotificationViewHolder(View itemView) {
             super(itemView);
             mProviderImageView = itemView.findViewById(R.id.img_provider);
             mNameView = itemView.findViewById(R.id.txt_provider_name);
@@ -148,15 +150,8 @@ public class ReservationAdapter extends RecyclerView.Adapter<ReservationAdapter.
             if (mReservation.getStatus() == Reservation.Assigned) {
                 mNameView.setVisibility(View.VISIBLE);
                 mNameView.setText(mProvider.getShortName());
-            }
-
-            // Set service name
-            Random random = new Random();
-            mServiceView.setText(mService.getName());
-            mServiceView.setTextColor(Color.argb(255, random.nextInt(256), random.nextInt(256), random.nextInt(256)));
-
-            // Set by type
-            if (mType == Reservation.TYPE_NOTIFICATION) {
+            } else {
+                // Show actions
                 mActionView.setVisibility(View.VISIBLE);
 
                 // Set date-hour
@@ -177,9 +172,20 @@ public class ReservationAdapter extends RecyclerView.Adapter<ReservationAdapter.
                     }
                     mDateHourView.setText(date + " - " + mReservation.getTime());
                 }
+            }
+
+            // Set service name
+            Random random = new Random();
+            mServiceView.setText(mService.getName());
+            mServiceView.setTextColor(Color.argb(255, random.nextInt(256), random.nextInt(256), random.nextInt(256)));
+
+            // Set by type
+            if (mType == Reservation.TYPE_NOTIFICATION) {
+
 
                 // Set actions
                 if (mReservation.getStatus() == Reservation.Assigned) {
+                    mCallView.setVisibility(View.VISIBLE);
                     mCallView.setOnClickListener(new View.OnClickListener() {
                         @SuppressWarnings("MissingPermission")
                         @Override
@@ -257,7 +263,80 @@ public class ReservationAdapter extends RecyclerView.Adapter<ReservationAdapter.
             }
 
         }
+    }
 
+    public class TechnicalHistoryViewHolder
+            extends RecyclerView.ViewHolder{
+
+        public CircleImageView mProviderImageView;
+        public TextView mNameView, mServiceView, mDateHourView, mHourView, mCostView;
+
+        public LinearLayout mInfoView;
+
+        public TechnicalHistoryViewHolder(View itemView) {
+            super(itemView);
+            mProviderImageView = itemView.findViewById(R.id.img_provider);
+            mNameView = itemView.findViewById(R.id.txt_provider_name);
+            mServiceView = itemView.findViewById(R.id.txt_service_name);
+            mHourView = itemView.findViewById(R.id.txt_hour);
+            mCostView = itemView.findViewById(R.id.txt_cost);
+            mInfoView = itemView.findViewById(R.id.ll_info);
+        }
+
+        public void bind(final int position) {
+
+            final Reservation mReservation = mReservationList.get(position);
+            Service mService = mReservation.getService();
+            User mProvider = mReservation.getProvider();
+
+
+            // Set provider image
+            String url = "";
+            if (mProvider != null) {
+                url = mProvider.getProfile().getImage();
+            }
+            Glide.with(mActivity)
+                    .load(url)
+                    .apply(options)
+                    .into(mProviderImageView);
+
+
+            // Set provider name
+            mNameView.setVisibility(View.VISIBLE);
+            mNameView.setText(mProvider.getShortName());
+
+
+            // Set service name
+            Random random = new Random();
+            mServiceView.setText(mService.getName());
+            mServiceView.setTextColor(Color.argb(255, random.nextInt(256), random.nextInt(256), random.nextInt(256)));
+
+
+            // Set info
+            mInfoView.setVisibility(View.VISIBLE);
+
+            // Set date-month
+            if(TextUtils.isEmpty(mReservation.getDate())) {
+                SimpleDateFormat dateFormat =
+                        new SimpleDateFormat("EEEE d MMM", new Locale("es", "ES"));
+                String date = null;
+                try {
+                    SimpleDateFormat dateParse =
+                            new SimpleDateFormat("yyyy-MM-dd");
+                    date = dateFormat.format(dateParse.parse(mReservation.getDate()));
+                    //date = date.substring(0, 1).toUpperCase() + date.substring(1).toLowerCase();
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+                mDateHourView.setText(date);
+            }
+
+            // Set hour
+            mHourView.setText(mReservation.getTime());
+
+            // Set cost
+            mCostView.setText(mReservation.getCost());
+        }
     }
 
 

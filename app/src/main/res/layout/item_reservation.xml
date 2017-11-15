@@ -56,6 +56,7 @@
             android:ellipsize="marquee"
             android:textSize="@dimen/notification_item_info_text_size"
             android:textColor="@color/colorAccent"
+            android:visibility="gone"
             tools:text="Jueves 18 - 11:00" />
 
     </LinearLayout>
@@ -115,6 +116,7 @@
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:layout_gravity="center"
+            android:visibility="gone"
             android:src="@android:drawable/stat_sys_phone_call"/>
 
         <View

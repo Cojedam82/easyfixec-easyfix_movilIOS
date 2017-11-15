@@ -44,6 +44,8 @@ public class Util {
      * CONSTANTS
      **/
     public static final int MAX_IMAGES_SERVICE = 4;
+    public static final int USER_ROLE = 1;
+    public static final String TYPE_DEVICE = "android";
 
     /**
      * RESULT CODES

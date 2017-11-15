@@ -32,6 +32,7 @@ import com.easyfixapp.easyfix.util.AuthService;
 import com.easyfixapp.easyfix.util.ServiceGenerator;
 import com.easyfixapp.easyfix.util.SessionManager;
 import com.easyfixapp.easyfix.util.Util;
+import com.google.firebase.iid.FirebaseInstanceId;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -185,9 +186,16 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 // perform the user login attempt.
                 Util.showLoading(LoginActivity.this, getString(R.string.message_login_request));
 
-                Map<String, String> params = new HashMap<>();
+                // Get firebase token
+                String registrationId = FirebaseInstanceId.getInstance().getToken();
+
+                Map<String, Object> params = new HashMap<>();
                 params.put("email", email);
                 params.put("password", password);
+                params.put("role", Util.USER_ROLE);
+
+                params.put("registration_id", registrationId);
+                params.put("type", Util.TYPE_DEVICE);
 
                 loginTask(params);
             } else {
@@ -262,7 +270,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
      * Represents an asynchronous login/registration task used to authenticate
      * the user.
      */
-    private void loginTask(Map<String,String> params){
+    private void loginTask(Map<String,Object> params){
 
         AuthService authService = ServiceGenerator.createAuthService();
         Call<AuthResponse<User>> call = authService.login(params);

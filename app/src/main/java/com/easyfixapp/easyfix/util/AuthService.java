@@ -22,7 +22,7 @@ public interface AuthService {
 
     @FormUrlEncoded
     @POST("login/")
-    Call<AuthResponse<User>> login(@FieldMap Map<String, String> params);
+    Call<AuthResponse<User>> login(@FieldMap Map<String, Object> params);
 
     @POST("signup/")
     Call<AuthResponse<User>> signup(@Body User user);
