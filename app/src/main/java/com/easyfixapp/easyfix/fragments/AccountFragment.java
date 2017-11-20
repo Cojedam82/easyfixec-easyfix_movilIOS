@@ -20,25 +20,24 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class AccountFragment extends Fragment {
+public class AccountFragment extends RootFragment {
 
-    private TabLayout mTabLayout;
-    private ViewPager viewPager;
+    private View view;
+    private TabLayout mTabLayout = null;
+    private ViewPager mViewPager = null;
 
     public AccountFragment() {}
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+    }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
-        View view = inflater.inflate(R.layout.fragment_account, container, false);
-
-        viewPager = (ViewPager) view.findViewById(R.id.viewpager);
-        setupViewPager(viewPager);
-
-        mTabLayout = (TabLayout) view.findViewById(R.id.tabs);
-        mTabLayout.setupWithViewPager(viewPager);
-
+        view = inflater.inflate(R.layout.fragment_account, container, false);
         return view;
     }
 
@@ -87,6 +86,8 @@ public class AccountFragment extends Fragment {
 
 
     private void init() {
+        populateViewPager();
+
         // Populate tab style
         populateTabs();
     }
@@ -104,6 +105,20 @@ public class AccountFragment extends Fragment {
             ((TextView) viewGroup.getChildAt(1)).setTypeface(font);
 
             viewGroup.requestLayout();
+        }
+    }
+
+    private void populateViewPager() {
+
+        if (mViewPager == null) {
+            mViewPager = (ViewPager) view.findViewById(R.id.viewpager);
+            mViewPager.setOffscreenPageLimit(3);
+            setupViewPager(mViewPager);
+        }
+
+        if (mTabLayout == null) {
+            mTabLayout = (TabLayout) view.findViewById(R.id.tabs);
+            mTabLayout.setupWithViewPager(mViewPager);
         }
     }
 }

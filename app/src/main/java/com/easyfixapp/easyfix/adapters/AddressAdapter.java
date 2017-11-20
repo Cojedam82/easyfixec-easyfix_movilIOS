@@ -55,41 +55,59 @@ public class AddressAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         View view = LayoutInflater.from(viewGroup.getContext())
                 .inflate(R.layout.item_address, viewGroup, false);
 
-        //if (viewType == TYPE_ITEM) {
+        if (viewType == TYPE_ITEM) {
             return new AddressViewHolder(view);
-        //} else if (viewType == TYPE_FOOTER) {
-        //    return new FooterViewHolder(view);
-        // }
+        } else if (viewType == TYPE_FOOTER) {
+            return new FooterViewHolder(view);
+        }
 
-        //throw new RuntimeException("there is no type that matches the type " + viewType + " + make sure your using types correctly");
+        throw new RuntimeException("there is no type that matches the type " + viewType + " + make sure your using types correctly");
 
     }
 
     @Override
     public void onBindViewHolder(final RecyclerView.ViewHolder holder, int position) {
-
-        ((AddressViewHolder) holder).bind(position);
-        //if (holder instanceof AddressViewHolder) {
-        //    ((AddressViewHolder) holder).bind(position);
-        //}else if (holder instanceof FooterViewHolder) {
-        //    ((FooterViewHolder) holder).bind();
-        //}
+        if (holder instanceof AddressViewHolder) {
+            ((AddressViewHolder) holder).bind(position);
+        }else if (holder instanceof FooterViewHolder) {
+            ((FooterViewHolder) holder).bind();
+        }
     }
 
     @Override
     public int getItemCount() {
-            //return mAddressList.size() + 1;
-        return mAddressList.size();
+        return mAddressList.size() + 1;
     }
 
-    //@Override
-    //public int getItemViewType(int position) {
-        //if (isPositionFooter(position)) {
-        //    return TYPE_FOOTER;
-        //}
+    @Override
+    public int getItemViewType(int position) {
+        if (isPositionFooter(position)) {
+            return TYPE_FOOTER;
+        }
 
-    //    return TYPE_ITEM;
-    //}
+        return TYPE_ITEM;
+    }
+
+
+    /**
+     * Custom validation
+     */
+
+    private boolean isPositionFooter(int position) {
+        int size = mAddressList.size();
+        return size == 0 || position == size;
+    }
+
+
+    private void removeItem(int position) {
+
+        if (mAddressList.get(position).isDefault())
+            defaultAddress = -1;
+
+        mAddressList.remove(position);
+        notifyItemRemoved(position);
+        notifyItemRangeChanged(position, mAddressList.size());
+    }
 
     /**
      * View Holders
@@ -112,15 +130,36 @@ public class AddressAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
         public void bind(final int position) {
 
-            Address address = mAddressList.get(position);
+            final Address address = mAddressList.get(position);
 
-            if (address.isActive()) {
+            if (address.isDefault()) {
                 defaultAddress = position;
-                mStatusView.setCircleBackgroundColor(mContext.getResources().getColor(R.color.green));
+                mStatusView.setImageDrawable(mContext.getResources().getDrawable(R.drawable.ic_add));
+            } else {
+                itemView.setOnLongClickListener(new View.OnLongClickListener() {
+                    @Override
+                    public boolean onLongClick(View v) {
+                        AlertDialog.Builder builder = new AlertDialog.Builder(mContext, R.style.AlertDialog);
+                        builder.setMessage(R.string.address_message_update_dialog)
+                                .setPositiveButton(R.string.dialog_message_yes, new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int id) {
+                                        updateAddressTask(address.getId());
+                                    }
+                                })
+                                .setNegativeButton(R.string.dialog_message_no, new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int id) {}
+                                });
+
+                        builder.show();
+
+                        return true;
+                    }
+                });
             }
 
             mNameView.setText(address.getName());
             mDescriptionView.setText(address.getDescription());
+            mActionView.setImageDrawable(mContext.getResources().getDrawable(R.drawable.ic_delete));
 
             mActionView.setOnClickListener(new View.OnClickListener() {
                 @Override public void onClick(View v) {
@@ -128,7 +167,7 @@ public class AddressAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                     builder.setMessage(R.string.address_message_delete_dialog)
                             .setPositiveButton(R.string.dialog_message_yes, new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int id) {
-                                    deleteAddressTask(position);
+                                    deleteAddressTask(address.getId(), position);
                                 }
                             })
                             .setNegativeButton(R.string.dialog_message_no, new DialogInterface.OnClickListener() {
@@ -136,26 +175,6 @@ public class AddressAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                             });
 
                     builder.show();
-                }
-            });
-
-            mActionView.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View v) {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(mContext, R.style.AlertDialog);
-                    builder.setMessage(R.string.address_message_update_dialog)
-                            .setPositiveButton(R.string.dialog_message_yes, new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int id) {
-                                    updateAddressTask(position);
-                                }
-                            })
-                            .setNegativeButton(R.string.dialog_message_no, new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int id) {}
-                            });
-
-                    builder.show();
-
-                    return true;
                 }
             });
         }
@@ -181,7 +200,7 @@ public class AddressAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             mDescriptionView.setVisibility(View.GONE);
 
             mActionView.setImageDrawable(mContext.getResources().getDrawable(R.drawable.ic_navigate_next));
-            mActionView.setOnClickListener(new View.OnClickListener() {
+            itemView.setOnClickListener(new View.OnClickListener() {
                 @Override public void onClick(View v) {
                     Intent intent = new Intent(mContext, LoginActivity.class);
                     mContext.startActivity(intent);
@@ -191,42 +210,41 @@ public class AddressAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     }
 
-    /**
-     * Custom validation
-     */
-
-    private boolean isPositionFooter(int position) {
-        int size = mAddressList.size();
-        return size == 0 || position > size;
-    }
-
-
-    private void removeItem(int position) {
-        mAddressList.remove(position);
-        notifyItemRemoved(position);
-        notifyItemRangeChanged(position, mAddressList.size());
-    }
-
 
     /**
      * Task
      */
-    private void deleteAddressTask(final int pk){
+    private void deleteAddressTask(final int pk, final int position){
         Util.showLoading(mContext, mContext.getString(R.string.address_message_delete_request));
 
         SessionManager sessionManager = new SessionManager(mContext);
         String token = sessionManager.getToken();
 
         ApiService apiService = ServiceGenerator.createApiService();
-        Call<Address> call = apiService.deleteAddress(pk, token);
-        call.enqueue(new Callback<Address>() {
+        Call<Void> call = apiService.deleteAddress(pk, token);
+        call.enqueue(new Callback<Void>() {
             @Override
-            public void onResponse(Call<Address> call, Response<Address> response) {
+            public void onResponse(Call<Void> call, Response<Void> response) {
                 if (response.isSuccessful()) {
                     Log.i(Util.TAG_ADDRESS, "Address result: success!");
                     Util.longToast(mContext,
                             mContext.getString(R.string.address_message_delete_response));
-                    removeItem(pk);
+                    // Update
+                    Realm realm = Realm.getDefaultInstance();
+                    try {
+                        Address a = realm
+                                .where(Address.class)
+                                .equalTo("id", defaultAddress)
+                                .findFirst();
+
+                        realm.beginTransaction();
+                        a.setActive(false);
+                        realm.commitTransaction();
+
+                        removeItem(position);
+                    } finally {
+                        realm.close();
+                    }
                 } else {
                     Log.i(Util.TAG_ADDRESS, "Address result: " + response.toString());
                     Util.longToast(mContext,
@@ -236,7 +254,7 @@ public class AddressAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             }
 
             @Override
-            public void onFailure(Call<Address> call, Throwable t) {
+            public void onFailure(Call<Void> call, Throwable t) {
                 Log.i(Util.TAG_ADDRESS, "Address result: failed, " + t.getMessage());
                 Util.longToast(mContext,
                         mContext.getString(R.string.message_network_local_failed));
@@ -252,10 +270,10 @@ public class AddressAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         String token = sessionManager.getToken();
 
         ApiService apiService = ServiceGenerator.createApiService();
-        Call<Address> call = apiService.deleteAddress(pk, token);
-        call.enqueue(new Callback<Address>() {
+        Call<Void> call = apiService.updateAddress(pk, token);
+        call.enqueue(new Callback<Void>() {
             @Override
-            public void onResponse(Call<Address> call, Response<Address> response) {
+            public void onResponse(Call<Void> call, Response<Void> response) {
                 if (response.isSuccessful()) {
                     Log.i(Util.TAG_ADDRESS, "Address result: success!");
                     Util.longToast(mContext,
@@ -279,15 +297,6 @@ public class AddressAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                         addressAfter.setActive(true);
                         realm.commitTransaction();
 
-                        RealmResults<Address> result = realm.where(Address.class)
-                                .findAllSorted("id", Sort.DESCENDING);
-
-                        // Clean address
-                        mAddressList.clear();
-
-                        // Copy persist query
-                        realm.copyFromRealm(mAddressList);
-
                         // Notify data
                         notifyDataSetChanged();
 
@@ -304,7 +313,7 @@ public class AddressAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             }
 
             @Override
-            public void onFailure(Call<Address> call, Throwable t) {
+            public void onFailure(Call<Void> call, Throwable t) {
                 Log.i(Util.TAG_ADDRESS, "Address result: failed, " + t.getMessage());
                 Util.longToast(mContext,
                         mContext.getString(R.string.message_network_local_failed));

@@ -30,6 +30,9 @@ public class Address extends RealmObject implements Serializable {
     @SerializedName("is_active")
     private boolean isActive;
 
+    @SerializedName("is_default")
+    private boolean isDefault;
+
 
     public Address() {
         this.isActive = false;
@@ -81,5 +84,13 @@ public class Address extends RealmObject implements Serializable {
 
     public void setActive(boolean active) {
         isActive = active;
+    }
+
+    public boolean isDefault() {
+        return isDefault;
+    }
+
+    public void setDefault(boolean aDefault) {
+        isDefault = aDefault;
     }
 }

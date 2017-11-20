@@ -10,7 +10,7 @@ public class Reservation {
 
     // To item
     public static final int TYPE_NOTIFICATION = 0;
-    public static final int TYPE_RECORD = 0;
+    public static final int TYPE_RECORD = 1;
 
     // To status
     public static final int  Assigned = 1;

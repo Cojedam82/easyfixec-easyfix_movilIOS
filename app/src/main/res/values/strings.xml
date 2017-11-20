@@ -56,6 +56,10 @@
     <string name="notification_message_request">Consultando notificaciones...</string>
 
 
+    <!-- Technical History -->
+    <string name="technical_history_message_request">Consultando historial técnico...</string>
+
+
     <!-- Reservation -->
     <string name="reservation_message_cancel_dialog">¿Estás seguro de cancelar esta reservación?</string>
     <string name="reservation_message_call_dialog">¿Desea comunicarse con </string>

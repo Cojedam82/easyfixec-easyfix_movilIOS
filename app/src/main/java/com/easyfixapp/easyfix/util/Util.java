@@ -12,7 +12,12 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import com.easyfixapp.easyfix.R;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -68,9 +73,11 @@ public class Util {
     public static final String TAG_SIGNUP = "SM-SIGNUP";
     public static final String TAG_SERVICE = "SM-SERVICE";
     public static final String TAG_NOTIFICATION = "SM-NOTIFICATION";
-    public static final String TAG_RESERVATION = "SM-RESERVATION";
+    public static final String TAG_TECHNICAL_HISTORY = "SM-TECHNICAL-HISTORY";
     public static final String TAG_SERVICE_DETAIL_IMAGE = "EF-SERVICE-DETAIL-IMAGE";
     public static final String TAG_ADDRESS = "EF-ADDRESS";
+    public static final String TAG_MENU = "EF-MENU";
+    public static final String TAG_PROFILE = "EF-PROFILE";
 
 
     /**
@@ -176,13 +183,85 @@ public class Util {
         }
     }
 
+    /**
+     * Shows the progress UI and hides the login form.
+     */
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
+    public static void showProgress(Context context,
+                                    final View foregroundView,
+                                    View view,
+                                    final boolean show) {
+
+
+        final ProgressBar mProgressView = view.findViewById(R.id.progress);
+
+        // Show progress container
+        final View mProgressContainerView = view.findViewById(R.id.ll_progress_container);
+        mProgressContainerView.setVisibility(show ? View.VISIBLE : View.GONE);
+
+        // Hide empty container
+        final View mEmptyContainerView = view.findViewById(R.id.ll_empty_container);
+        mEmptyContainerView.setVisibility(View.GONE);
+
+        // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
+        // for very easy animations. If available, use these APIs to fade-in
+        // the progress spinner.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
+            int shortAnimTime = context.getResources().getInteger(android.R.integer.config_shortAnimTime);
+
+            foregroundView.setVisibility(show ? View.GONE : View.VISIBLE);
+            /*foregroundView.animate().setDuration(shortAnimTime).alpha(
+                    show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    foregroundView.setVisibility(show ? View.GONE : View.VISIBLE);
+                }
+            });*/
+
+            mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
+            /*mProgressView.animate().setDuration(shortAnimTime).alpha(
+                    show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
+                }
+            });*/
+        } else {
+            // The ViewPropertyAnimator APIs are not available, so simply show
+            // and hide the relevant UI components.
+            mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
+            foregroundView.setVisibility(show ? View.GONE : View.VISIBLE);
+        }
+    }
+
+    public static void showMessage(View foregroundView, View view, String message) {
+
+        // Hide progress container
+        final View mProgressContainerView = view.findViewById(R.id.ll_progress_container);
+        mProgressContainerView.setVisibility(View.GONE);
+
+        // Show layout
+        final View mEmptyContainerView = view.findViewById(R.id.ll_empty_container);
+        mEmptyContainerView.setVisibility(View.VISIBLE);
+
+        TextView mMessageView = view.findViewById(R.id.txt_message);
+        mMessageView.setText(message);
+
+
+        // Hide foreground
+        if (foregroundView.getVisibility() == View.VISIBLE) {
+            foregroundView.setVisibility(View.GONE);
+        }
+    }
+
 
     /**
      * SOFT KEYBOARD
      **/
     public static void hideSoftKeyboard(Context context, View view) {
         try {
-            InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+            InputMethodManager imm = (InputMethodManager) context.
+                    getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
         }catch (Exception e){
             Log.e(TAG_KEYBOARD, "Cannot close soft keyboard");

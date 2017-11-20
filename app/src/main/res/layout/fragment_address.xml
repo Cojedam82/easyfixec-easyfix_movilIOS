@@ -7,11 +7,14 @@
     android:background="?android:attr/windowBackground"
     tools:context=".activities.MainActivity">
 
+    <include layout="@layout/progressbar"/>
+
     <android.support.v7.widget.RecyclerView
         android:id="@+id/rv_address"
         android:layout_height="match_parent"
         android:layout_width="match_parent"
         android:paddingLeft="@dimen/service_fragment_list_padding"
-        android:paddingRight="@dimen/service_fragment_list_padding"/>
+        android:paddingRight="@dimen/service_fragment_list_padding"
+        android:visibility="gone"/>
 
 </RelativeLayout>

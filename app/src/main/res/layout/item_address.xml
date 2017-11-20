@@ -15,9 +15,7 @@
         android:layout_height="@dimen/address_item_image_size"
         android:layout_width="@dimen/address_item_image_size"
         android:layout_margin="@dimen/notification_item_margin"
-        android:src="@android:drawable/ic_dialog_dialer"
-        app:civ_circle_background_color="@color/black_25"
-        app:civ_border_width="0dp" />
+        android:src="@android:drawable/ic_dialog_dialer" />
 
 
     <LinearLayout
@@ -54,8 +52,8 @@
 
         <ImageView
             android:id="@+id/img_action"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
             tools:src="@drawable/ic_navigate_next"/>
 
     </LinearLayout>

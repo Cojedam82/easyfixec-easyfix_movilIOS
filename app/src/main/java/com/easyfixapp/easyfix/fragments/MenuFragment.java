@@ -30,6 +30,8 @@ import com.easyfixapp.easyfix.util.Util;
 import com.easyfixapp.easyfix.widget.CustomViewPager;
 import com.google.firebase.iid.FirebaseInstanceId;
 
+import java.io.IOException;
+
 import de.hdodenhof.circleimageview.CircleImageView;
 import io.realm.Realm;
 
@@ -116,6 +118,7 @@ public class MenuFragment extends Fragment
         /* View Pager */
         mViewPagerAdapter = new ViewPagerAdapter(getChildFragmentManager(),
                 bottomNavigationView.getMenu().size());
+        mViewPager.setOffscreenPageLimit(3);
         mViewPager.setAdapter(mViewPagerAdapter);
         mViewPager.setPagingEnabled(false);
         mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
@@ -229,6 +232,18 @@ public class MenuFragment extends Fragment
                         SessionManager sessionManager = new SessionManager(getContext());
                         sessionManager.clear();
 
+                        // Reset FCM token
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                try {
+                                    FirebaseInstanceId.getInstance().deleteInstanceId();
+                                } catch (IOException e) {
+                                    Log.e(Util.TAG_MENU, e.getMessage());
+                                }
+                            }
+                        }).start();
+
                         // Clean database
                         Realm realm = Realm.getDefaultInstance();
                         try {
@@ -236,15 +251,13 @@ public class MenuFragment extends Fragment
                             realm.deleteAll();
                             realm.commitTransaction();
 
-                            // Reset FCM token
-                            FirebaseInstanceId.getInstance().deleteInstanceId();
-
                             Intent intent = new Intent(getActivity(), LoginActivity.class);
                             startActivity(intent);
                             getActivity().finish();
 
                             Util.longToast(getContext(), getString(R.string.message_logout));
                         } catch (Exception e){
+                            Log.e(Util.TAG_MENU, e.toString());
                             Util.longToast(getContext(), getString(R.string.message_service_server_failed));
                         } finally {
                             realm.close();

@@ -51,16 +51,23 @@ public class ReservationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
     private List<Reservation> mReservationList;
     private Activity mActivity;
-    private int mType;
     private RequestOptions options = new RequestOptions()
             .error(R.drawable.logo)
             .placeholder(R.drawable.logo)
             .diskCacheStrategy(DiskCacheStrategy.ALL);
+    private int mType;
+    private String TAG_RESERVATION;
 
     public ReservationAdapter(Activity activity, List<Reservation> reservationList, int type) {
         this.mActivity = activity;
         this.mReservationList = reservationList;
-        mType = type;
+        this.mType = type;
+
+        if (this.mType == Reservation.TYPE_NOTIFICATION) {
+            this.TAG_RESERVATION = Util.TAG_NOTIFICATION;
+        } else {
+            this.TAG_RESERVATION = Util.TAG_TECHNICAL_HISTORY;
+        }
     }
 
     @Override
@@ -68,13 +75,22 @@ public class ReservationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         View view = LayoutInflater.from(viewGroup.getContext())
                 .inflate(R.layout.item_reservation, viewGroup, false);
 
-        mReservationList.get()
-        return new ReservationViewHolder(view);
+        if (mType==Reservation.TYPE_NOTIFICATION) {
+            return new NotificationViewHolder(view);
+        } else if (mType==Reservation.TYPE_RECORD) {
+            return new TechnicalHistoryViewHolder(view);
+        }
+
+        throw new RuntimeException("there is no type that matches the type " + viewType + " + make sure your using types correctly");
     }
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-        holder.bind(position);
+        if (holder instanceof NotificationViewHolder) {
+            ((NotificationViewHolder) holder).bind(position);
+        }else if (holder instanceof TechnicalHistoryViewHolder) {
+            ((TechnicalHistoryViewHolder) holder).bind(position);
+        }
     }
 
     @Override
@@ -106,11 +122,11 @@ public class ReservationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     public class NotificationViewHolder
             extends RecyclerView.ViewHolder{
 
-        public CircleImageView mProviderImageView;
-        public TextView mNameView, mServiceView, mDateHourView, mDateMonthView, mHourView, mCostView;
-        public ImageView mCallView, mCancelView;
+        private CircleImageView mProviderImageView;
+        private TextView mNameView, mServiceView, mDateHourView, mDateMonthView, mHourView, mCostView;
+        private ImageView mCallView, mCancelView;
 
-        public LinearLayout mInfoView, mActionView;
+        private LinearLayout mActionView;
 
         public NotificationViewHolder(View itemView) {
             super(itemView);
@@ -123,8 +139,6 @@ public class ReservationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             mCostView = itemView.findViewById(R.id.txt_cost);
             mCallView = itemView.findViewById(R.id.img_call);
             mCancelView = itemView.findViewById(R.id.img_cancel);
-
-            mInfoView = itemView.findViewById(R.id.ll_info);
             mActionView = itemView.findViewById(R.id.ll_action);
         }
 
@@ -139,145 +153,121 @@ public class ReservationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             if (mProvider != null) {
                 url = mProvider.getProfile().getImage();
             }
-
-
             Glide.with(mActivity)
                     .load(url)
                     .apply(options)
                     .into(mProviderImageView);
 
-            // Set provider name
-            if (mReservation.getStatus() == Reservation.Assigned) {
-                mNameView.setVisibility(View.VISIBLE);
-                mNameView.setText(mProvider.getShortName());
-            } else {
-                // Show actions
-                mActionView.setVisibility(View.VISIBLE);
-
-                // Set date-hour
-                // Set provider name
-                if (mReservation.getStatus() == Reservation.Pending) {
-                    mDateHourView.setText("En espera");
-                } else if(TextUtils.isEmpty(mReservation.getDate())) {
-                    SimpleDateFormat dateFormat =
-                            new SimpleDateFormat("EEEE d", new Locale("es", "ES"));
-                    String date = null;
-                    try {
-                        SimpleDateFormat dateParse =
-                                new SimpleDateFormat("yyyy-MM-dd");
-                        date = dateFormat.format(dateParse.parse(mReservation.getDate()));
-                        date = date.substring(0, 1).toUpperCase() + date.substring(1).toLowerCase();
-                    } catch (ParseException e) {
-                        e.printStackTrace();
-                    }
-                    mDateHourView.setText(date + " - " + mReservation.getTime());
-                }
-            }
 
             // Set service name
             Random random = new Random();
             mServiceView.setText(mService.getName());
             mServiceView.setTextColor(Color.argb(255, random.nextInt(256), random.nextInt(256), random.nextInt(256)));
 
-            // Set by type
-            if (mType == Reservation.TYPE_NOTIFICATION) {
+
+            // Show actions
+            mActionView.setVisibility(View.VISIBLE);
 
 
-                // Set actions
-                if (mReservation.getStatus() == Reservation.Assigned) {
-                    mCallView.setVisibility(View.VISIBLE);
-                    mCallView.setOnClickListener(new View.OnClickListener() {
-                        @SuppressWarnings("MissingPermission")
-                        @Override
-                        public void onClick(View v) {
-                            AlertDialog.Builder builder = new AlertDialog.Builder(mActivity, R.style.AlertDialog);
-                            builder.setMessage(R.string.reservation_message_call_dialog)
-                                    .setPositiveButton(R.string.dialog_message_yes, new DialogInterface.OnClickListener() {
-                                        public void onClick(DialogInterface dialog, int id) {
+            // Set action cancel
+            mCancelView.setOnClickListener(new View.OnClickListener() {
+                @Override public void onClick(View v) {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(mActivity, R.style.AlertDialog);
+                    builder.setMessage(R.string.reservation_message_cancel_dialog)
+                            .setPositiveButton(R.string.dialog_message_yes, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    cancelReservationTask(position);
+                                }
+                            })
+                            .setNegativeButton(R.string.dialog_message_no, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {}
+                            });
 
-                                            String phone = mReservation
-                                                    .getProvider()
-                                                    .getProfile()
-                                                    .getPhone();
-                                            Uri call = Uri.parse("tel:" + phone);
-
-                                            if (mayRequestCall()) {
-                                                Intent surf = new Intent(Intent.ACTION_DIAL, call);
-                                                mActivity.startActivity(surf);
-                                            } else {
-                                                Intent surf = new Intent(Intent.ACTION_CALL, call);
-                                                mActivity.startActivity(surf);
-                                            }
-                                        }
-                                    })
-                                    .setNegativeButton(R.string.dialog_message_no, new DialogInterface.OnClickListener() {
-                                        public void onClick(DialogInterface dialog, int id) {
-                                        }
-                                    });
-
-                            builder.show();
-                        }
-                    });
+                    builder.show();
                 }
+            });
 
-                mCancelView.setOnClickListener(new View.OnClickListener() {
-                    @Override public void onClick(View v) {
+
+            // Show date-hour
+            mDateHourView.setVisibility(View.VISIBLE);
+
+
+            if (mReservation.getStatus() == Reservation.Pending) {
+                mDateHourView.setText("En espera");
+            } else {
+
+                // Set provider name
+                mNameView.setVisibility(View.VISIBLE);
+                mNameView.setText(mProvider.getShortName());
+
+
+                // Set date-hour
+                SimpleDateFormat dateFormat =
+                        new SimpleDateFormat("EEEE d", new Locale("es", "ES"));
+                String date = "";
+                try {
+                    SimpleDateFormat dateParse =
+                            new SimpleDateFormat("yyyy-MM-dd");
+                    date = dateFormat.format(dateParse.parse(mReservation.getDate()));
+                    date = date.substring(0, 1).toUpperCase() + date.substring(1).toLowerCase();
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+                mDateHourView.setText(date + " - " + mReservation.getTime());
+
+
+                // Set action call
+                mCallView.setVisibility(View.VISIBLE);
+                mCallView.setOnClickListener(new View.OnClickListener() {
+                    @SuppressWarnings("MissingPermission")
+                    @Override
+                    public void onClick(View v) {
                         AlertDialog.Builder builder = new AlertDialog.Builder(mActivity, R.style.AlertDialog);
-                        builder.setMessage(R.string.reservation_message_cancel_dialog)
+                        builder.setMessage(R.string.reservation_message_call_dialog)
                                 .setPositiveButton(R.string.dialog_message_yes, new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog, int id) {
-                                        cancelReservationTask(position);
+
+                                        String phone = mReservation
+                                                .getProvider()
+                                                .getProfile()
+                                                .getPhone();
+                                        Uri call = Uri.parse("tel:" + phone);
+
+                                        if (mayRequestCall()) {
+                                            Intent surf = new Intent(Intent.ACTION_DIAL, call);
+                                            mActivity.startActivity(surf);
+                                        } else {
+                                            Intent surf = new Intent(Intent.ACTION_CALL, call);
+                                            mActivity.startActivity(surf);
+                                        }
                                     }
                                 })
                                 .setNegativeButton(R.string.dialog_message_no, new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int id) {}
+                                    public void onClick(DialogInterface dialog, int id) {
+                                    }
                                 });
 
                         builder.show();
                     }
                 });
-            } else {
-                mInfoView.setVisibility(View.VISIBLE);
-
-                // Set date-month
-                if(TextUtils.isEmpty(mReservation.getDate())) {
-                    SimpleDateFormat dateFormat =
-                            new SimpleDateFormat("EEEE d MMM", new Locale("es", "ES"));
-                    String date = null;
-                    try {
-                        SimpleDateFormat dateParse =
-                                new SimpleDateFormat("yyyy-MM-dd");
-                        date = dateFormat.format(dateParse.parse(mReservation.getDate()));
-                        //date = date.substring(0, 1).toUpperCase() + date.substring(1).toLowerCase();
-                    } catch (ParseException e) {
-                        e.printStackTrace();
-                    }
-                    mDateHourView.setText(date);
-                }
-
-                // Set hour
-                mHourView.setText(mReservation.getTime());
-
-                // Set cost
-                mCostView.setText(mReservation.getCost());
             }
-
         }
     }
 
     public class TechnicalHistoryViewHolder
             extends RecyclerView.ViewHolder{
 
-        public CircleImageView mProviderImageView;
-        public TextView mNameView, mServiceView, mDateHourView, mHourView, mCostView;
+        private CircleImageView mProviderImageView;
+        private TextView mNameView, mServiceView, mDateMonthView, mHourView, mCostView;
 
-        public LinearLayout mInfoView;
+        private LinearLayout mInfoView;
 
         public TechnicalHistoryViewHolder(View itemView) {
             super(itemView);
             mProviderImageView = itemView.findViewById(R.id.img_provider);
             mNameView = itemView.findViewById(R.id.txt_provider_name);
             mServiceView = itemView.findViewById(R.id.txt_service_name);
+            mDateMonthView = itemView.findViewById(R.id.txt_date_month);
             mHourView = itemView.findViewById(R.id.txt_hour);
             mCostView = itemView.findViewById(R.id.txt_cost);
             mInfoView = itemView.findViewById(R.id.ll_info);
@@ -316,26 +306,24 @@ public class ReservationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             mInfoView.setVisibility(View.VISIBLE);
 
             // Set date-month
-            if(TextUtils.isEmpty(mReservation.getDate())) {
-                SimpleDateFormat dateFormat =
-                        new SimpleDateFormat("EEEE d MMM", new Locale("es", "ES"));
-                String date = null;
-                try {
-                    SimpleDateFormat dateParse =
-                            new SimpleDateFormat("yyyy-MM-dd");
-                    date = dateFormat.format(dateParse.parse(mReservation.getDate()));
-                    //date = date.substring(0, 1).toUpperCase() + date.substring(1).toLowerCase();
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
-                mDateHourView.setText(date);
+            SimpleDateFormat dateFormat =
+                    new SimpleDateFormat("EEEE d MMM", new Locale("es", "ES"));
+            String date = "";
+            try {
+                SimpleDateFormat dateParse =
+                        new SimpleDateFormat("yyyy-MM-dd");
+                date = dateFormat.format(dateParse.parse(mReservation.getDate()));
+                //date = date.substring(0, 1).toUpperCase() + date.substring(1).toLowerCase();
+            } catch (ParseException e) {
+                e.printStackTrace();
             }
+            mDateMonthView.setText(date);
 
             // Set hour
             mHourView.setText(mReservation.getTime());
 
             // Set cost
-            mCostView.setText(mReservation.getCost());
+            mCostView.setText("$" + mReservation.getCost());
         }
     }
 
@@ -355,12 +343,12 @@ public class ReservationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             @Override
             public void onResponse(Call<Reservation> call, Response<Reservation> response) {
                 if (response.isSuccessful()) {
-                    Log.i(Util.TAG_RESERVATION, "Reservation result: success!");
+                    Log.i(TAG_RESERVATION, "Reservation result: success!");
                     Util.longToast(mActivity,
                             mActivity.getString(R.string.reservation_message_delete_response));
                     removeItem(pk);
                 } else {
-                    Log.i(Util.TAG_RESERVATION, "Reservation result: " + response.toString());
+                    Log.i(TAG_RESERVATION, "Reservation result: " + response.toString());
                     Util.longToast(mActivity,
                             mActivity.getString(R.string.message_service_server_failed));
                 }
@@ -369,7 +357,7 @@ public class ReservationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
             @Override
             public void onFailure(Call<Reservation> call, Throwable t) {
-                Log.i(Util.TAG_RESERVATION, "Reservation result: failed, " + t.getMessage());
+                Log.i(TAG_RESERVATION, "Reservation result: failed, " + t.getMessage());
                 Util.longToast(mActivity,
                         mActivity.getString(R.string.message_network_local_failed));
                 Util.hideLoading();

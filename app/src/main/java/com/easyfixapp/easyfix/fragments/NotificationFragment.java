@@ -32,6 +32,7 @@ import retrofit2.Response;
  */
 public class NotificationFragment extends Fragment {
 
+    private View view;
     private RecyclerView mReservationView;
     private ReservationAdapter mReservationAdapter;
     private List<Reservation> mReservationList = new ArrayList<>();
@@ -42,7 +43,7 @@ public class NotificationFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_reservation, container, false);
+        view = inflater.inflate(R.layout.fragment_reservation, container, false);
 
 
         mReservationAdapter = new ReservationAdapter(getActivity(),
@@ -73,7 +74,7 @@ public class NotificationFragment extends Fragment {
 
     /** Fetch reservations **/
     private void reservationTask(){
-        Util.showLoading(getActivity(), getString(R.string.notification_message_request));
+        Util.showProgress(getContext(), mReservationView, view, true);
 
         SessionManager sessionManager = new SessionManager(getContext());
         ApiService apiService = ServiceGenerator.createApiService();
@@ -83,6 +84,8 @@ public class NotificationFragment extends Fragment {
         call.enqueue(new Callback<List<Reservation>>() {
             @Override
             public void onResponse(Call<List<Reservation>> call, Response<List<Reservation>> response) {
+                Util.showProgress(getContext(), mReservationView, view, false);
+
                 if (response.isSuccessful()) {
                     Log.i(Util.TAG_NOTIFICATION, "Notification result: success!");
 
@@ -96,25 +99,28 @@ public class NotificationFragment extends Fragment {
                         mReservationAdapter.notifyDataSetChanged();
 
                     } else {
-                        Util.longToast(getContext(),
+                        //Util.longToast(getContext(),
+                        //        getString(R.string.message_service_server_empty));
+                        Util.showMessage(mReservationView, view,
                                 getString(R.string.message_service_server_empty));
                     }
-                    Util.hideLoading();
-
+                    //Util.hideLoading();
                 } else {
                     Log.i(Util.TAG_NOTIFICATION, "Notification result: " + response.toString());
-                    Util.longToast(getContext(),
+                    //Util.longToast(getContext(),
+                    //        getString(R.string.message_service_server_failed));
+                    Util.showMessage(mReservationView, view,
                             getString(R.string.message_service_server_failed));
                 }
-                Util.hideLoading();
+                //Util.hideLoading();
             }
 
             @Override
             public void onFailure(Call<List<Reservation>> call, Throwable t) {
                 Log.i(Util.TAG_NOTIFICATION, "Notification result: failed, " + t.getMessage());
-                Util.longToast(getContext(),
+                Util.showProgress(getContext(), mReservationView, view, false);
+                Util.showMessage(mReservationView, view,
                         getString(R.string.message_network_local_failed));
-                Util.hideLoading();
             }
         });
     }
