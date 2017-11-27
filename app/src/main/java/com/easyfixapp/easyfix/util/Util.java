@@ -3,11 +3,16 @@ package com.easyfixapp.easyfix.util;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -18,9 +23,16 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.easyfixapp.easyfix.R;
+import com.easyfixapp.easyfix.activities.LoginActivity;
+import com.easyfixapp.easyfix.activities.MainActivity;
+import com.easyfixapp.easyfix.fragments.MenuFragment;
+import com.google.firebase.iid.FirebaseInstanceId;
 
+import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import io.realm.Realm;
 
 /**
  * Created by julio on 20/05/17.
@@ -67,17 +79,18 @@ public class Util {
     /**
      * LOG TAG
      **/
-    public static final String TAG_KEYBOARD = "SM-KEYBOARD";
-    public static final String TAG_KEY = "SM-KEY";
-    public static final String TAG_LOGIN = "SM-LOGIN";
-    public static final String TAG_SIGNUP = "SM-SIGNUP";
-    public static final String TAG_SERVICE = "SM-SERVICE";
-    public static final String TAG_NOTIFICATION = "SM-NOTIFICATION";
-    public static final String TAG_TECHNICAL_HISTORY = "SM-TECHNICAL-HISTORY";
+    public static final String TAG_KEYBOARD = "EF-KEYBOARD";
+    public static final String TAG_KEY = "EF-KEY";
+    public static final String TAG_LOGIN = "EF-LOGIN";
+    public static final String TAG_SIGNUP = "EF-SIGNUP";
+    public static final String TAG_SERVICE = "EF-SERVICE";
+    public static final String TAG_NOTIFICATION = "EF-NOTIFICATION";
+    public static final String TAG_TECHNICAL_HISTORY = "EF-TECHNICAL-HISTORY";
     public static final String TAG_SERVICE_DETAIL_IMAGE = "EF-SERVICE-DETAIL-IMAGE";
     public static final String TAG_ADDRESS = "EF-ADDRESS";
     public static final String TAG_MENU = "EF-MENU";
     public static final String TAG_PROFILE = "EF-PROFILE";
+    public static final String TAG_FCM = "EF-FCM";
 
 
     /**
@@ -285,40 +298,63 @@ public class Util {
     }
 
 
-    /**
-     * Shows the progress UI and hides the login form.
-     */
-    /*
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
-    public static void showProgress(final boolean show) {
-        // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
-        // for very easy animations. If available, use these APIs to fade-in
-        // the progress spinner.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
-            int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
+    public static void logout(final Context context) {
 
-            mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-            mLoginFormView.animate().setDuration(shortAnimTime).alpha(
-                    show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
+        int message;
+        final Activity activity = MainActivity.activity;
+
+        try {
+            activity.runOnUiThread(new Runnable() {
+                public void run() {
+                    showLoading(activity, activity.getString(R.string.message_logout_request));
                 }
             });
+        } catch (Exception ignore){}
 
-            mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-            mProgressView.animate().setDuration(shortAnimTime).alpha(
-                    show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
+        // Clean preferences
+        SessionManager sessionManager = new SessionManager(context);
+        sessionManager.clear();
+
+        // Reset FCM token
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    FirebaseInstanceId.getInstance().deleteInstanceId();
+                } catch (IOException e) {
+                    Log.e(Util.TAG_MENU, e.getMessage());
                 }
-            });
-        } else {
-            // The ViewPropertyAnimator APIs are not available, so simply show
-            // and hide the relevant UI components.
-            mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-            mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
+            }
+        }).start();
+
+        // Clean database
+        Realm realm = Realm.getDefaultInstance();
+        try {
+            realm.beginTransaction();
+            realm.deleteAll();
+            realm.commitTransaction();
+
+            message = R.string.message_logout;
+        } catch (Exception e){
+            Log.e(Util.TAG_MENU, e.toString());
+            message = R.string.message_service_server_failed;
+        } finally {
+            realm.close();
         }
-    }*/
+
+        try {
+            final int finalMessage = message;
+            activity.runOnUiThread(new Runnable() {
+                public void run() {
+                    Intent intent = new Intent(activity, LoginActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    activity.startActivity(intent);
+                    activity.finish();
+
+                    hideLoading();
+                    longToast(context, context.getString(finalMessage));
+                }
+            });
+        } catch (Exception ignore){}
+    }
 }

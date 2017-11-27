@@ -61,6 +61,12 @@ public class SettingsActivity extends AppCompatActivity {
         super.attachBaseContext(CalligraphyContextWrapper.wrap(context));
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        MainActivity.activity = this;
+    }
+
     public boolean onSupportNavigateUp(){
         Intent upIntent = NavUtils.getParentActivityIntent(this);
         if (NavUtils.shouldUpRecreateTask(this, upIntent)) {

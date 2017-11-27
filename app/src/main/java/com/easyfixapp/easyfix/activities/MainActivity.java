@@ -1,5 +1,6 @@
 package com.easyfixapp.easyfix.activities;
 
+import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
@@ -14,6 +15,7 @@ import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 public class MainActivity extends AppCompatActivity {
 
     private MenuFragment mMenuFragment;
+    public static Activity activity = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,6 +65,12 @@ public class MainActivity extends AppCompatActivity {
             // menu fragment handled the back pressed task
             // do not call super
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        activity = this;
     }
 
     private void initScreen() {

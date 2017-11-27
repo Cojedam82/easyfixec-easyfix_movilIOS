@@ -42,11 +42,16 @@
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
 
         <activity
             android:name=".activities.LoginActivity"
+            android:screenOrientation="portrait"/>
+
+        <activity
+            android:name=".activities.RecoveryPasswordActivity"
             android:screenOrientation="portrait"/>
 
         <activity
@@ -69,6 +74,15 @@
                 android:value=".activities.MainActivity" />
         </activity>
 
+        <!-- Cloud Messaging -->
+        <service
+            android:name=".services.MessagingService">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+            </intent-filter>
+        </service>
+
+        <!-- Fabric -->
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="d995fea19637aa88211f84ec1ee41065c5af0a01" />

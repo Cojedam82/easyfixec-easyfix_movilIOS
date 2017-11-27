@@ -1,5 +1,6 @@
 package com.easyfixapp.easyfix.fragments;
 
+import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -46,6 +47,7 @@ public class MenuFragment extends Fragment
     private MenuItem prevMenuItem;
     private BottomNavigationView bottomNavigationView;
     private View view;
+
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -222,46 +224,12 @@ public class MenuFragment extends Fragment
         }
     }
 
-    private void logout(){
+    public void logout(){
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext(), R.style.AlertDialog);
         builder.setMessage(R.string.message_logout_dialog)
                 .setPositiveButton(R.string.dialog_message_yes, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-
-                        // Clean preferences
-                        SessionManager sessionManager = new SessionManager(getContext());
-                        sessionManager.clear();
-
-                        // Reset FCM token
-                        new Thread(new Runnable() {
-                            @Override
-                            public void run() {
-                                try {
-                                    FirebaseInstanceId.getInstance().deleteInstanceId();
-                                } catch (IOException e) {
-                                    Log.e(Util.TAG_MENU, e.getMessage());
-                                }
-                            }
-                        }).start();
-
-                        // Clean database
-                        Realm realm = Realm.getDefaultInstance();
-                        try {
-                            realm.beginTransaction();
-                            realm.deleteAll();
-                            realm.commitTransaction();
-
-                            Intent intent = new Intent(getActivity(), LoginActivity.class);
-                            startActivity(intent);
-                            getActivity().finish();
-
-                            Util.longToast(getContext(), getString(R.string.message_logout));
-                        } catch (Exception e){
-                            Log.e(Util.TAG_MENU, e.toString());
-                            Util.longToast(getContext(), getString(R.string.message_service_server_failed));
-                        } finally {
-                            realm.close();
-                        }
+                        Util.logout(getContext());
                     }
                 })
                 .setNegativeButton(R.string.dialog_message_no, new DialogInterface.OnClickListener() {

@@ -76,7 +76,7 @@ public class TechnicalHistoryFragment extends Fragment{
         call.enqueue(new Callback<List<Reservation>>() {
             @Override
             public void onResponse(Call<List<Reservation>> call, Response<List<Reservation>> response) {
-                Util.showProgress(getContext(), mReservationView, view, false);
+                Util.showProgress(getActivity(), mReservationView, view, false);
 
                 if (response.isSuccessful()) {
                     Log.i(Util.TAG_TECHNICAL_HISTORY, "Reservation result: success!");
@@ -105,12 +105,12 @@ public class TechnicalHistoryFragment extends Fragment{
                             getString(R.string.message_service_server_failed));
                 }
                 //Util.hideLoading();
-                Util.showProgress(getContext(), mReservationView, view, false);
+                Util.showProgress(getActivity(), mReservationView, view, false);
             }
 
             @Override
             public void onFailure(Call<List<Reservation>> call, Throwable t) {
-                Util.showProgress(getContext(), mReservationView, view, false);
+                Util.showProgress(getActivity(), mReservationView, view, false);
 
                 //Util.longToast(getContext(),
                 //        getString(R.string.message_network_local_failed));

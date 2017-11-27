@@ -18,6 +18,7 @@
     </string>
 
     <string name="action_sign_in">Ingresar</string>
+    <string name="action_recovery_password">Solicitar</string>
     <string name="action_sign_up">Crear cuenta</string>
 
     <string name="error_invalid_first_name">El nombre es muy corto</string>
@@ -32,8 +33,10 @@
         completions."
     </string>
 
-    <string name="message_login_request">Iniciando Sesión</string>
-    <string name="message_signup_request">Enviando registro</string>
+    <string name="message_login_request">Iniciando Sesión...</string>
+    <string name="message_logout_request">Cerrando Sesión...</string>
+    <string name="message_recovery_password_request">Solicitando Contraseña...</string>
+    <string name="message_signup_request">Enviando registro...</string>
 
     <string name="message_login_response_success">Se ha iniciado sesión correctamente</string>
     <string name="message_login_response_failed">Hubo problemas, revise los datos enviados o el correo ya se encuentre registrado</string>

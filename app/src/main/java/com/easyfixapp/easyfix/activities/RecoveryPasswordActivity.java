@@ -28,6 +28,7 @@ import android.widget.TextView;
 import com.easyfixapp.easyfix.R;
 import com.easyfixapp.easyfix.models.AuthResponse;
 import com.easyfixapp.easyfix.models.User;
+import com.easyfixapp.easyfix.util.ApiService;
 import com.easyfixapp.easyfix.util.AuthService;
 import com.easyfixapp.easyfix.util.ServiceGenerator;
 import com.easyfixapp.easyfix.util.SessionManager;
@@ -49,7 +50,7 @@ import static android.Manifest.permission.READ_CONTACTS;
 /**
  * A login screen that offers login via email/password.
  */
-public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<Cursor> {
+public class RecoveryPasswordActivity extends AppCompatActivity implements LoaderCallbacks<Cursor> {
 
     // UI references.
     private AutoCompleteTextView mEmailView;
@@ -58,7 +59,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
+        setContentView(R.layout.activity_recovery_password);
         // Set up the login form.
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
         mEmailView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -72,19 +73,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             }
         });
         populateAutoComplete();
-
-        mPasswordView = (EditText) findViewById(R.id.password);
-        mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
-                if (id == R.id.login || id == EditorInfo.IME_ACTION_DONE) {
-                    Util.hideSoftKeyboard(getApplicationContext(), getCurrentFocus());
-                    attemptLogin(null);
-                    return true;
-                }
-                return false;
-            }
-        });
     }
 
     @Override
@@ -135,35 +123,15 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         }
     }
 
-
-    /**
-     * Attempts to sign in or register the account specified by the login form.
-     * If there are form errors (invalid email, missing fields, etc.), the
-     * errors are presented and no actual login attempt is made.
-     */
-    public void attemptLogin(View v) {
+    public void attemptRecovery(View v) {
         // Reset errors.
         mEmailView.setError(null);
-        mPasswordView.setError(null);
 
         // Store values at the time of the login attempt.
         String email = mEmailView.getText().toString();
-        String password = mPasswordView.getText().toString();
-
-        //TODO: Remove this por production
-        if(email.equals("prueba")){
-            startActivity(new Intent(getApplicationContext(),MainActivity.class));
-        }
 
         boolean cancel = false;
         View focusView = null;
-
-        // Check for a valid password, if the user entered one.
-        if (TextUtils.isEmpty(password) || Util.isPasswordMinimumLengthValid(password)) {
-            mPasswordView.setError(getString(R.string.error_invalid_password));
-            focusView = mPasswordView;
-            cancel = true;
-        }
 
         // Check for a valid email address.
         if (TextUtils.isEmpty(email)) {
@@ -182,31 +150,19 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             focusView.requestFocus();
         } else {
             if (Util.isNetworkAvailable(getApplicationContext())) {
-                // Show a progress spinner, and kick off a background task to
-                // perform the user login attempt.
-                Util.showLoading(LoginActivity.this, getString(R.string.message_login_request));
+
+                Util.showLoading(RecoveryPasswordActivity.this, getString(R.string.message_recovery_password_request));
 
                 // Get firebase token
                 String registrationId = FirebaseInstanceId.getInstance().getToken();
 
                 Map<String, Object> params = new HashMap<>();
                 params.put("email", email);
-                params.put("password", password);
-                params.put("role", Util.USER_ROLE);
-
-                params.put("registration_id", registrationId);
-                params.put("type", Util.TYPE_DEVICE);
-
-                loginTask(params);
+                recoveryTask(params);
             } else {
                 Util.longToast(getApplicationContext(), getString(R.string.message_network_connectivity_failed));
             }
         }
-    }
-
-    public void attemptRecovery(View v) {
-        Intent intent = new Intent(LoginActivity.this, RecoveryPasswordActivity.class);
-        startActivity(intent);
     }
 
     @Override
@@ -246,7 +202,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private void addEmailsToAutoComplete(List<String> emailAddressCollection) {
         //Create adapter to tell the AutoCompleteTextView what to show in its dropdown list.
         ArrayAdapter<String> adapter =
-                new ArrayAdapter<>(LoginActivity.this,
+                new ArrayAdapter<>(RecoveryPasswordActivity.this,
                         android.R.layout.simple_dropdown_item_1line, emailAddressCollection);
 
         mEmailView.setAdapter(adapter);
@@ -264,50 +220,25 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     }
 
 
-    public void signup(View view){
-        // Init Signup
-        Intent intent = new Intent(LoginActivity.this, SignupActivity.class);
-        startActivity(intent);
-        //finish();
-    }
-
     /**
      * Represents an asynchronous login/registration task used to authenticate
      * the user.
      */
-    private void loginTask(Map<String,Object> params){
+    private void recoveryTask(Map<String,Object> params){
 
-        AuthService authService = ServiceGenerator.createAuthService();
-        Call<AuthResponse<User>> call = authService.login(params);
-        call.enqueue(new Callback<AuthResponse<User>>() {
+        ApiService apiService = ServiceGenerator.createApiService();
+        Call<AuthResponse<Void>> call = apiService.recoveryPassword(params);
+        call.enqueue(new Callback<AuthResponse<Void>>() {
             @Override
-            public void onResponse(@NonNull Call<AuthResponse<User>> call, @NonNull Response<AuthResponse<User>> response) {
+            public void onResponse(@NonNull Call<AuthResponse<Void>> call, @NonNull Response<AuthResponse<Void>> response) {
                 if (response.isSuccessful()) {
                     Log.i(Util.TAG_LOGIN, "Login result: success!");
 
                     AuthResponse userResponse = response.body();
-
                     if (!userResponse.isError()) {
-
-                        // Get user
-                        User user = (User) userResponse.getData();
-
-                        // Save user in shared preferences
-                        SessionManager sessionManager = new SessionManager(getApplicationContext());
-                        sessionManager.saveUser(user);
-
-                        // Show message success
-                        Util.longToast(getApplicationContext(), userResponse.getMsg());
-
-                        // Init Main
-                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                        startActivity(intent);
                         finish();
-
-                    } else {
-                        // Show message error
-                        Util.longToast(getApplicationContext(), userResponse.getMsg());
                     }
+                    Util.longToast(getApplicationContext(), userResponse.getMsg());
                 } else {
                     // Error response, no access to resource?
                     Log.i(Util.TAG_LOGIN, "Login result: " + response.toString());
@@ -317,7 +248,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             }
 
             @Override
-            public void onFailure(@NonNull Call<AuthResponse<User>> call, @NonNull Throwable t) {
+            public void onFailure(@NonNull Call<AuthResponse<Void>> call, @NonNull Throwable t) {
                 // Something went completely south (like no internet connection)
                 Log.i(Util.TAG_LOGIN, "Login result: failed, " + t.getMessage());
                 Util.longToast(getApplicationContext(), getString(R.string.message_network_local_failed));

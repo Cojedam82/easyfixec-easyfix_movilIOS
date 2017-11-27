@@ -1,15 +1,19 @@
 package com.easyfixapp.easyfix.util;
 
 import com.easyfixapp.easyfix.models.Address;
+import com.easyfixapp.easyfix.models.AuthResponse;
 import com.easyfixapp.easyfix.models.Reservation;
 import com.easyfixapp.easyfix.models.Service;
 import com.easyfixapp.easyfix.models.User;
 
 import java.util.List;
+import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;
+import retrofit2.http.FieldMap;
+import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
 import retrofit2.http.Header;
 import retrofit2.http.PATCH;
@@ -57,6 +61,10 @@ public interface ApiService {
 
 
     /** User **/
+    @FormUrlEncoded
+    @POST("users/recovery-password/")
+    Call<AuthResponse<Void>> recoveryPassword(@FieldMap Map<String, Object> params);
+
     @PATCH("users/{pk}/")
     Call<User> updateUser(@Path("pk") int pk,
                           @Header("Authorization") String authorization,

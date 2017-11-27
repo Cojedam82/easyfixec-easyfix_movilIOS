@@ -30,7 +30,7 @@ import retrofit2.Response;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class NotificationFragment extends Fragment {
+public class NotificationFragment extends RootFragment {
 
     private View view;
     private RecyclerView mReservationView;
