@@ -1,5 +1,6 @@
 package com.easyfixapp.easyfix.fragments;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -7,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 
 import com.easyfixapp.easyfix.R;
+import com.easyfixapp.easyfix.activities.ProfileUpdateActivity;
 import com.easyfixapp.easyfix.models.Profile;
 import com.easyfixapp.easyfix.models.User;
 import com.easyfixapp.easyfix.util.SessionManager;
@@ -54,10 +56,70 @@ public class ProfileFragment extends RootFragment{
         User user = sessionManager.getUser();
         Profile profile = user.getProfile();
 
-        mFirstNameView.setText(user.getFirstName());
-        mLastNameView.setText(user.getLastName());
-        mEmailView.setText(user.getEmail());
+        final String firstName = user.getFirstName();
+        mFirstNameView.setText(firstName);
+        mFirstNameView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                update(getResources().getString(R.string.prompt_first_name), firstName);
+            }
+        });
 
-        mPhoneView.setText(profile.getPhone());
+        final String lastName = user.getLastName();
+        mLastNameView.setText(lastName);
+        mLastNameView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                update(getResources().getString(R.string.prompt_last_name), lastName);
+            }
+        });
+
+
+        final String email = user.getEmail();
+        mEmailView.setText(email);
+        mEmailView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                update(getResources().getString(R.string.prompt_email), email);
+            }
+        });
+
+        final String phone = profile.getPhone();
+        mPhoneView.setText(phone);
+        mPhoneView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                update(getResources().getString(R.string.prompt_phone), phone);
+            }
+        });
+
+
+        mPasswordView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                update(getResources().getString(R.string.prompt_password), "");
+            }
+        });
+
+        final int paymentMethod = profile.getPaymentMethod();
+        mPaymentMethod.setText(profile.getPaymentMethodString());
+        mPaymentMethod.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                update(getResources().getString(R.string.prompt_payment_method),
+                        String.valueOf(paymentMethod));
+            }
+        });
     }
+
+    private void update(String field, String value) {
+        Bundle bundle = new Bundle();
+        bundle.putSerializable("field", field);
+        bundle.putSerializable("value", value);
+
+        Intent intent = new Intent(getActivity(), ProfileUpdateActivity.class);
+        intent.putExtras(bundle);
+        startActivity(intent);
+    }
+
 }

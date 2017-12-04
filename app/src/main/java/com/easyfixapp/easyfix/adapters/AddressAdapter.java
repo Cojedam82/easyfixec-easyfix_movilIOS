@@ -13,7 +13,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.easyfixapp.easyfix.R;
-import com.easyfixapp.easyfix.activities.LoginActivity;
+import com.easyfixapp.easyfix.activities.MapActivity;
 import com.easyfixapp.easyfix.models.Address;
 import com.easyfixapp.easyfix.util.ApiService;
 import com.easyfixapp.easyfix.util.ServiceGenerator;
@@ -24,8 +24,6 @@ import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import io.realm.Realm;
-import io.realm.RealmResults;
-import io.realm.Sort;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -41,7 +39,8 @@ public class AddressAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     private static final int TYPE_FOOTER = 2;
     private List<Address> mAddressList;
     private Context mContext;
-    private int defaultAddress = -1;
+    private int defaultIdAddress = -1;
+    private int defaultPositionAddress = -1;
 
     public AddressAdapter(Context context, List<Address> addressList) {
         this.mAddressList = addressList;
@@ -101,12 +100,22 @@ public class AddressAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     private void removeItem(int position) {
 
-        if (mAddressList.get(position).isDefault())
-            defaultAddress = -1;
+        if (mAddressList.get(position).isDefault()) {
+            defaultIdAddress = -1;
+            defaultPositionAddress = -1;
+        }
 
         mAddressList.remove(position);
         notifyItemRemoved(position);
         notifyItemRangeChanged(position, mAddressList.size());
+    }
+
+    private void updateItem(int position1, Address address1, int position2, Address address2) {
+        mAddressList.set(position1, address1);
+        mAddressList.set(position2, address2);
+
+        notifyItemChanged(position1);
+        notifyItemChanged(position2);
     }
 
     /**
@@ -133,9 +142,11 @@ public class AddressAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             final Address address = mAddressList.get(position);
 
             if (address.isDefault()) {
-                defaultAddress = position;
+                defaultIdAddress = address.getId();
+                defaultPositionAddress = position;
                 mStatusView.setImageDrawable(mContext.getResources().getDrawable(R.drawable.ic_add));
             } else {
+                mStatusView.setImageDrawable(mContext.getResources().getDrawable(android.R.drawable.ic_dialog_dialer));
                 itemView.setOnLongClickListener(new View.OnLongClickListener() {
                     @Override
                     public boolean onLongClick(View v) {
@@ -143,7 +154,7 @@ public class AddressAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                         builder.setMessage(R.string.address_message_update_dialog)
                                 .setPositiveButton(R.string.dialog_message_yes, new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog, int id) {
-                                        updateAddressTask(address.getId());
+                                        updateAddressTask(address.getId(), position);
                                     }
                                 })
                                 .setNegativeButton(R.string.dialog_message_no, new DialogInterface.OnClickListener() {
@@ -202,7 +213,7 @@ public class AddressAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             mActionView.setImageDrawable(mContext.getResources().getDrawable(R.drawable.ic_navigate_next));
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override public void onClick(View v) {
-                    Intent intent = new Intent(mContext, LoginActivity.class);
+                    Intent intent = new Intent(mContext, MapActivity.class);
                     mContext.startActivity(intent);
                 }
             });
@@ -234,13 +245,15 @@ public class AddressAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                     try {
                         Address a = realm
                                 .where(Address.class)
-                                .equalTo("id", defaultAddress)
+                                .equalTo("id", pk)
                                 .findFirst();
 
-                        realm.beginTransaction();
-                        a.setActive(false);
-                        realm.commitTransaction();
-
+                        if (a != null) {
+                            realm.beginTransaction();
+                            a.setActive(false);
+                            realm.copyToRealmOrUpdate(a);
+                            realm.commitTransaction();
+                        }
                         removeItem(position);
                     } finally {
                         realm.close();
@@ -263,7 +276,7 @@ public class AddressAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         });
     }
 
-    private void updateAddressTask(final int pk){
+    private void updateAddressTask(final int pk, final int position){
         Util.showLoading(mContext, mContext.getString(R.string.address_message_update_request));
 
         SessionManager sessionManager = new SessionManager(mContext);
@@ -284,7 +297,7 @@ public class AddressAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                     try {
                         Address addressBefore = realm
                                 .where(Address.class)
-                                .equalTo("id", defaultAddress)
+                                .equalTo("id", defaultIdAddress)
                                 .findFirst();
 
                         Address addressAfter = realm
@@ -293,14 +306,27 @@ public class AddressAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                                 .findFirst();
 
                         realm.beginTransaction();
-                        addressBefore.setActive(false);
-                        addressAfter.setActive(true);
+
+                        addressBefore.setDefault(false);
+                        realm.copyToRealmOrUpdate(addressBefore);
+
+                        addressAfter.setDefault(true);
+                        realm.copyToRealmOrUpdate(addressAfter);
+
                         realm.commitTransaction();
 
                         // Notify data
-                        notifyDataSetChanged();
+                        int position1 = defaultPositionAddress;
+                        Address address1 = realm.copyFromRealm(addressBefore);
 
-                    } catch (Exception ignore){
+                        int position2 = position;
+                        Address address2 = realm.copyFromRealm(addressAfter);
+
+                        updateItem(position1, address1, position2, address2);
+
+                    } catch (Exception e){
+                        e.getStackTrace();
+                        Log.i(Util.TAG_ADDRESS, e.getMessage());
                     } finally {
                         realm.close();
                     }

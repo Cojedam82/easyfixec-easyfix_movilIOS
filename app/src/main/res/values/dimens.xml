@@ -79,4 +79,7 @@
 
     <!-- Account - Address -->
     <dimen name="address_item_image_size">30dp</dimen>
+
+    <!-- Account - Address - Map -->
+    <dimen name="map_vertical_margin">32dp</dimen>
 </resources>

@@ -5,6 +5,7 @@ import com.google.gson.annotations.SerializedName;
 import java.io.Serializable;
 
 import io.realm.RealmObject;
+import io.realm.annotations.PrimaryKey;
 
 /**
  * Created by julio on 6/11/17.
@@ -13,6 +14,7 @@ import io.realm.RealmObject;
 public class Address extends RealmObject implements Serializable {
 
     @SerializedName("id")
+    @PrimaryKey
     private int id;
 
     @SerializedName("name")

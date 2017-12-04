@@ -9,7 +9,6 @@ import android.view.ViewGroup;
 import com.easyfixapp.easyfix.fragments.AccountFragment;
 import com.easyfixapp.easyfix.fragments.NotificationFragment;
 import com.easyfixapp.easyfix.fragments.ServiceFragment;
-import com.easyfixapp.easyfix.fragments.TechnicalHistoryFragment;
 
 /**
  * Created by julio on 08/06/17.

@@ -125,7 +125,6 @@ public class SignupActivity extends AppCompatActivity {
             if (phone.length() == 10)
                 phone = phone.substring(1);
             phone = phoneCode + phone;
-            Util.shortToast(getApplicationContext(), phone);
         }
 
         // Check for a valid password, if the user entered one.

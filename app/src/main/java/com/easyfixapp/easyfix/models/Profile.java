@@ -22,6 +22,15 @@ public class Profile extends RealmObject{
     @SerializedName("email")
     private String image;
 
+    @SerializedName("payment_method")
+    private int paymentMethod;
+
+    public static final int CASH_KEY = 1;
+    public static final String CASH_VALUE = "Efectivo";
+
+    public static final int CREDIT_CARD_KEY = 2;
+    public static final String CREDIT_CARD_VALUE = "Tarjeta de crédito";
+
     public Profile(){};
 
     public int getRole() {
@@ -54,5 +63,17 @@ public class Profile extends RealmObject{
 
     public void setImage(String image) {
         this.image = image;
+    }
+
+    public int getPaymentMethod() {
+        return this.paymentMethod;
+    }
+
+    public String getPaymentMethodString() {
+        return this.paymentMethod == CASH_KEY? CASH_VALUE : CREDIT_CARD_VALUE;
+    }
+
+    public void setPaymentMethod(int paymentMethod) {
+        this.paymentMethod = paymentMethod;
     }
 }

@@ -1,7 +1,5 @@
 package com.easyfixapp.easyfix.util;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -10,25 +8,24 @@ import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
-import android.os.Handler;
-import android.os.Looper;
-import android.os.Message;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.easyfixapp.easyfix.R;
 import com.easyfixapp.easyfix.activities.LoginActivity;
 import com.easyfixapp.easyfix.activities.MainActivity;
-import com.easyfixapp.easyfix.fragments.MenuFragment;
+import com.easyfixapp.easyfix.models.PaymentMethod;
+import com.easyfixapp.easyfix.models.Profile;
 import com.google.firebase.iid.FirebaseInstanceId;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -74,6 +71,9 @@ public class Util {
     public static final int IMAGE_GALLERY_REQUEST_CODE = 005;
     public static final int IMAGE_CAMERA_REQUEST_CODE = 006;
     public static final int REQUEST_READ_CONTACTS = 007;
+    public static final int PLACE_AUTOCOMPLETE_REQUEST_CODE = 8;
+    public static final int LOCATION_REQUEST_CODE = 9;
+    public static final int PLAY_SERVICES_REQUEST_CODE = 10;
 
 
     /**
@@ -91,6 +91,7 @@ public class Util {
     public static final String TAG_MENU = "EF-MENU";
     public static final String TAG_PROFILE = "EF-PROFILE";
     public static final String TAG_FCM = "EF-FCM";
+    public static final String TAG_MAP = "EF-MAP";
 
 
     /**
@@ -356,5 +357,14 @@ public class Util {
                 }
             });
         } catch (Exception ignore){}
+    }
+
+    public static List<PaymentMethod> getPaymentMethods() {
+        List<PaymentMethod> paymentMethods = new ArrayList<>();
+
+        paymentMethods.add(new PaymentMethod(Profile.CASH_KEY, Profile.CASH_VALUE));
+        paymentMethods.add(new PaymentMethod(Profile.CREDIT_CARD_KEY, Profile.CREDIT_CARD_VALUE));
+
+        return paymentMethods;
     }
 }

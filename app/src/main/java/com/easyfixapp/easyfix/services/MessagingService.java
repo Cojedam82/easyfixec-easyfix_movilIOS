@@ -1,16 +1,11 @@
 package com.easyfixapp.easyfix.services;
 
-import android.telephony.SmsManager;
 import android.util.Log;
 
-import com.easyfixapp.easyfix.util.SessionManager;
 import com.easyfixapp.easyfix.util.Util;
-import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
-import java.io.IOException;
-import java.util.Date;
 import java.util.Map;
 
 

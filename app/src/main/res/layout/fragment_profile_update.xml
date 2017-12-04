@@ -19,23 +19,60 @@
         android:layout_alignParentStart="true"
         android:src="@drawable/ic_delete"/>
 
-    <android.support.design.widget.TextInputLayout
+
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:orientation="vertical"
         android:layout_centerInParent="true">
+
+        <TextView
+            android:id="@+id/txt_title_1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/auth_activity_input"
+            tools:text="Nueva Contrasena" />
+
+        <Spinner
+            android:id="@+id/spinner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:visibility="gone"/>
 
         <EditText
             android:id="@+id/txt_field"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textSize="@dimen/auth_activity_input"
+            android:visibility="gone"
             tools:hint="field name"
             android:maxLines="1"
-            android:singleLine="true"
-            android:editable="false"
             tools:text="field value"/>
 
-    </android.support.design.widget.TextInputLayout>
+        <TextView
+            android:id="@+id/txt_title_2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            android:textSize="@dimen/auth_activity_input"
+            android:text="Repetir Nueva Contrasena"/>
+
+        <EditText
+            android:id="@+id/txt_confirmation_field"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            android:textSize="@dimen/auth_activity_input"
+            tools:hint="field name"
+            android:maxLines="1"
+            android:inputType="textPassword"
+            tools:text="Confirmation field value"/>
+
+    </LinearLayout>
 
     <Button
         android:id="@+id/btn_update"
@@ -43,10 +80,11 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:gravity="center"
-        tools:text="Actualizar"
+        android:text="Actualizar"
         android:background="@color/colorPrimaryDark"
         android:textSize="@dimen/auth_activity_action"
         android:textColor="@color/white"
-        android:textAllCaps="false" />
+        android:textAllCaps="false"
+        android:onClick="attemptUpdate"/>
 
 </RelativeLayout>

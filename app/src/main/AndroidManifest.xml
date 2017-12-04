@@ -26,6 +26,15 @@
     <!-- To make a call -->
     <uses-permission android:name="android.permission.CALL_PHONE" />
 
+    <!-- -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
+    <uses-feature
+        android:glEsVersion="0x00020000"
+        android:required="true" />
+
+
     <application
         android:name=".application.Application"
         android:allowBackup="true"
@@ -74,6 +83,30 @@
                 android:value=".activities.MainActivity" />
         </activity>
 
+        <activity
+            android:name=".activities.ProfileUpdateActivity"
+            android:parentActivityName=".activities.MainActivity"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:screenOrientation="portrait">
+
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activities.MainActivity" />
+        </activity>
+
+
+        <activity
+            android:name=".activities.MapActivity"
+            android:parentActivityName=".activities.MainActivity"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:screenOrientation="portrait">
+
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activities.MainActivity" />
+        </activity>
+
+
         <!-- Cloud Messaging -->
         <service
             android:name=".services.MessagingService">
@@ -82,10 +115,18 @@
             </intent-filter>
         </service>
 
+
         <!-- Fabric -->
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="d995fea19637aa88211f84ec1ee41065c5af0a01" />
+
+
+        <!-- Google Map -->
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="@string/google_map_api_key"/>
+
     </application>
 
 </manifest>

@@ -369,8 +369,8 @@ public class ServiceDetailFragment extends RootFragment{
         opts.add("Desde la cámara");
         opts.add("Desde la galería");
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-        builder.setTitle("Seleccion una opción");
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext(), R.style.AlertDialog);
+        builder.setTitle("Seleccione una opción");
         builder.setItems(opts.toArray(new CharSequence[opts.size()]), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {

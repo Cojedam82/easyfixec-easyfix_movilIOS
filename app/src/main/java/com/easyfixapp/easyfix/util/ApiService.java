@@ -18,7 +18,6 @@ import retrofit2.http.GET;
 import retrofit2.http.Header;
 import retrofit2.http.PATCH;
 import retrofit2.http.POST;
-import retrofit2.http.PUT;
 import retrofit2.http.Path;
 
 /**
@@ -51,7 +50,7 @@ public interface ApiService {
 
     /** Address **/
     @POST("addresses/")
-    Call<Address> createAddress(@Header("Authorization") String authorization);
+    Call<Address> createAddress(@Header("Authorization") String authorization, @Body Address address);
 
     @PATCH("addresses/{pk}/")
     Call<Void> updateAddress(@Path("pk") int pk, @Header("Authorization") String authorization);

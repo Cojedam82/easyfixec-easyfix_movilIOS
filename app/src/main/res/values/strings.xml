@@ -25,6 +25,7 @@
     <string name="error_invalid_last_name">El apellido es muy corto</string>
     <string name="error_incorrect_email">El correo electrónico no existe</string>
     <string name="error_invalid_email">El correo electrónico es inválido</string>
+    <string name="error_confirmation_password">La contraseña no coincide</string>
     <string name="error_incorrect_password">La contraseña es incorrecta</string>
     <string name="error_invalid_password">La contraseña debe tener más de 4 caracteres</string>
     <string name="error_invalid_phone">El número de teléfono es inválido</string>
@@ -104,6 +105,7 @@
     <string name="address_message_update_dialog">¿Deseas cambiar tu ubicación predeterminada?</string>
     <string name="address_message_delete_dialog">¿Estás seguro de eliminar esta ubicación?</string>
 
+    <string name="address_message_create_error">"No se puedo encontrar la dirección"</string>
     <string name="address_message_create_request">Agregando dirección...</string>
     <string name="address_message_create_response">Se ha agregado correctamente</string>
 
@@ -112,6 +114,33 @@
 
     <string name="address_message_delete_request">Eliminando dirección...</string>
     <string name="address_message_delete_response">Se ha eliminado correctamente</string>
+
+
+    <!-- Account -->
+    <string name="acount_message_update_request">Actualizando perfil...</string>
+    <string name="acount_message_update_response">Se ha actualizado correctamente</string>
+
+
+    <!-- Map -->
+    <string name="place_details">
+    <![CDATA[
+        <b>%1$s</b>
+        <br/>
+        <i>Place Id: %2$s</i>
+        <br/>
+        Address: %3$s
+        <br/>
+        Phone: %4$s
+        <br/>
+        Website: %5$s
+    ]]>
+    </string>
+
+
+    <!-- Credentials -->
+    <string name="google_map_api_key">AIzaSyBBZANwRnL2_-it7PIpqHAhk7G3FF4WggU</string>
+    <string name="fabric_api_key">d995fea19637aa88211f84ec1ee41065c5af0a01</string>
+
 
     <!-- Preferences -->
     <string name="preferences_user_id">USER_ID</string>
@@ -122,4 +151,5 @@
     <string name="preferences_profile_role">PROFILE_ROLE</string>
     <string name="preferences_profile_token">PROFILE_TOKEN</string>
     <string name="preferences_profile_address">PROFILE_ADDRESS</string>
+    <string name="preferences_profile_payment_method">PROFILE_PAYMENT_METHOD</string>
 </resources>

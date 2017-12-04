@@ -4,7 +4,6 @@ import android.annotation.TargetApi;
 import android.app.LoaderManager.LoaderCallbacks;
 import android.content.Context;
 import android.content.CursorLoader;
-import android.content.Intent;
 import android.content.Loader;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -27,11 +26,8 @@ import android.widget.TextView;
 
 import com.easyfixapp.easyfix.R;
 import com.easyfixapp.easyfix.models.AuthResponse;
-import com.easyfixapp.easyfix.models.User;
 import com.easyfixapp.easyfix.util.ApiService;
-import com.easyfixapp.easyfix.util.AuthService;
 import com.easyfixapp.easyfix.util.ServiceGenerator;
-import com.easyfixapp.easyfix.util.SessionManager;
 import com.easyfixapp.easyfix.util.Util;
 import com.google.firebase.iid.FirebaseInstanceId;
 

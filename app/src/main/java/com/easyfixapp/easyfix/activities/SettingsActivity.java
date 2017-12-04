@@ -45,7 +45,7 @@ public class SettingsActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 //onSupportNavigateUp();
-                onBackPressed();
+                finish();
             }
         });
 

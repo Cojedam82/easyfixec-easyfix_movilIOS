@@ -1,6 +1,5 @@
 package com.easyfixapp.easyfix.fragments;
 
-import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -21,20 +20,14 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.easyfixapp.easyfix.R;
-import com.easyfixapp.easyfix.activities.LoginActivity;
 import com.easyfixapp.easyfix.activities.SettingsActivity;
 import com.easyfixapp.easyfix.adapters.ViewPagerAdapter;
 import com.easyfixapp.easyfix.listeners.OnBackPressListener;
 import com.easyfixapp.easyfix.models.Settings;
-import com.easyfixapp.easyfix.util.SessionManager;
 import com.easyfixapp.easyfix.util.Util;
 import com.easyfixapp.easyfix.widget.CustomViewPager;
-import com.google.firebase.iid.FirebaseInstanceId;
-
-import java.io.IOException;
 
 import de.hdodenhof.circleimageview.CircleImageView;
-import io.realm.Realm;
 
 public class MenuFragment extends Fragment
         implements NavigationView.OnNavigationItemSelectedListener {

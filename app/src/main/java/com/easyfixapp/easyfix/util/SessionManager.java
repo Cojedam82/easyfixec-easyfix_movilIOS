@@ -10,8 +10,6 @@ import com.easyfixapp.easyfix.models.Profile;
 import com.easyfixapp.easyfix.models.User;
 
 import io.realm.Realm;
-import io.realm.RealmResults;
-import io.realm.Sort;
 
 /**
  * Created by julio on 29/05/17.
@@ -41,6 +39,7 @@ public class SessionManager {
         mEditor.putString(mResources.getString(R.string.preferences_profile_phone), profile.getPhone());
         mEditor.putString(mResources.getString(R.string.preferences_profile_token), profile.getToken());
         mEditor.putInt(mResources.getString(R.string.preferences_profile_role), profile.getRole());
+        mEditor.putInt(mResources.getString(R.string.preferences_profile_payment_method), profile.getPaymentMethod());
 
         mEditor.apply();
 
@@ -71,6 +70,7 @@ public class SessionManager {
         profile.setPhone(mSharedPreferences.getString(mResources.getString(R.string.preferences_profile_phone), null));
         profile.setToken(mSharedPreferences.getString(mResources.getString(R.string.preferences_profile_token), null));
         profile.setRole(mSharedPreferences.getInt(mResources.getString(R.string.preferences_profile_role), -1));
+        profile.setPaymentMethod(mSharedPreferences.getInt(mResources.getString(R.string.preferences_profile_payment_method), 0));
         user.setProfile(profile);
 
         return user;
