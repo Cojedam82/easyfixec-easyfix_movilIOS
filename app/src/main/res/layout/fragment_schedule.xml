@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/sub_container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?android:attr/windowBackground"
+    android:clickable="false"
+    tools:context=".activities.MainActivity">
+
+    <RelativeLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="?android:windowBackground">
+
+        <LinearLayout
+            android:id="@+id/header"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/profile_header_height"
+            android:paddingLeft="@dimen/activity_horizontal_margin"
+            android:paddingRight="@dimen/activity_horizontal_margin"
+            android:paddingTop="@dimen/activity_vertical_min_margin"
+            android:paddingBottom="@dimen/activity_vertical_min_margin"
+            android:layout_alignParentTop="true"
+            android:background="@color/colorPrimaryDark"
+            android:theme="@style/ThemeOverlay.AppCompat.Dark"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <TextView
+                android:id="@+id/txt_year"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/white"
+                android:textSize="30sp"
+                tools:text="2017"/>
+
+            <TextView
+                android:id="@+id/txt_month"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/white"
+                android:textSize="22sp"
+                tools:text="Noviembre"/>
+
+
+        </LinearLayout>
+
+
+
+        <com.prolificinteractive.materialcalendarview.MaterialCalendarView
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/calendar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/header"
+            app:mcv_tileHeight="30dp"
+            app:mcv_showOtherDates="none"
+            app:mcv_selectionColor="@color/colorPrimary"
+            app:mcv_weekDayLabels="@array/days_week"
+            app:mcv_dateTextAppearance="@style/CustomTextAppearance" />
+
+        <View
+            android:id="@+id/separator"
+            android:layout_width="wrap_content"
+            android:layout_height="1dp"
+            android:layout_below="@+id/calendar"
+            android:background="@color/black" />
+
+
+        <TextView
+            android:id="@+id/txt_time"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/calendar"
+            android:layout_above="@+id/btn_schedule"
+            android:drawableTop="@drawable/border_top"
+            android:textColor="@color/black_50"
+            android:textSize="34sp"
+            android:gravity="center"
+            tools:text="13:00"/>
+
+
+        <Button
+            android:id="@+id/btn_schedule"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/activity_vertical_min_margin"
+            android:layout_alignParentBottom="true"
+            android:background="@color/colorPrimaryDark"
+            android:text="Agendar"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            android:textSize="@dimen/auth_activity_input" />
+    </RelativeLayout>
+
+</FrameLayout>

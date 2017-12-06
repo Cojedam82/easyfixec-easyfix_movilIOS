@@ -3,11 +3,13 @@ package com.easyfixapp.easyfix.activities;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 
 import com.easyfixapp.easyfix.R;
 import com.easyfixapp.easyfix.fragments.MenuFragment;
+import com.easyfixapp.easyfix.util.SessionManager;
 
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
@@ -81,5 +83,16 @@ public class MainActivity extends AppCompatActivity {
         fragmentManager.beginTransaction()
                 .replace(R.id.container, mMenuFragment)
                 .commit();
+    }
+
+    public void clearService() {
+        SessionManager sessionManager = new SessionManager(getApplicationContext());
+        int count = sessionManager.getFragments();
+
+        for (int i=0; i<count; i++) {
+            MainActivity.activity.onBackPressed();
+        }
+
+        sessionManager.resetFragment();
     }
 }

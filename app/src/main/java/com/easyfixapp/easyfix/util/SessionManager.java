@@ -84,6 +84,20 @@ public class SessionManager {
         return "Token " + mSharedPreferences.getString(mResources.getString(R.string.preferences_profile_token), null);
     }
 
+    public int getFragments() {
+        return mSharedPreferences.getInt(mResources.getString(R.string.preferences_number_fragment), 0);
+    }
+
+    public void addFragment() {
+        mEditor.putInt(mResources.getString(R.string.preferences_number_fragment), getFragments() + 1);
+        mEditor.apply();
+    }
+
+    public void resetFragment() {
+        mEditor.putInt(mResources.getString(R.string.preferences_number_fragment), 0);
+        mEditor.apply();
+    }
+
     public void clear(){
         mEditor.clear();
         mEditor.apply();

@@ -110,12 +110,17 @@ public class AddressAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         notifyItemRangeChanged(position, mAddressList.size());
     }
 
-    private void updateItem(int position1, Address address1, int position2, Address address2) {
+    private void updateItems(int position1, Address address1, int position2, Address address2) {
         mAddressList.set(position1, address1);
         mAddressList.set(position2, address2);
 
         notifyItemChanged(position1);
         notifyItemChanged(position2);
+    }
+
+    private void updateItem(int position, Address address) {
+        mAddressList.set(position, address);
+        notifyItemChanged(position);
     }
 
     /**
@@ -307,22 +312,32 @@ public class AddressAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
                         realm.beginTransaction();
 
-                        addressBefore.setDefault(false);
-                        realm.copyToRealmOrUpdate(addressBefore);
-
                         addressAfter.setDefault(true);
                         realm.copyToRealmOrUpdate(addressAfter);
 
                         realm.commitTransaction();
 
-                        // Notify data
-                        int position1 = defaultPositionAddress;
-                        Address address1 = realm.copyFromRealm(addressBefore);
-
                         int position2 = position;
                         Address address2 = realm.copyFromRealm(addressAfter);
 
-                        updateItem(position1, address1, position2, address2);
+                        if (addressBefore != null) {
+
+                            realm.beginTransaction();
+
+                            addressBefore.setDefault(false);
+                            realm.copyToRealmOrUpdate(addressBefore);
+
+                            realm.commitTransaction();
+
+                            // Notify data
+                            int position1 = defaultPositionAddress;
+                            Address address1 = realm.copyFromRealm(addressBefore);
+
+                            updateItems(position1, address1, position2, address2);
+                        } else {
+                            updateItem(position2, address2);
+                        }
+
 
                     } catch (Exception e){
                         e.getStackTrace();

@@ -2,13 +2,15 @@ package com.easyfixapp.easyfix.models;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.io.Serializable;
+
 import io.realm.RealmObject;
 
 /**
  * Created by julio on 29/05/17.
  */
 
-public class Profile extends RealmObject{
+public class Profile extends RealmObject implements Serializable {
 
     @SerializedName("role")
     private int role;

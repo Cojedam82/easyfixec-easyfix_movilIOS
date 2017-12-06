@@ -87,7 +87,8 @@ public class Util {
     public static final String TAG_NOTIFICATION = "EF-NOTIFICATION";
     public static final String TAG_TECHNICAL_HISTORY = "EF-TECHNICAL-HISTORY";
     public static final String TAG_SERVICE_DETAIL_IMAGE = "EF-SERVICE-DETAIL-IMAGE";
-    public static final String TAG_ADDRESS = "EF-ADDRESS";
+    public static final String TAG_ = "EF-ADDRESS";
+    public static final String TAG_ADDRESS = "EF-RESERVATION";
     public static final String TAG_MENU = "EF-MENU";
     public static final String TAG_PROFILE = "EF-PROFILE";
     public static final String TAG_FCM = "EF-FCM";

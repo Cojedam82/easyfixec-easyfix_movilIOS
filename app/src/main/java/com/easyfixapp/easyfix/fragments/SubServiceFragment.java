@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.easyfixapp.easyfix.R;
+import com.easyfixapp.easyfix.activities.MainActivity;
 import com.easyfixapp.easyfix.adapters.ServiceAdapter;
 import com.easyfixapp.easyfix.models.Service;
 import com.easyfixapp.easyfix.util.SessionManager;
@@ -61,8 +62,10 @@ public class SubServiceFragment extends RootFragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        // set welcome
         SessionManager sessionManager = new SessionManager(getContext());
+        sessionManager.addFragment();
+
+        // set welcome
         String firstName = sessionManager.getUser().getFirstName();
         mWelcomeView.setText("Hola " + firstName + "\n¿Qué servicio necesitas?");
 

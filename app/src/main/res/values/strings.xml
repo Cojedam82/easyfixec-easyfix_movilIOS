@@ -56,6 +56,11 @@
     <string name="message_services_request">Consultando servicios...</string>
 
 
+    <!-- Reservation -->
+    <string name="reservation_message_create_request">Creando solicitud...</string>
+    <string name="reservation_message_create_response">Se ha creado su solicitud correctamente</string>
+
+
     <!-- Notification -->
     <string name="notification_message_request">Consultando notificaciones...</string>
 
@@ -76,6 +81,9 @@
     <string name="dialog_message_continue">Continuar</string>
     <string name="dialog_message_yes">Aceptar</string>
     <string name="dialog_message_no">Cancelar</string>
+
+    <string name="dialog_yes">Si</string>
+    <string name="dialog_no">No</string>
 
 
     <!-- Network And Api -->
@@ -104,6 +112,7 @@
     <string name="address_message_footer">Agregar Dirección</string>
     <string name="address_message_update_dialog">¿Deseas cambiar tu ubicación predeterminada?</string>
     <string name="address_message_delete_dialog">¿Estás seguro de eliminar esta ubicación?</string>
+    <string name="address_message_select_dialog">¿Estás seguro de seleccionar esta ubicación?</string>
 
     <string name="address_message_create_error">"No se puedo encontrar la dirección"</string>
     <string name="address_message_create_request">Agregando dirección...</string>
@@ -152,4 +161,16 @@
     <string name="preferences_profile_token">PROFILE_TOKEN</string>
     <string name="preferences_profile_address">PROFILE_ADDRESS</string>
     <string name="preferences_profile_payment_method">PROFILE_PAYMENT_METHOD</string>
+
+    <string name="preferences_number_fragment">NUMBER_FRAGMENT</string>
+
+    <array name="days_week">
+        <item>L</item>
+        <item>M</item>
+        <item>M</item>
+        <item>J</item>
+        <item>V</item>
+        <item>S</item>
+        <item>D</item>
+    </array>
 </resources>

@@ -1,5 +1,6 @@
 package com.easyfixapp.easyfix.fragments;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -16,10 +17,12 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,17 +38,30 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
 import com.easyfixapp.easyfix.R;
+import com.easyfixapp.easyfix.activities.MainActivity;
+import com.easyfixapp.easyfix.activities.MapActivity;
+import com.easyfixapp.easyfix.models.Address;
 import com.easyfixapp.easyfix.models.Artifact;
+import com.easyfixapp.easyfix.models.Reservation;
 import com.easyfixapp.easyfix.models.Service;
+import com.easyfixapp.easyfix.util.ApiService;
+import com.easyfixapp.easyfix.util.ServiceGenerator;
+import com.easyfixapp.easyfix.util.SessionManager;
 import com.easyfixapp.easyfix.util.Util;
 import com.easyfixapp.easyfix.widget.CustomRadioGroup;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import io.realm.Realm;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 import static android.Manifest.permission.CAMERA;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
@@ -130,6 +146,9 @@ public class ServiceDetailFragment extends RootFragment{
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        SessionManager sessionManager = new SessionManager(getContext());
+        sessionManager.addFragment();
+
         init();
     }
 
@@ -343,20 +362,33 @@ public class ServiceDetailFragment extends RootFragment{
         if (cancel) {
             focusView.requestFocus();
         } else {
-            /*
-            if (Util.isNetworkAvailable(getApplicationContext())) {
-                // Show a progress spinner, and kick off a background task to
-                // perform the user login attempt.
-                Util.showLoading(LoginActivity.this, getString(R.string.message_login_request));
 
-                Map<String, String> params = new HashMap<>();
-                params.put("email", email);
-                params.put("password", password);
+            Reservation reservation = new Reservation();
+            reservation.setService(mService);
+            reservation.setArtifact(artifact);
+            reservation.setDescription(description);
+            reservation.setImages(mImageFileList);
 
-                loginTask(params);
+            if (actionID == R.id.rb_now) {
+
+                if (Util.isNetworkAvailable(getActivity())) {
+                    confirmAddress(getActivity(), reservation);
+                } else {
+                    Util.longToast(getContext(), getString(R.string.message_network_connectivity_failed));
+                }
+
             } else {
-                Util.longToast(getApplicationContext(), getString(R.string.message_network_connectivity_failed));
-            }*/
+                ScheduleFragment mScheduleFragment = new ScheduleFragment();
+
+                Bundle bundle = new Bundle();
+                bundle.putSerializable("reservation", reservation);
+                mScheduleFragment.setArguments(bundle);
+
+                FragmentTransaction transaction = getChildFragmentManager().beginTransaction();
+                transaction.replace(R.id.sub_container, mScheduleFragment);
+                transaction.addToBackStack(null);
+                transaction.commit();
+            }
         }
     }
 
@@ -517,4 +549,95 @@ public class ServiceDetailFragment extends RootFragment{
         }
     }
 
+
+    public void createReservationTask(final Context context, Reservation reservation){
+        Util.showLoading(context, getString(R.string.reservation_message_create_request));
+
+        final SessionManager sessionManager = new SessionManager(context);
+        String token = sessionManager.getToken();
+
+        ApiService apiService = ServiceGenerator.createApiService();
+        Call<Reservation> call = apiService.createReservation(token, reservation);
+        call.enqueue(new Callback<Reservation>() {
+            @Override
+            public void onResponse(Call<Reservation> call, Response<Reservation> response) {
+                if (response.isSuccessful()) {
+                    Log.i(Util.TAG_RESERVATION, "Reservation result: success!");
+                    Util.longToast(context,
+                            getString(R.string.reservation_message_create_response));
+
+                    ((MainActivity)MainActivity.activity).clearService();
+
+                } else {
+                    Log.i(Util.TAG_RESERVATION, "Reservation result: " + response.toString());
+                    Util.longToast(context,
+                            getString(R.string.message_service_server_failed));
+                }
+                Util.hideLoading();
+            }
+
+            @Override
+            public void onFailure(Call<Reservation> call, Throwable t) {
+                Log.i(Util.TAG_RESERVATION, "Reservation result: failed, " + t.getMessage());
+                Util.longToast(context,
+                        getString(R.string.message_network_local_failed));
+                Util.hideLoading();
+            }
+        });
+    }
+
+
+    public void confirmAddress (final Context context, final Reservation reservation) {
+        Address address = null;
+
+        Realm realm = Realm.getDefaultInstance();
+        try {
+            Address addressBefore = realm
+                    .where(Address.class)
+                    .equalTo("isDefault", true)
+                    .findFirst();
+            address = realm.copyFromRealm(addressBefore);
+
+        } catch (Exception ignore){}
+        finally {
+            realm.close();
+        }
+
+        if (address != null) {
+            AlertDialog.Builder displayAlert = new AlertDialog.Builder(context, R.style.AlertDialog);
+            displayAlert.setTitle("Seleccionar dirección");
+            displayAlert.setCancelable(false);
+            final Address finalAddress = address;
+            displayAlert.setMessage("¿Desea solicitar el tecnico a su dirección por defecto?")
+                    .setPositiveButton(R.string.dialog_yes, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            reservation.setAddress(finalAddress);
+                            createReservationTask(context, reservation);
+                        }
+                    })
+                    .setNegativeButton(R.string.dialog_no, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            showAddressPickup(reservation);
+                        }
+                    });
+
+            displayAlert.show();
+        } else {
+            showAddressPickup(reservation);
+        }
+
+    }
+
+    private void showAddressPickup(Reservation reservation) {
+        AddressConfirmFragment mAddressConfirmFragment = new AddressConfirmFragment();
+
+        Bundle bundle = new Bundle();
+        bundle.putSerializable("reservation", reservation);
+        mAddressConfirmFragment.setArguments(bundle);
+
+        FragmentTransaction transaction = getChildFragmentManager().beginTransaction();
+        transaction.replace(R.id.sub_container, mAddressConfirmFragment);
+        transaction.addToBackStack(null);
+        transaction.commit();
+    }
 }

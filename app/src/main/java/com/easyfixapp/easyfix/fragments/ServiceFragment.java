@@ -70,18 +70,14 @@ public class ServiceFragment extends RootFragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        // set welcome
         SessionManager sessionManager = new SessionManager(getContext());
+
+        // set welcome
         String firstName = sessionManager.getUser().getFirstName();
         mWelcomeView.setText("Hola " + firstName + "\n¿Qué servicio necesitas?");
 
         // fetch services
         if (mServiceList.isEmpty()) serviceTask();
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
     }
 
     /** Fetch services **/

@@ -1,7 +1,9 @@
 package com.easyfixapp.easyfix.models;
 
 
-public class PaymentMethod {
+import java.io.Serializable;
+
+public class PaymentMethod implements Serializable {
 
     private String name;
     private int id;

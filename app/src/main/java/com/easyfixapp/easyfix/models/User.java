@@ -2,6 +2,8 @@ package com.easyfixapp.easyfix.models;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.io.Serializable;
+
 import io.realm.RealmList;
 import io.realm.annotations.Ignore;
 
@@ -9,7 +11,7 @@ import io.realm.annotations.Ignore;
  * Created by julio on 16/05/17.
  */
 
-public class User {
+public class User implements Serializable {
 
     @SerializedName("id")
     private int id;

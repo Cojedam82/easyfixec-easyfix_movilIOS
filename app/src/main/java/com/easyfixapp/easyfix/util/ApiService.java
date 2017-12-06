@@ -38,6 +38,9 @@ public interface ApiService {
      *      4 --> No Realizada
      *      5 --> Realizada
      **/
+    @POST("reservations/")
+    Call<Reservation> createReservation(@Header("Authorization") String authorization, @Body Reservation reservation);
+
     @GET("reservations/?status__in=1,3")
     Call<List<Reservation>> getNotifications(@Header("Authorization") String authorization);
 

@@ -2,11 +2,15 @@ package com.easyfixapp.easyfix.models;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.io.File;
+import java.io.Serializable;
+import java.util.List;
+
 /**
  * Created by julio on 11/06/17.
  */
 
-public class Reservation {
+public class Reservation implements Serializable{
 
     // To item
     public static final int TYPE_NOTIFICATION = 0;
@@ -34,6 +38,15 @@ public class Reservation {
     @SerializedName("cost")
     private String cost;
 
+    @SerializedName("description")
+    private String description;
+
+    @SerializedName("artifact")
+    private String artifact;
+
+    @SerializedName("address")
+    private Address address;
+
     @SerializedName("service")
     private Service service;
 
@@ -42,6 +55,8 @@ public class Reservation {
 
     @SerializedName("provider")
     private User provider;
+
+    private List<File> images;
 
     public int getId() {
         return id;
@@ -83,6 +98,30 @@ public class Reservation {
         this.cost = cost;
     }
 
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getArtifact() {
+        return artifact;
+    }
+
+    public void setArtifact(String artifact) {
+        this.artifact = artifact;
+    }
+
+    public Address getAddress() {
+        return address;
+    }
+
+    public void setAddress(Address address) {
+        this.address = address;
+    }
+
     public Service getService() {
         return service;
     }
@@ -105,5 +144,13 @@ public class Reservation {
 
     public void setProvider(User provider) {
         this.provider = provider;
+    }
+
+    public List<File> getImages() {
+        return images;
+    }
+
+    public void setImages(List<File> images) {
+        this.images = images;
     }
 }
