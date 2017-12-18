@@ -268,7 +268,7 @@ public class ServiceDetailFragment extends RootFragment{
                 .diskCacheStrategy(DiskCacheStrategy.ALL);
 
         Glide.with(getContext())
-                .load(Util.BASE_URL + mService.getImage())
+                .load(mService.getImage())
                 .apply(options)
                 .into(mImageServiceView);
 

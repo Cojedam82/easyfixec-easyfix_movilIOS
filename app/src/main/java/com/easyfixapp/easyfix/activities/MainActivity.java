@@ -59,6 +59,7 @@ public class MainActivity extends AppCompatActivity {
     public void onBackPressed() {
 
         if (!mMenuFragment.onBackPressed()) {
+
             // container Fragment or its associates couldn't handle the back pressed task
             // delegating the task to super class
             super.onBackPressed();
@@ -93,6 +94,6 @@ public class MainActivity extends AppCompatActivity {
             MainActivity.activity.onBackPressed();
         }
 
-        sessionManager.resetFragment();
+        MenuFragment.setSelectedTab(R.id.navigation_notification);
     }
 }

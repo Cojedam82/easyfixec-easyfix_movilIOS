@@ -18,6 +18,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import com.easyfixapp.easyfix.R;
@@ -73,6 +74,7 @@ public class MapActivity extends AppCompatActivity implements
 
     private PlaceAutocompleteFragment autocompleteFragment;
     private TextView mAddressView;
+    private EditText mReferenceView;
 
     private GoogleMap mMap;
     private boolean mResolvingError = false;
@@ -103,6 +105,7 @@ public class MapActivity extends AppCompatActivity implements
 
         setContentView(R.layout.activity_map);
         mAddressView = findViewById(R.id.txt_autocomplete);
+        mReferenceView = findViewById(R.id.txt_reference);
 
         findViewById(R.id.img_close).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -488,6 +491,7 @@ public class MapActivity extends AppCompatActivity implements
                             Address address = new Address();
                             address.setName(mName);
                             address.setDescription(mDescription);
+                            address.setReference(mReferenceView.getText().toString());
                             address.setLatitude(String.valueOf(mLastLocation.latitude));
                             address.setLongitude(String.valueOf(mLastLocation.longitude));
 
@@ -529,17 +533,20 @@ public class MapActivity extends AppCompatActivity implements
                     Address addressAfter = response.body();
                     Realm realm = Realm.getDefaultInstance();
                     try {
-                        Address addressBefore = realm
-                                .where(Address.class)
-                                .equalTo("isDefault", true)
-                                .findFirst();
 
                         realm.beginTransaction();
 
-                        // updating address by default
-                        if (addressBefore != null) {
-                            addressBefore.setDefault(false);
-                            realm.copyToRealmOrUpdate(addressBefore);
+                        if (addressAfter.isDefault()) {
+                            Address addressBefore = realm
+                                    .where(Address.class)
+                                    .equalTo("isDefault", true)
+                                    .findFirst();
+
+                            // updating address by default
+                            if (addressBefore != null) {
+                                addressBefore.setDefault(false);
+                                realm.copyToRealmOrUpdate(addressBefore);
+                            }
                         }
 
                         // adding new address to local db

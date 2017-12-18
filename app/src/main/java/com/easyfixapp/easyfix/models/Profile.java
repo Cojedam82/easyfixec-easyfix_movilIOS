@@ -1,8 +1,11 @@
 package com.easyfixapp.easyfix.models;
 
+import com.easyfixapp.easyfix.util.Util;
 import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 import io.realm.RealmObject;
 
@@ -21,7 +24,7 @@ public class Profile extends RealmObject implements Serializable {
     @SerializedName("token")
     private String token;
 
-    @SerializedName("email")
+    @SerializedName("image")
     private String image;
 
     @SerializedName("payment_method")
@@ -60,7 +63,7 @@ public class Profile extends RealmObject implements Serializable {
     }
 
     public String getImage() {
-        return image;
+        return Util.getUrl(image);
     }
 
     public void setImage(String image) {

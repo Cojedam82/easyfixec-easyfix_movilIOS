@@ -18,6 +18,7 @@ import com.easyfixapp.easyfix.fragments.RootFragment;
 import com.easyfixapp.easyfix.fragments.ServiceDetailFragment;
 import com.easyfixapp.easyfix.fragments.SubServiceFragment;
 import com.easyfixapp.easyfix.models.Service;
+import com.easyfixapp.easyfix.util.SessionManager;
 import com.easyfixapp.easyfix.util.Util;
 
 import java.io.Serializable;
@@ -60,7 +61,7 @@ public class ServiceAdapter extends RecyclerView.Adapter<ServiceAdapter.ServiceV
         public void bind(final Fragment fragment, RequestOptions options, final Service service) {
             // Set service image
             Glide.with(itemView.getContext())
-                    .load(Util.BASE_URL + service.getImage())
+                    .load(service.getImage())
                     .apply(options)
                     .into(mServiceImageView);
 
@@ -69,6 +70,10 @@ public class ServiceAdapter extends RecyclerView.Adapter<ServiceAdapter.ServiceV
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override public void onClick(View v) {
+
+                    SessionManager sessionManager = new SessionManager(itemView.getContext());
+                    sessionManager.resetFragment();
+
                     ((RootFragment)fragment).setBackPressedIcon();
                     List<Service> services = service.getSubServiceList();
 

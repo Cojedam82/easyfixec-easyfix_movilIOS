@@ -1,5 +1,6 @@
 package com.easyfixapp.easyfix.models;
 
+import com.easyfixapp.easyfix.util.Util;
 import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
@@ -45,7 +46,7 @@ public class Service implements Serializable {
     }
 
     public String getImage() {
-        return image;
+        return Util.getUrl(image);
     }
 
     public void setImage(String image) {

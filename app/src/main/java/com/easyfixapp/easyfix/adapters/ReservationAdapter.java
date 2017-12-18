@@ -145,7 +145,7 @@ public class ReservationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
             final Reservation mReservation = mReservationList.get(position);
             Service mService = mReservation.getService();
-            User mProvider = mReservation.getProvider();
+            final User mProvider = mReservation.getProvider();
 
             // Set provider image
             String url = "";
@@ -212,7 +212,7 @@ public class ReservationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                 } catch (ParseException e) {
                     e.printStackTrace();
                 }
-                mDateHourView.setText(date + " - " + mReservation.getTime());
+                mDateHourView.setText(date + " - " + mReservation.getTime().substring(0,5));
 
 
                 // Set action call
@@ -222,7 +222,9 @@ public class ReservationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                     @Override
                     public void onClick(View v) {
                         AlertDialog.Builder builder = new AlertDialog.Builder(mActivity, R.style.AlertDialog);
-                        builder.setMessage(R.string.reservation_message_call_dialog)
+                        builder.setMessage(itemView.
+                                getContext().getString(R.string.reservation_message_call_dialog) +
+                                " " + mProvider.getShortName())
                                 .setPositiveButton(R.string.dialog_message_yes, new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog, int id) {
 
@@ -319,7 +321,7 @@ public class ReservationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             mDateMonthView.setText(date);
 
             // Set hour
-            mHourView.setText(mReservation.getTime());
+            mHourView.setText(mReservation.getTime().substring(0,5));
 
             // Set cost
             mCostView.setText("$" + mReservation.getCost());

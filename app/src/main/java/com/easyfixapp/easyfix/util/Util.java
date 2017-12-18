@@ -24,6 +24,8 @@ import com.easyfixapp.easyfix.models.Profile;
 import com.google.firebase.iid.FirebaseInstanceId;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -87,8 +89,8 @@ public class Util {
     public static final String TAG_NOTIFICATION = "EF-NOTIFICATION";
     public static final String TAG_TECHNICAL_HISTORY = "EF-TECHNICAL-HISTORY";
     public static final String TAG_SERVICE_DETAIL_IMAGE = "EF-SERVICE-DETAIL-IMAGE";
-    public static final String TAG_ = "EF-ADDRESS";
-    public static final String TAG_ADDRESS = "EF-RESERVATION";
+    public static final String TAG_RESERVATION = "EF-RESERVATION";
+    public static final String TAG_ADDRESS = "EF-ADDRESS";
     public static final String TAG_MENU = "EF-MENU";
     public static final String TAG_PROFILE = "EF-PROFILE";
     public static final String TAG_FCM = "EF-FCM";
@@ -367,5 +369,23 @@ public class Util {
         paymentMethods.add(new PaymentMethod(Profile.CREDIT_CARD_KEY, Profile.CREDIT_CARD_VALUE));
 
         return paymentMethods;
+    }
+
+    public static String getUrl(String url) {
+
+        String image = url;
+
+        if (!TextUtils.isEmpty(image)) {
+            try {
+                URI u = new URI(image);
+                if (!u.isAbsolute()) {
+                    image = BASE_URL + url;
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        return image;
     }
 }

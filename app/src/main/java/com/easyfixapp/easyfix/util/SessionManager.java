@@ -36,6 +36,7 @@ public class SessionManager {
         mEditor.putString(mResources.getString(R.string.preferences_user_last_name), user.getLastName());
         mEditor.putString(mResources.getString(R.string.preferences_user_email), user.getEmail());
 
+        mEditor.putString(mResources.getString(R.string.preferences_profile_image), profile.getImage());
         mEditor.putString(mResources.getString(R.string.preferences_profile_phone), profile.getPhone());
         mEditor.putString(mResources.getString(R.string.preferences_profile_token), profile.getToken());
         mEditor.putInt(mResources.getString(R.string.preferences_profile_role), profile.getRole());
@@ -67,6 +68,7 @@ public class SessionManager {
         user.setLastName(mSharedPreferences.getString(mResources.getString(R.string.preferences_user_last_name), null));
         user.setEmail(mSharedPreferences.getString(mResources.getString(R.string.preferences_user_email), null));
 
+        profile.setImage(mSharedPreferences.getString(mResources.getString(R.string.preferences_profile_image), null));
         profile.setPhone(mSharedPreferences.getString(mResources.getString(R.string.preferences_profile_phone), null));
         profile.setToken(mSharedPreferences.getString(mResources.getString(R.string.preferences_profile_token), null));
         profile.setRole(mSharedPreferences.getInt(mResources.getString(R.string.preferences_profile_role), -1));

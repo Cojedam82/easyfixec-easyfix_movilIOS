@@ -156,6 +156,7 @@
     <string name="preferences_user_first_name">USER_FIRST_NAME</string>
     <string name="preferences_user_last_name">USER_LAST_NAME</string>
     <string name="preferences_user_email">USER_EMAIL</string>
+    <string name="preferences_profile_image">PROFILE_IMAGE</string>
     <string name="preferences_profile_phone">PROFILE_PHONE</string>
     <string name="preferences_profile_role">PROFILE_ROLE</string>
     <string name="preferences_profile_token">PROFILE_TOKEN</string>

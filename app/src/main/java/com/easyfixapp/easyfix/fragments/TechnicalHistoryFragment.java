@@ -65,7 +65,6 @@ public class TechnicalHistoryFragment extends Fragment{
 
     /** Fetch reservations **/
     private void reservationTask(){
-        //Util.showLoading(getActivity(), getString(R.string.technical_history_message_request));
         Util.showProgress(getContext(), mReservationView, view, true);
 
         SessionManager sessionManager = new SessionManager(getContext());
@@ -91,33 +90,21 @@ public class TechnicalHistoryFragment extends Fragment{
                         mReservationAdapter.notifyDataSetChanged();
 
                     } else {
-                        //Util.longToast(getContext(),
-                        //        getString(R.string.message_service_server_empty));
                         Util.showMessage(mReservationView, view,
                                 getString(R.string.message_service_server_empty));
                     }
-                    //Util.hideLoading();
                 } else {
                     Log.i(Util.TAG_TECHNICAL_HISTORY, "Reservation result: " + response.toString());
-                    //Util.longToast(getContext(),
-                    //        getString(R.string.message_service_server_failed));
                     Util.showMessage(mReservationView, view,
                             getString(R.string.message_service_server_failed));
                 }
-                //Util.hideLoading();
-                Util.showProgress(getActivity(), mReservationView, view, false);
             }
 
             @Override
             public void onFailure(Call<List<Reservation>> call, Throwable t) {
-                Util.showProgress(getActivity(), mReservationView, view, false);
-
-                //Util.longToast(getContext(),
-                //        getString(R.string.message_network_local_failed));
+                //Util.showProgress(getActivity(), mReservationView, view, false);
                 Util.showMessage(mReservationView, view,
                         getString(R.string.message_network_local_failed));
-
-                //Util.hideLoading();
             }
         });
     }
