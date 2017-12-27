@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
@@ -18,11 +17,11 @@ import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,9 +36,9 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
+import com.easyfixapp.easyfix.BuildConfig;
 import com.easyfixapp.easyfix.R;
 import com.easyfixapp.easyfix.activities.MainActivity;
-import com.easyfixapp.easyfix.activities.MapActivity;
 import com.easyfixapp.easyfix.models.Address;
 import com.easyfixapp.easyfix.models.Artifact;
 import com.easyfixapp.easyfix.models.Reservation;
@@ -49,6 +48,7 @@ import com.easyfixapp.easyfix.util.ServiceGenerator;
 import com.easyfixapp.easyfix.util.SessionManager;
 import com.easyfixapp.easyfix.util.Util;
 import com.easyfixapp.easyfix.widget.CustomRadioGroup;
+import com.google.gson.Gson;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -56,9 +56,13 @@ import java.io.FileOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 import io.realm.Realm;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -76,14 +80,19 @@ public class ServiceDetailFragment extends RootFragment{
     private CustomRadioGroup mCustomRadioGroup;
     private ImageView mImageServiceView, mImage1View, mImage2View, mImage3View, mImage4View;
     private TabLayout mTabLayout;
-    private TextView mTitleView;
+    private TextView mTitleView, mTimeView;
     private EditText mDescriptionView;
     private View view;
     private RadioButton mActionView;
     private Button mRequestView;
 
+    private AlertDialog displayAlert = null;
+
     private Service mService = null;
-    private List<File> mImageFileList;
+    private Reservation mReservation = null;
+
+    private byte[][] mImageByteList;
+    private File[] mImageFileList;
     private File mFile;
     private int mFilePosition;
 
@@ -126,7 +135,20 @@ public class ServiceDetailFragment extends RootFragment{
                              Bundle savedInstanceState) {
 
         view = inflater.inflate(R.layout.fragment_service_detail, container, false);
-        mService = (Service) getArguments().getSerializable("service");
+
+        if (mService==null && mReservation == null) {
+            try {
+                Serializable serializable = getArguments().getSerializable("service");
+                if (serializable == null) {
+                    mReservation = (Reservation) getArguments().getSerializable("reservation");
+                    mService = mReservation.getService();
+                    getArguments().remove("reservation");
+                } else {
+                    mService = (Service) serializable;
+                    getArguments().remove("service");
+                }
+            } catch (Exception ignore) {}
+        }
 
         mTitleView = view.findViewById(R.id.txt_service_name);
         mArtifactView = view.findViewById(R.id.txt_artifact);
@@ -137,6 +159,7 @@ public class ServiceDetailFragment extends RootFragment{
         mImage2View = view.findViewById(R.id.img_detail_2);
         mImage3View = view.findViewById(R.id.img_detail_3);
         mImage4View = view.findViewById(R.id.img_detail_4);
+        mTimeView = view.findViewById(R.id.txt_time);
         mCustomRadioGroup = view.findViewById(R.id.rg_actions);
         mRequestView = view.findViewById(R.id.btn_request);
 
@@ -180,7 +203,8 @@ public class ServiceDetailFragment extends RootFragment{
             mImageBitmap = adjustImage(mFile);
         } else if (requestCode == Util.IMAGE_GALLERY_REQUEST_CODE) {
             Uri mImageUri = data.getData();
-            mFile = new File(mImageUri.getPath());
+            String path = mImageUri.getPath();
+            mFile = new File(path);
 
             if (mImageUri != null) {
                 try {
@@ -199,6 +223,8 @@ public class ServiceDetailFragment extends RootFragment{
                 mImageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
                 byte[] byteArray = stream.toByteArray();
 
+                mImageByteList[mFilePosition] = byteArray;
+                mImageFileList[mFilePosition] = mFile;
                 showImage(mImageBitmap);
             } catch (Exception e){
                 e.printStackTrace();
@@ -221,15 +247,13 @@ public class ServiceDetailFragment extends RootFragment{
 
     private void init() {
         // Init images
-        mImageFileList = new ArrayList<File>();
+        mImageByteList = new byte[4][1];
+        mImageFileList = new File[4];
 
         // Init radiobuton
         mCustomRadioGroup.check(R.id.rb_now);
 
         if (mService != null) {
-
-            // Add actions
-            addActions();
 
             // Populate initial info
             populateInfo();
@@ -237,12 +261,74 @@ public class ServiceDetailFragment extends RootFragment{
             // Populate top tabs
             populateTabs();
 
-            // Populate artifacts
-            populateArtifacts();
+            // Fill reservation
+            checkReservation();
 
         } else {
             Util.longToast(getContext(),
                     getResources().getString(R.string.message_service_detail_empty));
+        }
+    }
+
+    private void checkReservation() {
+
+        if (mReservation == null) {
+
+            // Add actions
+            addActions();
+
+            // Populate artifacts
+            populateArtifacts();
+
+        } else {
+
+            for(int i=0; i < mTabLayout.getTabCount(); i++) {
+                TabLayout.Tab tab = mTabLayout.getTabAt(i);
+
+                if (tab.getText().equals(mReservation.getType())) {
+                    tab.select();
+                }
+
+                ViewGroup viewGroup = (ViewGroup) ((ViewGroup) mTabLayout.getChildAt(0)).getChildAt(i);
+                viewGroup.setOnTouchListener(new View.OnTouchListener() {
+                    @Override
+                    public boolean onTouch(View v, MotionEvent event) {
+                        return true;
+                    }
+                });
+            }
+
+            mArtifactView.setText(mReservation.getArtifact());
+            mArtifactView.setEnabled(false);
+
+            mDescriptionView.setText(mReservation.getDescription());
+            mDescriptionView.setEnabled(false);
+
+            RequestOptions options = new RequestOptions()
+                    .diskCacheStrategy(DiskCacheStrategy.ALL);
+
+            Glide.with(getContext())
+                    .load(mReservation.getImage1())
+                    .apply(options)
+                    .into(mImage1View);
+            Glide.with(getContext())
+                    .load(mReservation.getImage2())
+                    .apply(options)
+                    .into(mImage2View);
+            Glide.with(getContext())
+                    .load(mReservation.getImage3())
+                    .apply(options)
+                    .into(mImage3View);
+            Glide.with(getContext())
+                    .load(mReservation.getImage4())
+                    .apply(options)
+                    .into(mImage4View);
+
+
+            mTimeView.setVisibility(View.GONE);
+            mCustomRadioGroup.setVisibility(View.GONE);
+
+            mRequestView.setVisibility(View.GONE);
         }
     }
 
@@ -287,11 +373,13 @@ public class ServiceDetailFragment extends RootFragment{
             ViewGroup viewGroup = (ViewGroup) ((ViewGroup) mTabLayout.getChildAt(0)).getChildAt(i);
 
             // Set padding
-            ViewGroup.MarginLayoutParams p = (ViewGroup.MarginLayoutParams) viewGroup.getLayoutParams();
+            ViewGroup.MarginLayoutParams p = (ViewGroup.MarginLayoutParams) viewGroup
+                    .getLayoutParams();
             p.setMargins(10, 0, 10, 0);
 
             // Set font
-            Typeface font = Typeface.createFromAsset(getActivity().getAssets(), "fonts/AntipastoRegular.otf");
+            Typeface font = Typeface.createFromAsset(getActivity().getAssets(),
+                    "fonts/AntipastoRegular.otf");
             ((TextView) viewGroup.getChildAt(1)).setTypeface(font);
 
             viewGroup.requestLayout();
@@ -299,13 +387,28 @@ public class ServiceDetailFragment extends RootFragment{
     }
 
     private void populateArtifacts(){
-        ArrayAdapter<Artifact> adapter = new ArrayAdapter<Artifact>
+        final ArrayAdapter<Artifact> adapter = new ArrayAdapter<Artifact>
                 (getContext(), android.R.layout.select_dialog_item, mService.getArtifactList());
 
         //Getting the instance of AutoCompleteTextView
-        mArtifactView.setThreshold(1);//will start working from first character
-        mArtifactView.setAdapter(adapter);//setting the adapter data into the AutoCompleteTextView
+        //mArtifactView.setThreshold(1);//will start working from first character
 
+        mArtifactView.setFocusable(false);
+        mArtifactView.setLongClickable(false);
+        mArtifactView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                return true;
+            }
+        });
+        mArtifactView.setAdapter(adapter);
+
+        mArtifactView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mArtifactView.showDropDown();
+            }
+        });
         mArtifactView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -338,7 +441,7 @@ public class ServiceDetailFragment extends RootFragment{
         mArtifactView.setError(null);
         mDescriptionView.setError(null);
 
-        String artifact = mArtifactView.getText().toString();
+        String artifact = mArtifactView.getText().toString().replaceAll("\"", "");
         String description = mDescriptionView.getText().toString();
 
         int actionID = mCustomRadioGroup.getCheckedRadioButtonId();
@@ -364,10 +467,13 @@ public class ServiceDetailFragment extends RootFragment{
         } else {
 
             Reservation reservation = new Reservation();
+            reservation.setType(arr_text[mTabLayout.getSelectedTabPosition()]);
             reservation.setService(mService);
             reservation.setArtifact(artifact);
             reservation.setDescription(description);
-            reservation.setImages(mImageFileList);
+
+            reservation.setImageByteList(mImageByteList);
+            reservation.setImageFileList(mImageFileList);
 
             if (actionID == R.id.rb_now) {
 
@@ -428,13 +534,21 @@ public class ServiceDetailFragment extends RootFragment{
 
                 if (Environment.MEDIA_MOUNTED.equals(mState)) {
                     mFile = new File(Environment.getExternalStorageDirectory(), mFileName);
-                    mImageUri = Uri.fromFile(mFile);
                 } else {
                     mFile = new File(getActivity().getFilesDir(), mFileName);
+                }
+
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
                     mImageUri = Uri.fromFile(mFile);
+                } else {
+                    mImageUri = FileProvider.getUriForFile(getContext(),
+                            BuildConfig.APPLICATION_ID + ".provider",
+                            mFile);
                 }
 
                 Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
                 //intent.putExtra(MediaStore.EXTRA_SCREEN_ORIENTATION, ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
                 intent.putExtra(MediaStore.EXTRA_OUTPUT, mImageUri);
                 startActivityForResult(intent, Util.IMAGE_CAMERA_REQUEST_CODE);
@@ -446,7 +560,8 @@ public class ServiceDetailFragment extends RootFragment{
     }
 
     private void fromGallery () {
-        Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
+        Intent photoPickerIntent = new Intent(Intent.ACTION_PICK,
+                android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         photoPickerIntent.setType("image/*");
         startActivityForResult(photoPickerIntent, Util.IMAGE_GALLERY_REQUEST_CODE);
     }
@@ -476,10 +591,6 @@ public class ServiceDetailFragment extends RootFragment{
 
         if (imageView != null) {
             imageView.setImageBitmap(bitmap);
-            /*
-            Glide.with(getContext())
-                    .load(bitmap)
-                    .into(imageView);*/
         }
     }
 
@@ -534,30 +645,51 @@ public class ServiceDetailFragment extends RootFragment{
         return Bitmap.createBitmap(bitmap, 0, 0, w, h, mtx, true);
     }
 
-    private String getRealPathFromURI(Uri uri) {
-        Cursor cursor = null;
-        try {
-            String[] proj = { MediaStore.Images.Media.DATA };
-            cursor = getActivity().getContentResolver().query(uri,  proj, null, null, null);
-            int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
-            cursor.moveToFirst();
-            return cursor.getString(column_index);
-        } finally {
-            if (cursor != null) {
-                cursor.close();
-            }
-        }
-    }
 
-
-    public void createReservationTask(final Context context, Reservation reservation){
+    public void createReservationTask(final Context context, final Reservation reservation){
         Util.showLoading(context, getString(R.string.reservation_message_create_request));
 
         final SessionManager sessionManager = new SessionManager(context);
         String token = sessionManager.getToken();
 
+        Gson gson = new Gson();
+
+        MediaType json = MediaType.parse("application/json");
+        MediaType img = MediaType.parse("image/*");
+        MediaType text = MediaType.parse("text/plain");
+
+        RequestBody type = RequestBody.create(text, reservation.getType());
+        RequestBody description = RequestBody.create(text, reservation.getDescription());
+        RequestBody artifact = RequestBody.create(text, reservation.getArtifact());
+        RequestBody address = RequestBody.create(text, "" + reservation.getAddress().getId());
+        RequestBody service = RequestBody.create(text, "" + reservation.getService().getId());
+
+        HashMap<String, RequestBody> params = new HashMap<>();
+
+        params.put("type", type);
+        params.put("description", description);
+        params.put("artifact", artifact);
+        params.put("address", address);
+        params.put("service", service);
+
+        MultipartBody.Part[] images = new MultipartBody.Part[4];
+
+        for (int i = 0; i< reservation.getImageFileList().length; i++) {
+            File file = reservation.getImageFileList()[i];
+
+            if (file != null) {
+
+                RequestBody requestBody = RequestBody.create(img,
+                        reservation.getImageByteList()[i]);
+                MultipartBody.Part image = MultipartBody.Part.createFormData("image" + (i + 1),
+                        file.getName(), requestBody);
+                images[i] = image;
+            }
+        }
+
         ApiService apiService = ServiceGenerator.createApiService();
-        Call<Reservation> call = apiService.createReservation(token, reservation);
+        Call<Reservation> call = apiService.createReservation(
+                token, params, images[0], images[1], images[2], images[3]);
         call.enqueue(new Callback<Reservation>() {
             @Override
             public void onResponse(Call<Reservation> call, Response<Reservation> response) {
@@ -566,6 +698,15 @@ public class ServiceDetailFragment extends RootFragment{
                     Util.longToast(context,
                             getString(R.string.reservation_message_create_response));
 
+                    // Save id of new reservation
+                    Reservation r = response.body();
+                    //sessionManager.setServiceDetail(r.getId());
+
+                    // Update reservations
+                    //NotificationFragment.showPostDetail(r);
+                    NotificationFragment.updateReservations();
+
+                    // Return to principal screen
                     ((MainActivity)MainActivity.activity).clearService();
 
                 } else {
@@ -604,24 +745,28 @@ public class ServiceDetailFragment extends RootFragment{
         }
 
         if (address != null) {
-            AlertDialog.Builder displayAlert = new AlertDialog.Builder(context, R.style.AlertDialog);
-            displayAlert.setTitle("Seleccionar dirección");
-            displayAlert.setCancelable(false);
-            final Address finalAddress = address;
-            displayAlert.setMessage("¿Desea solicitar el tecnico a su dirección por defecto?")
-                    .setPositiveButton(R.string.dialog_yes, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            reservation.setAddress(finalAddress);
-                            createReservationTask(context, reservation);
-                        }
-                    })
-                    .setNegativeButton(R.string.dialog_no, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            showAddressPickup(reservation);
-                        }
-                    });
 
-            displayAlert.show();
+            if (displayAlert == null  || !displayAlert.isShowing()) {
+
+                final Address finalAddress = address;
+                AlertDialog.Builder builder = new AlertDialog.Builder(context, R.style.AlertDialog);
+                builder.setTitle("Seleccionar dirección");
+                builder.setCancelable(true);
+                builder.setMessage("¿Desea solicitar el tecnico a su dirección por defecto?")
+                        .setPositiveButton(R.string.dialog_yes, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                reservation.setAddress(finalAddress);
+                                createReservationTask(context, reservation);
+                            }
+                        })
+                        .setNegativeButton(R.string.dialog_no, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                showAddressPickup(reservation);
+                            }
+                        });
+
+                displayAlert = builder.show();
+            }
         } else {
             showAddressPickup(reservation);
         }

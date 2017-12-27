@@ -2,7 +2,6 @@ package com.easyfixapp.easyfix.fragments;
 
 import android.app.Activity;
 import android.support.v4.app.Fragment;
-import android.widget.ImageView;
 
 import com.easyfixapp.easyfix.R;
 import com.easyfixapp.easyfix.listeners.BackPress;

@@ -1,7 +1,8 @@
 package com.easyfixapp.easyfix.fragments;
 
+import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -11,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.easyfixapp.easyfix.R;
+import com.easyfixapp.easyfix.activities.MainActivity;
 import com.easyfixapp.easyfix.adapters.ReservationAdapter;
 import com.easyfixapp.easyfix.models.Reservation;
 import com.easyfixapp.easyfix.util.ApiService;
@@ -29,12 +31,14 @@ import retrofit2.Response;
  * Created by julio on 09/10/17.
  */
 
-public class TechnicalHistoryFragment extends Fragment{
+public class TechnicalHistoryFragment extends RootFragment{
 
-    private View view;
-    private RecyclerView mReservationView;
-    private ReservationAdapter mReservationAdapter;
-    private List<Reservation> mReservationList = new ArrayList<>();
+    private static View view;
+    private static RecyclerView mReservationView;
+    private static ReservationAdapter mReservationAdapter;
+    private static List<Reservation> mReservationList = new ArrayList<>();
+
+    private static Context context = null;
 
     public TechnicalHistoryFragment() {}
 
@@ -44,7 +48,10 @@ public class TechnicalHistoryFragment extends Fragment{
         // Inflate the layout for this fragment
         view = inflater.inflate(R.layout.fragment_reservation, container, false);
 
-        mReservationAdapter = new ReservationAdapter(getActivity(),
+        view.findViewById(R.id.txt_notification_title).setVisibility(View.GONE);
+        view.findViewById(R.id.separator).setVisibility(View.GONE);
+
+        mReservationAdapter = new ReservationAdapter(this, getActivity(),
                 mReservationList, Reservation.TYPE_RECORD);
 
         mReservationView = view.findViewById(R.id.rv_reservation);
@@ -59,15 +66,16 @@ public class TechnicalHistoryFragment extends Fragment{
     @Override
     public void onResume() {
         super.onResume();
+        this.context = getContext();
         reservationTask();
     }
 
 
     /** Fetch reservations **/
-    private void reservationTask(){
-        Util.showProgress(getContext(), mReservationView, view, true);
+    private static void reservationTask(){
+        Util.showProgress(context, mReservationView, view, true);
 
-        SessionManager sessionManager = new SessionManager(getContext());
+        SessionManager sessionManager = new SessionManager(context);
         ApiService apiService = ServiceGenerator.createApiService();
         String token = sessionManager.getToken();
 
@@ -75,7 +83,7 @@ public class TechnicalHistoryFragment extends Fragment{
         call.enqueue(new Callback<List<Reservation>>() {
             @Override
             public void onResponse(Call<List<Reservation>> call, Response<List<Reservation>> response) {
-                Util.showProgress(getActivity(), mReservationView, view, false);
+                Util.showProgress(context, mReservationView, view, false);
 
                 if (response.isSuccessful()) {
                     Log.i(Util.TAG_TECHNICAL_HISTORY, "Reservation result: success!");
@@ -91,12 +99,12 @@ public class TechnicalHistoryFragment extends Fragment{
 
                     } else {
                         Util.showMessage(mReservationView, view,
-                                getString(R.string.message_service_server_empty));
+                                context.getString(R.string.message_service_server_empty));
                     }
                 } else {
                     Log.i(Util.TAG_TECHNICAL_HISTORY, "Reservation result: " + response.toString());
                     Util.showMessage(mReservationView, view,
-                            getString(R.string.message_service_server_failed));
+                            context.getString(R.string.message_service_server_failed));
                 }
             }
 
@@ -104,8 +112,23 @@ public class TechnicalHistoryFragment extends Fragment{
             public void onFailure(Call<List<Reservation>> call, Throwable t) {
                 //Util.showProgress(getActivity(), mReservationView, view, false);
                 Util.showMessage(mReservationView, view,
-                        getString(R.string.message_network_local_failed));
+                        context.getString(R.string.message_network_local_failed));
             }
         });
     }
+
+    public static void updateReservations() {
+        final Activity activity = MainActivity.activity;
+
+        try {
+            activity.runOnUiThread(new Runnable() {
+                public void run() {
+                    reservationTask();
+                }
+            });
+        } catch (Exception e) {
+            e.getStackTrace();
+        }
+    }
+
 }

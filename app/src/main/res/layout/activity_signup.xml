@@ -37,7 +37,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
-                android:drawableLeft="@android:drawable/ic_menu_camera"
+                android:drawableLeft="@drawable/name"
                 android:drawablePadding="@dimen/auth_activity_regular_margin"
                 android:inputType="textCapWords|textPersonName"
                 android:hint="@string/prompt_first_name"
@@ -50,7 +50,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
-                android:drawableLeft="@android:drawable/ic_menu_camera"
+                android:drawableLeft="@drawable/name"
                 android:drawablePadding="@dimen/auth_activity_regular_margin"
                 android:inputType="textCapWords|textPersonName"
                 android:hint="@string/prompt_last_name"
@@ -63,7 +63,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
-                android:drawableLeft="@android:drawable/ic_menu_camera"
+                android:drawableLeft="@drawable/email"
                 android:drawablePadding="@dimen/auth_activity_regular_margin"
                 android:inputType="textEmailAddress"
                 android:hint="@string/prompt_email"
@@ -76,7 +76,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
-                android:drawableLeft="@android:drawable/ic_menu_camera"
+                android:drawableLeft="@drawable/password"
                 android:drawablePadding="@dimen/auth_activity_regular_margin"
                 android:inputType="textPassword"
                 android:hint="@string/prompt_password"
@@ -102,7 +102,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="5dp"
-                        android:src="@android:drawable/ic_menu_camera" />
+                        android:src="@drawable/phone" />
 
                     <RelativeLayout
                         android:layout_width="match_parent"
@@ -191,6 +191,8 @@
         android:layout_marginTop="@dimen/auth_activity_extra_margin"
         android:layout_alignParentBottom="true"
         android:gravity="center"
-        android:text="@string/prompt_legacy"/>
+        android:text="@string/prompt_legacy"
+        android:textColorLink="@color/colorPrimary"
+        android:linksClickable="true" />
 
 </RelativeLayout>

@@ -8,42 +8,36 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.DefaultItemAnimator;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CalendarView;
 import android.widget.TextView;
 import android.widget.TimePicker;
 
 import com.easyfixapp.easyfix.R;
 import com.easyfixapp.easyfix.activities.MainActivity;
-import com.easyfixapp.easyfix.adapters.AddressAdapter;
 import com.easyfixapp.easyfix.models.Address;
 import com.easyfixapp.easyfix.models.Reservation;
-import com.easyfixapp.easyfix.models.Service;
 import com.easyfixapp.easyfix.util.ApiService;
 import com.easyfixapp.easyfix.util.ServiceGenerator;
 import com.easyfixapp.easyfix.util.SessionManager;
 import com.easyfixapp.easyfix.util.Util;
-import com.easyfixapp.easyfix.widget.DividerItemDecoration;
+import com.google.gson.Gson;
 import com.prolificinteractive.materialcalendarview.CalendarDay;
 import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
 import com.prolificinteractive.materialcalendarview.OnDateSelectedListener;
 import com.prolificinteractive.materialcalendarview.OnMonthChangedListener;
 
-import java.util.ArrayList;
+import java.io.File;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Locale;
 
 import io.realm.Realm;
-import io.realm.RealmResults;
-import io.realm.Sort;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -260,8 +254,44 @@ public class ScheduleFragment extends RootFragment{
         final SessionManager sessionManager = new SessionManager(context);
         String token = sessionManager.getToken();
 
+        Gson gson = new Gson();
+
+        MediaType json = MediaType.parse("application/json");
+        MediaType img = MediaType.parse("image/*");
+        MediaType text = MediaType.parse("text/plain");
+
+        RequestBody type = RequestBody.create(text, reservation.getType());
+        RequestBody description = RequestBody.create(text, reservation.getDescription());
+        RequestBody artifact = RequestBody.create(text, gson.toJson(reservation.getArtifact()));
+        RequestBody address = RequestBody.create(text, "" + reservation.getAddress().getId());
+        RequestBody service = RequestBody.create(text, "" + reservation.getService().getId());
+
+        HashMap<String, RequestBody> params = new HashMap<>();
+
+        params.put("type", type);
+        params.put("description", description);
+        params.put("artifact", artifact);
+        params.put("address", address);
+        params.put("service", service);
+
+        MultipartBody.Part[] images = new MultipartBody.Part[4];
+
+        for (int i = 0; i< reservation.getImageFileList().length; i++) {
+            File file = reservation.getImageFileList()[i];
+
+            if (file != null) {
+
+                RequestBody requestBody = RequestBody.create(img,
+                        reservation.getImageByteList()[i]);
+                MultipartBody.Part image = MultipartBody.Part.createFormData("image" + (i + 1),
+                        file.getName(), requestBody);
+                images[i] = image;
+            }
+        }
+
         ApiService apiService = ServiceGenerator.createApiService();
-        Call<Reservation> call = apiService.createReservation(token, reservation);
+        Call<Reservation> call = apiService.createReservation(
+                token, params, images[0], images[1], images[2], images[3]);
         call.enqueue(new Callback<Reservation>() {
             @Override
             public void onResponse(Call<Reservation> call, Response<Reservation> response) {
@@ -269,6 +299,14 @@ public class ScheduleFragment extends RootFragment{
                     Log.i(Util.TAG_RESERVATION, "Reservation result: success!");
                     Util.longToast(context,
                             getString(R.string.reservation_message_create_response));
+
+                    // Save id of new reservation
+                    Reservation r = response.body();
+                    //sessionManager.setServiceDetail(r.getId());
+
+                    // Update reservations
+                    //NotificationFragment.showPostDetail(r);
+                    NotificationFragment.updateReservations();
 
                     ((MainActivity)MainActivity.activity).clearService();
 

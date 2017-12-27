@@ -1,11 +1,19 @@
 package com.easyfixapp.easyfix.models;
 
+import com.google.gson.annotations.Expose;
+
 /**
  * Created by julio on 22/05/17.
  */
 public class AuthResponse<T> {
+
+    @Expose
     private boolean error;
+
+    @Expose
     private String msg;
+
+    @Expose
     private T data;
 
     public AuthResponse(boolean error, String msg){

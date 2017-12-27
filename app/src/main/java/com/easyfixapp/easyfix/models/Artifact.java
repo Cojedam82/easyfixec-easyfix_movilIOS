@@ -1,5 +1,6 @@
 package com.easyfixapp.easyfix.models;
 
+import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
@@ -10,9 +11,11 @@ import java.io.Serializable;
 
 public class Artifact implements Serializable {
 
+    @Expose
     @SerializedName("id")
     private int id;
 
+    @Expose
     @SerializedName("name")
     private String name;
 

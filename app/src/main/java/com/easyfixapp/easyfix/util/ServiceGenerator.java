@@ -1,5 +1,7 @@
 package com.easyfixapp.easyfix.util;
 
+import com.google.gson.GsonBuilder;
+
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
@@ -13,7 +15,10 @@ public class ServiceGenerator {
      * Build simple REST adapter
      */
 
-    private static GsonConverterFactory gsonConverterFactory = GsonConverterFactory.create();
+    private static GsonConverterFactory gsonConverterFactory = GsonConverterFactory
+            .create(new GsonBuilder()
+                    .excludeFieldsWithoutExposeAnnotation()
+                    .create());
 
     private static Retrofit.Builder mRetrofitBuilder = new Retrofit.Builder()
             .addConverterFactory(gsonConverterFactory);

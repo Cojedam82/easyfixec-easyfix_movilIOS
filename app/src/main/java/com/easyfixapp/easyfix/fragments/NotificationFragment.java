@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -41,6 +42,7 @@ public class NotificationFragment extends RootFragment {
     private static List<Reservation> mReservationList = new ArrayList<>();
 
     private static Context context = null;
+    private static RootFragment mRootFrament = null;
 
     public NotificationFragment() {}
 
@@ -51,7 +53,7 @@ public class NotificationFragment extends RootFragment {
         view = inflater.inflate(R.layout.fragment_reservation, container, false);
 
 
-        mReservationAdapter = new ReservationAdapter(getActivity(),
+        mReservationAdapter = new ReservationAdapter(this, getActivity(),
                 mReservationList, Reservation.TYPE_NOTIFICATION);
 
         mReservationView = view.findViewById(R.id.rv_reservation);
@@ -73,7 +75,8 @@ public class NotificationFragment extends RootFragment {
     @Override
     public void onResume() {
         super.onResume();
-        context = getContext();
+        this.mRootFrament = this;
+        this.context = getContext();
         reservationTask();
     }
 
@@ -103,7 +106,6 @@ public class NotificationFragment extends RootFragment {
                             mReservationList.add(reservation);
                         }
                         mReservationAdapter.notifyDataSetChanged();
-
                     } else {
 
                         Util.showMessage(mReservationView, view,
@@ -135,6 +137,28 @@ public class NotificationFragment extends RootFragment {
                     reservationTask();
                 }
             });
+        } catch (Exception e) {
+            e.getStackTrace();
+        }
+    }
+
+
+    public static void showPostDetail(Reservation reservation) {
+
+        try {
+            mRootFrament.setBackPressedIcon();
+
+            Bundle bundle = new Bundle();
+            bundle.putSerializable("reservation", reservation);
+
+            ServiceDetailFragment mServiceDetailFragment = new ServiceDetailFragment();
+            mServiceDetailFragment.setArguments(bundle);
+
+            FragmentTransaction transaction = mRootFrament.
+                    getChildFragmentManager().beginTransaction();
+            transaction.addToBackStack(null);
+            transaction.replace(R.id.sub_container, mServiceDetailFragment);
+            transaction.commit();
         } catch (Exception e) {
             e.getStackTrace();
         }

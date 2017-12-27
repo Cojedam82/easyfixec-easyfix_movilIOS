@@ -9,12 +9,14 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.easyfixapp.easyfix.R;
+import com.easyfixapp.easyfix.listeners.OnBackPressListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +27,8 @@ public class AccountFragment extends RootFragment {
     private View view;
     private TabLayout mTabLayout = null;
     private ViewPager mViewPager = null;
+
+    private ViewPagerAdapter mViewPagerAdapter;
 
     public AccountFragment() {}
 
@@ -47,17 +51,31 @@ public class AccountFragment extends RootFragment {
         init();
     }
 
+    /**
+     * Preserve icon in base fragment
+     **/
+    public int getChildFragmentCount(){
+        try {
+            Fragment fragment = mViewPagerAdapter.getRegisteredFragment(mViewPager.getCurrentItem());
+            return fragment.getChildFragmentManager().getBackStackEntryCount();
+        } catch (Exception ignore) {}
+
+        return 0;
+    }
+
     private void setupViewPager(ViewPager viewPager) {
-        ViewPagerAdapter adapter = new ViewPagerAdapter(getFragmentManager());
-        adapter.addFragment(new ProfileFragment(), "Perfil");
-        adapter.addFragment(new AddressFragment(), "Direcciones");
-        adapter.addFragment(new TechnicalHistoryFragment(), "Historial Técnico");
-        viewPager.setAdapter(adapter);
+        mViewPagerAdapter = new ViewPagerAdapter(getFragmentManager());
+        mViewPagerAdapter.addFragment(new ProfileFragment(), "Perfil");
+        mViewPagerAdapter.addFragment(new AddressFragment(), "Direcciones");
+        mViewPagerAdapter.addFragment(new TechnicalHistoryFragment(), "Historial Técnico");
+        viewPager.setAdapter(mViewPagerAdapter);
     }
 
     class ViewPagerAdapter extends FragmentPagerAdapter {
         private final List<Fragment> mFragmentList = new ArrayList<>();
         private final List<String> mFragmentTitleList = new ArrayList<>();
+
+        private SparseArray<Fragment> registeredFragments = new SparseArray<Fragment>();
 
         public ViewPagerAdapter(FragmentManager manager) {
             super(manager);
@@ -81,6 +99,45 @@ public class AccountFragment extends RootFragment {
         @Override
         public CharSequence getPageTitle(int position) {
             return mFragmentTitleList.get(position);
+        }
+
+        /**
+         * On each Fragment instantiation we are saving the reference of that Fragment in a Map
+         * It will help us to retrieve the Fragment by position
+         *
+         * @param container
+         * @param position
+         * @return
+         */
+        @Override
+        public Object instantiateItem(ViewGroup container, int position) {
+            Fragment fragment = (Fragment) super.instantiateItem(container, position);
+            registeredFragments.put(position, fragment);
+            return fragment;
+        }
+
+        /**
+         * Remove the saved reference from our Map on the Fragment destroy
+         *
+         * @param container
+         * @param position
+         * @param object
+         */
+        @Override
+        public void destroyItem(ViewGroup container, int position, Object object) {
+            registeredFragments.remove(position);
+            super.destroyItem(container, position, object);
+        }
+
+
+        /**
+         * Get the Fragment by position
+         *
+         * @param position tab position of the fragment
+         * @return
+         */
+        public Fragment getRegisteredFragment(int position) {
+            return registeredFragments.get(position);
         }
     }
 
@@ -120,5 +177,27 @@ public class AccountFragment extends RootFragment {
             mTabLayout = (TabLayout) view.findViewById(R.id.tabs);
             mTabLayout.setupWithViewPager(mViewPager);
         }
+    }
+
+    /**
+     * Retrieve the currently visible Tab Fragment and propagate the onBackPressed callback
+     *
+     * @return true = if this fragment and/or one of its associates Fragment can handle the backPress
+     */
+    public boolean onBackPressed() {
+        // currently visible tab Fragment
+        OnBackPressListener currentFragment = (OnBackPressListener)
+                mViewPagerAdapter.getRegisteredFragment(mViewPager.getCurrentItem());
+
+        if (currentFragment != null) {
+            // lets see if the currentFragment or any of its childFragment can handle onBackPressed
+            boolean isBackPressed = currentFragment.onBackPressed();
+            setBackPressedIcon();
+
+            return isBackPressed;
+        }
+
+        // this Fragment couldn't handle the onBackPressed call
+        return false;
     }
 }

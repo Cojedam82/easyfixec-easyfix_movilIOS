@@ -5,18 +5,41 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_height="wrap_content"
     android:layout_width="match_parent"
-    android:paddingLeft="@dimen/fragment_horizontal_margin"
-    android:paddingRight="@dimen/fragment_horizontal_margin"
+    android:paddingLeft="@dimen/activity_vertical_min_margin"
+    android:paddingRight="@dimen/activity_vertical_min_margin"
     android:orientation="horizontal">
 
 
-    <de.hdodenhof.circleimageview.CircleImageView
-        android:id="@+id/img_provider"
-        android:layout_height="@dimen/notification_item_image_size"
-        android:layout_width="@dimen/notification_item_image_size"
+    <LinearLayout
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
         android:layout_margin="@dimen/notification_item_margin"
-        app:civ_border_width="1dp"
-        app:civ_border_color="@color/colorPrimary"/>
+        android:orientation="vertical">
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/img_provider"
+            android:layout_height="@dimen/notification_item_image_size"
+            android:layout_width="@dimen/notification_item_image_size"
+            android:layout_gravity="center"
+            app:civ_border_width="1dp"
+            app:civ_border_color="@color/colorPrimary"
+            tools:src="@drawable/logo"/>
+
+        <RatingBar
+            android:id="@+id/rb_calification"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:progressTint="@color/colorPrimary"
+            android:progressBackgroundTint="@color/colorPrimary"
+            android:secondaryProgressTint="@color/colorPrimary"
+            android:numStars="5"
+            android:isIndicator="true"
+            android:scaleX="0.7"
+            android:scaleY="0.7"
+            style="?android:attr/ratingBarStyleSmall"
+            tools:rating="5"/>
+
+    </LinearLayout>
 
 
     <LinearLayout
@@ -117,7 +140,7 @@
             android:layout_height="30dp"
             android:layout_gravity="center"
             android:visibility="gone"
-            android:src="@android:drawable/stat_sys_phone_call"/>
+            android:src="@drawable/call"/>
 
         <View
             android:layout_width="5dp"

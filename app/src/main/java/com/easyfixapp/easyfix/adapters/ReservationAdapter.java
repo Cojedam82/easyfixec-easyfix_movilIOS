@@ -1,26 +1,38 @@
 package com.easyfixapp.easyfix.adapters;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.LayerDrawable;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RatingBar;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
 import com.easyfixapp.easyfix.R;
+import com.easyfixapp.easyfix.activities.ServiceDetailActivity;
+import com.easyfixapp.easyfix.fragments.RootFragment;
+import com.easyfixapp.easyfix.fragments.ServiceDetailFragment;
+import com.easyfixapp.easyfix.fragments.TechnicalHistoryFragment;
 import com.easyfixapp.easyfix.models.Reservation;
 import com.easyfixapp.easyfix.models.Service;
 import com.easyfixapp.easyfix.models.User;
@@ -48,16 +60,19 @@ import static android.Manifest.permission.CALL_PHONE;
 
 public class ReservationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
+    private SessionManager sessionManager;
     private List<Reservation> mReservationList;
     private Activity mActivity;
+    private Fragment mFragment;
     private RequestOptions options = new RequestOptions()
             .error(R.drawable.logo)
             .placeholder(R.drawable.logo)
             .diskCacheStrategy(DiskCacheStrategy.ALL);
-    private int mType;
+    private int mType, mIdPostView;
     private String TAG_RESERVATION;
 
-    public ReservationAdapter(Activity activity, List<Reservation> reservationList, int type) {
+    public ReservationAdapter(Fragment fragment, Activity activity, List<Reservation> reservationList, int type) {
+        this.mFragment = fragment;
         this.mActivity = activity;
         this.mReservationList = reservationList;
         this.mType = type;
@@ -67,6 +82,9 @@ public class ReservationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         } else {
             this.TAG_RESERVATION = Util.TAG_TECHNICAL_HISTORY;
         }
+
+        this.sessionManager = new SessionManager(activity);
+        this.mIdPostView = sessionManager.getServiceDetail();
     }
 
     @Override
@@ -125,11 +143,14 @@ public class ReservationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         private TextView mNameView, mServiceView, mDateHourView, mDateMonthView, mHourView, mCostView;
         private ImageView mCallView, mCancelView;
 
+        private RatingBar mCalificationView;
+
         private LinearLayout mActionView;
 
         public NotificationViewHolder(View itemView) {
             super(itemView);
             mProviderImageView = itemView.findViewById(R.id.img_provider);
+            mCalificationView = itemView.findViewById(R.id.rb_calification);
             mNameView = itemView.findViewById(R.id.txt_provider_name);
             mServiceView = itemView.findViewById(R.id.txt_service_name);
             mDateHourView = itemView.findViewById(R.id.txt_date_hour);
@@ -159,9 +180,11 @@ public class ReservationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
 
             // Set service name
-            Random random = new Random();
-            mServiceView.setText(mService.getName());
-            mServiceView.setTextColor(Color.argb(255, random.nextInt(256), random.nextInt(256), random.nextInt(256)));
+            if (!TextUtils.isEmpty(mService.getName())) {
+                Random random = new Random();
+                mServiceView.setText(mService.getName());
+                mServiceView.setTextColor(Color.argb(255, random.nextInt(256), random.nextInt(256), random.nextInt(256)));
+            }
 
 
             // Show actions
@@ -175,7 +198,7 @@ public class ReservationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                     builder.setMessage(R.string.reservation_message_cancel_dialog)
                             .setPositiveButton(R.string.dialog_message_yes, new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int id) {
-                                    cancelReservationTask(position);
+                                    cancelReservationTask(position, mReservation.getId());
                                 }
                             })
                             .setNegativeButton(R.string.dialog_message_no, new DialogInterface.OnClickListener() {
@@ -186,19 +209,25 @@ public class ReservationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                 }
             });
 
-
             // Show date-hour
             mDateHourView.setVisibility(View.VISIBLE);
 
 
-            if (mReservation.getStatus() == Reservation.Pending) {
+            if (mReservation.getStatus() == Reservation.Pending  || mProvider==null) {
+                mNameView.setVisibility(View.GONE);
+                mCallView.setVisibility(View.GONE);
                 mDateHourView.setText("En espera");
+                mCalificationView.setRating(0);
+
             } else {
 
                 // Set provider name
                 mNameView.setVisibility(View.VISIBLE);
                 mNameView.setText(mProvider.getShortName());
 
+                // Set calification
+                setRatingStarColor(itemView.getContext(), mCalificationView);
+                mCalificationView.setRating(mProvider.getScore());
 
                 // Set date-hour
                 SimpleDateFormat dateFormat =
@@ -230,16 +259,20 @@ public class ReservationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
                                         String phone = mReservation
                                                 .getProvider()
-                                                .getProfile()
-                                                .getPhone();
-                                        Uri call = Uri.parse("tel:" + phone);
+                                                    .getProfile()
+                                                        .getPhone();
+                                        if (TextUtils.isEmpty(phone)) {
+                                            Uri call = Uri.parse("tel:" + phone);
 
-                                        if (mayRequestCall()) {
-                                            Intent surf = new Intent(Intent.ACTION_DIAL, call);
-                                            mActivity.startActivity(surf);
+                                            if (mayRequestCall()) {
+                                                Intent surf = new Intent(Intent.ACTION_DIAL, call);
+                                                mActivity.startActivity(surf);
+                                            } else {
+                                                Intent surf = new Intent(Intent.ACTION_CALL, call);
+                                                mActivity.startActivity(surf);
+                                            }
                                         } else {
-                                            Intent surf = new Intent(Intent.ACTION_CALL, call);
-                                            mActivity.startActivity(surf);
+                                            Util.longToast(mActivity, "No se encontro número de teléfono por el momento");
                                         }
                                     }
                                 })
@@ -252,6 +285,34 @@ public class ReservationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                     }
                 });
             }
+
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                    ((RootFragment)mFragment).setBackPressedIcon();
+
+                    Bundle bundle = new Bundle();
+                    bundle.putSerializable("reservation", mReservation);
+
+                    ServiceDetailFragment mServiceDetailFragment = new ServiceDetailFragment();
+                    mServiceDetailFragment.setArguments(bundle);
+
+                    FragmentTransaction transaction = mFragment.
+                            getChildFragmentManager().beginTransaction();
+                    transaction.addToBackStack(null);
+                    transaction.replace(R.id.sub_container, mServiceDetailFragment);
+                    transaction.commit();
+                }
+            });
+
+            if (mIdPostView != 0) {
+                sessionManager.resetServiceDetail();
+                mIdPostView = 0;
+
+                itemView.performClick();
+            }
+
         }
     }
 
@@ -261,11 +322,14 @@ public class ReservationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         private CircleImageView mProviderImageView;
         private TextView mNameView, mServiceView, mDateMonthView, mHourView, mCostView;
 
+        private RatingBar mCalificationView;
+
         private LinearLayout mInfoView;
 
         public TechnicalHistoryViewHolder(View itemView) {
             super(itemView);
             mProviderImageView = itemView.findViewById(R.id.img_provider);
+            mCalificationView = itemView.findViewById(R.id.rb_calification);
             mNameView = itemView.findViewById(R.id.txt_provider_name);
             mServiceView = itemView.findViewById(R.id.txt_service_name);
             mDateMonthView = itemView.findViewById(R.id.txt_date_month);
@@ -296,6 +360,9 @@ public class ReservationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             mNameView.setVisibility(View.VISIBLE);
             mNameView.setText(mProvider.getShortName());
 
+            // Set calification
+            setRatingStarColor(itemView.getContext(), mCalificationView);
+            mCalificationView.setRating(mProvider.getScore());
 
             // Set service name
             Random random = new Random();
@@ -325,6 +392,34 @@ public class ReservationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
             // Set cost
             mCostView.setText("$" + mReservation.getCost());
+
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                    /*((RootFragment)mFragment).setBackPressedIcon();
+
+                    ServiceDetailFragment mServiceDetailFragment = new ServiceDetailFragment();
+                    mServiceDetailFragment.setArguments(bundle);
+
+                    FragmentTransaction transaction = mFragment.
+                            getChildFragmentManager().beginTransaction();
+                    transaction.addToBackStack(null);
+                    transaction.replace(R.id.sub_container, mServiceDetailFragment);
+                    transaction.commit(); */
+
+                    final Reservation reservation = mReservation;
+                    reservation.setClient(null);
+                    reservation.setProvider(null);
+
+                    Bundle bundle = new Bundle();
+                    bundle.putSerializable("reservation", reservation);
+
+                    Intent intent = new Intent(itemView.getContext(), ServiceDetailActivity.class);
+                    intent.putExtras(bundle);
+                    itemView.getContext().startActivity(intent);
+                }
+            });
         }
     }
 
@@ -332,22 +427,25 @@ public class ReservationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     /**
      * Task
      */
-    private void cancelReservationTask(final int pk){
+    private void cancelReservationTask(final int position, final int pk){
         Util.showLoading(mActivity, mActivity.getString(R.string.reservation_message_delete_request));
 
         SessionManager sessionManager = new SessionManager(mActivity);
         String token = sessionManager.getToken();
 
         ApiService apiService = ServiceGenerator.createApiService();
-        Call<Reservation> call = apiService.deleteReservation(pk, token);
-        call.enqueue(new Callback<Reservation>() {
+        Call<Void> call = apiService.deleteReservation(pk, token);
+        call.enqueue(new Callback<Void>() {
             @Override
-            public void onResponse(Call<Reservation> call, Response<Reservation> response) {
+            public void onResponse(Call<Void> call, Response<Void> response) {
                 if (response.isSuccessful()) {
                     Log.i(TAG_RESERVATION, "Reservation result: success!");
                     Util.longToast(mActivity,
                             mActivity.getString(R.string.reservation_message_delete_response));
-                    removeItem(pk);
+                    removeItem(position);
+
+                    // update technical history
+                    TechnicalHistoryFragment.updateReservations();
                 } else {
                     Log.i(TAG_RESERVATION, "Reservation result: " + response.toString());
                     Util.longToast(mActivity,
@@ -357,12 +455,25 @@ public class ReservationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             }
 
             @Override
-            public void onFailure(Call<Reservation> call, Throwable t) {
+            public void onFailure(Call<Void> call, Throwable t) {
                 Log.i(TAG_RESERVATION, "Reservation result: failed, " + t.getMessage());
                 Util.longToast(mActivity,
                         mActivity.getString(R.string.message_network_local_failed));
                 Util.hideLoading();
             }
         });
+    }
+
+    private void setRatingStarColor(Context context, RatingBar ratingBar)
+    {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            LayerDrawable stars = (LayerDrawable) ratingBar.getProgressDrawable();
+            stars.getDrawable(2).setColorFilter(context.getResources()
+                    .getColor(R.color.colorPrimary), PorterDuff.Mode.SRC_ATOP);
+            stars.getDrawable(1).setColorFilter(context.getResources()
+                    .getColor(R.color.colorPrimary), PorterDuff.Mode.SRC_ATOP);
+            stars.getDrawable(0).setColorFilter(context.getResources()
+                    .getColor(android.R.color.transparent), PorterDuff.Mode.SRC_ATOP);
+        }
     }
 }

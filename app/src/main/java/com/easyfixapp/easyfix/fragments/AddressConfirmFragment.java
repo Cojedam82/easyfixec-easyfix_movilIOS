@@ -10,11 +10,9 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.easyfixapp.easyfix.R;
-import com.easyfixapp.easyfix.adapters.AddressAdapter;
 import com.easyfixapp.easyfix.adapters.AddressConfirmAdapter;
 import com.easyfixapp.easyfix.models.Address;
 import com.easyfixapp.easyfix.models.Reservation;
-import com.easyfixapp.easyfix.models.Service;
 import com.easyfixapp.easyfix.util.SessionManager;
 import com.easyfixapp.easyfix.util.Util;
 import com.easyfixapp.easyfix.widget.DividerItemDecoration;

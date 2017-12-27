@@ -3,6 +3,7 @@ package com.easyfixapp.easyfix.services;
 import android.util.Log;
 
 import com.easyfixapp.easyfix.fragments.NotificationFragment;
+import com.easyfixapp.easyfix.fragments.TechnicalHistoryFragment;
 import com.easyfixapp.easyfix.util.Util;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
@@ -42,6 +43,7 @@ public class MessagingService extends FirebaseMessagingService {
                 Util.logout(getApplicationContext());
             } else if (isNotification) {
                 NotificationFragment.updateReservations();
+                TechnicalHistoryFragment.updateReservations();
             }
         }
     }

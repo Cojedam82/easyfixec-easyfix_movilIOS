@@ -22,6 +22,8 @@
             android:id="@+id/img_menu_profile"
             android:layout_width="@dimen/app_toolbar_button_menu_size"
             android:layout_height="@dimen/app_toolbar_button_menu_size"
+            android:minHeight="@dimen/app_toolbar_button_menu_size"
+            android:minWidth="@dimen/app_toolbar_button_menu_size"
             android:src="@drawable/ic_empty_profile"
             app:civ_border_width="2dp"
             app:civ_border_color="@color/textColorPrimary"/>

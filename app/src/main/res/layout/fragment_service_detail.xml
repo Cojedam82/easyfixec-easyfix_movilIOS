@@ -11,14 +11,14 @@
     tools:context=".activities.MainActivity">
 
     <RelativeLayout
-        android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:paddingLeft="@dimen/activity_horizontal_margin"
         android:paddingRight="@dimen/activity_horizontal_margin"
         android:paddingTop="@dimen/activity_vertical_min_margin"
         android:paddingBottom="@dimen/activity_vertical_min_margin"
-        android:background="?android:windowBackground">
+        android:background="?android:windowBackground"
+        android:clickable="true">
 
         <ImageView
             android:id="@+id/img_service"
@@ -70,12 +70,14 @@
                     android:layout_marginTop="10dp"
                     android:padding="10dp"
                     android:drawablePadding="10dp"
-                    android:drawableLeft="@android:drawable/ic_menu_camera"
+                    android:drawableLeft="@drawable/artifact"
                     android:drawableRight="@drawable/ic_arrow_down"
                     android:hint="Seleccione artefacto"
                     android:textColorHint="@color/black_25"
                     android:ems="10"
-                    android:textSize="@dimen/service_fragment_text_size"/>
+                    android:textSize="@dimen/service_fragment_text_size"
+                    android:longClickable="false"
+                    android:textIsSelectable="false"/>
 
                 <EditText
                     android:id="@+id/txt_description"
@@ -85,7 +87,7 @@
                     android:layout_marginTop="10dp"
                     android:padding="10dp"
                     android:drawablePadding="10dp"
-                    android:drawableLeft="@android:drawable/ic_menu_camera"
+                    android:drawableLeft="@drawable/description"
                     android:hint="Escriba lo que solicitas incluyendo:\nMarca, modelo, etc.\n"
                     android:textColorHint="@color/black_25"
                     android:textSize="@dimen/service_fragment_text_size"

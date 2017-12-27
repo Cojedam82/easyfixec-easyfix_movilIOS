@@ -17,12 +17,14 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
 
 import com.easyfixapp.easyfix.R;
 import com.easyfixapp.easyfix.models.Address;
+import com.easyfixapp.easyfix.models.Reservation;
 import com.easyfixapp.easyfix.util.ApiService;
 import com.easyfixapp.easyfix.util.ServiceGenerator;
 import com.easyfixapp.easyfix.util.SessionManager;
@@ -99,11 +101,17 @@ public class MapActivity extends AppCompatActivity implements
     private String mName = null;
     private String mDescription = null;
 
+    private Address mAddress = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_map);
+
+        try {
+            mAddress = (Address) getIntent().getExtras().getSerializable("address");
+        } catch (Exception ignore) {}
+
         mAddressView = findViewById(R.id.txt_autocomplete);
         mReferenceView = findViewById(R.id.txt_reference);
 
@@ -140,6 +148,8 @@ public class MapActivity extends AppCompatActivity implements
 
         // Turn on the My Location layer and the related control on the map.
         updateLocationUI();
+
+        init();
     }
 
     @Override
@@ -193,11 +203,15 @@ public class MapActivity extends AppCompatActivity implements
 
     @Override
     public void onLocationChanged(Location location) {
-        try {
-            mLastLocation = new LatLng(location.getLatitude(), location.getLongitude());
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(mLastLocation, CUSTOM_ZOOM));
 
-            disconnectAPIGoogle();
+        try {
+            if (mAddress == null) {
+                mLastLocation = new LatLng(location.getLatitude(), location.getLongitude());
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(mLastLocation, CUSTOM_ZOOM));
+
+                disconnectAPIGoogle();
+            }
+
         } catch(SecurityException e)  {
             Log.e(Util.TAG_MAP, "Exception: %s", e.getCause());
         }
@@ -244,6 +258,22 @@ public class MapActivity extends AppCompatActivity implements
             mResolvingError = true;
         }
     }
+
+    private void init() {
+        if (mAddress != null) {
+            ( (Button) findViewById(R.id.btn_update)).setText("Actualizar Dirección");
+
+            mName = mAddress.getName();
+            mDescription = mAddress.getDescription();
+
+            mAddressView.setText( mName + ", " + mDescription);
+            mReferenceView.setText(mAddress.getReference());
+
+            mLastLocation = new LatLng(Double.valueOf(mAddress.getLatitude()), Double.valueOf(mAddress.getLongitude()));
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(mLastLocation, CUSTOM_ZOOM));
+        }
+    }
+
 
     /**
      * Permissions and connection google map
@@ -308,16 +338,18 @@ public class MapActivity extends AppCompatActivity implements
 
                     switch (status.getStatusCode()) {
                         case LocationSettingsStatusCodes.SUCCESS:
-                            try {
-                                Location location = LocationServices.FusedLocationApi.getLastLocation(
-                                        mGoogleApiClient);
+                            if (mAddress == null) {
+                                try {
+                                    Location location = LocationServices.FusedLocationApi.getLastLocation(
+                                            mGoogleApiClient);
 
-                                mLastLocation = new LatLng(location.getLatitude(), location.getLongitude());
-                                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(mLastLocation, CUSTOM_ZOOM));
+                                    mLastLocation = new LatLng(location.getLatitude(), location.getLongitude());
+                                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(mLastLocation, CUSTOM_ZOOM));
 
-                                disconnectAPIGoogle();
-                            } catch(SecurityException e)  {
-                                Log.e(Util.TAG_MAP, "Exception: %s", e.getCause());
+                                    disconnectAPIGoogle();
+                                } catch (SecurityException e) {
+                                    Log.e(Util.TAG_MAP, "Exception: %s", e.getCause());
+                                }
                             }
                             break;
                         case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
@@ -475,6 +507,7 @@ public class MapActivity extends AppCompatActivity implements
     }
 
     public void attemptCreate(View view) {
+
         if (mLastLocation != null && mName != null && mDescription != null) {
 
             final LayoutInflater adbInflater = LayoutInflater.from(getApplicationContext());
@@ -482,7 +515,14 @@ public class MapActivity extends AppCompatActivity implements
             final CheckBox checkBox = (CheckBox) v.findViewById(R.id.location_default);
 
             AlertDialog.Builder displayAlert = new AlertDialog.Builder(MapActivity.this, R.style.AlertDialog);
-            displayAlert.setView(v);
+
+            if (mAddress != null) {
+                if (!mAddress.isDefault()) {
+                    displayAlert.setView(v);
+                }
+            } else {
+                displayAlert.setView(v);
+            }
             displayAlert.setCancelable(false);
             displayAlert.setMessage("¿Esta seguro de agregar esta nueva dirección?")
                     .setPositiveButton(R.string.dialog_message_continue, new DialogInterface.OnClickListener() {
@@ -498,7 +538,12 @@ public class MapActivity extends AppCompatActivity implements
                             address.setActive(true);
                             address.setDefault(checkBox.isChecked());
 
-                            createAddressTask(address);
+                            if (mAddress == null) {
+                                createAddressTask(address);
+                            } else {
+                                address.setId(mAddress.getId());
+                                updateAddressTask(address);
+                            }
                         }
                     })
                     .setNegativeButton(R.string.dialog_message_no, new DialogInterface.OnClickListener() {
@@ -572,6 +617,55 @@ public class MapActivity extends AppCompatActivity implements
 
             @Override
             public void onFailure(Call<Address> call, Throwable t) {
+                Log.i(Util.TAG_ADDRESS, "Address result: failed, " + t.getMessage());
+                Util.longToast(getApplicationContext(),
+                        getString(R.string.message_network_local_failed));
+                Util.hideLoading();
+            }
+        });
+    }
+
+    private void updateAddressTask(final Address address){
+        Util.showLoading(MapActivity.this, getString(R.string.address_message_update_request));
+
+        SessionManager sessionManager = new SessionManager(getApplicationContext());
+        String token = sessionManager.getToken();
+
+        ApiService apiService = ServiceGenerator.createApiService();
+        Call<Void> call = apiService.updateAddress(address.getId(), token);
+        call.enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                    Log.i(Util.TAG_ADDRESS, "Address result: success!");
+                    Util.longToast(getApplicationContext(),
+                            getString(R.string.address_message_update_response));
+
+                    // Update
+                    Realm realm = Realm.getDefaultInstance();
+                    try {
+                        realm.beginTransaction();
+                        realm.copyToRealmOrUpdate(address);
+                        realm.commitTransaction();
+
+                    } catch (Exception e){
+                        e.getStackTrace();
+                        Log.i(Util.TAG_ADDRESS, e.getMessage());
+                    } finally {
+                        realm.close();
+                    }
+
+                    finish();
+                } else {
+                    Log.i(Util.TAG_ADDRESS, "Address result: " + response.toString());
+                    Util.longToast(getApplicationContext(),
+                            getString(R.string.message_service_server_failed));
+                }
+                Util.hideLoading();
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
                 Log.i(Util.TAG_ADDRESS, "Address result: failed, " + t.getMessage());
                 Util.longToast(getApplicationContext(),
                         getString(R.string.message_network_local_failed));

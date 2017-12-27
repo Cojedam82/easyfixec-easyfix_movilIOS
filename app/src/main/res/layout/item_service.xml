@@ -14,8 +14,9 @@
         android:id="@+id/img_service"
         android:layout_height="@dimen/service_item_image_size"
         android:layout_width="@dimen/service_item_image_size"
-        app:civ_fill_color="@color/black"
-        tools:src="@color/black"/>
+        app:civ_fill_color="@color/white"
+        app:civ_border_width="0dp"
+        tools:src="@color/white"/>
 
     <TextView
         android:id="@+id/txt_name"

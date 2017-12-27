@@ -5,7 +5,12 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.TextPaint;
 import android.text.TextUtils;
+import android.text.method.LinkMovementMethod;
+import android.text.style.URLSpan;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -33,7 +38,7 @@ public class SignupActivity extends AppCompatActivity {
 
     private EditText mFirstNameView, mLastNameView, mEmailView, mPasswordView, mPhoneNumberView;
     private CountryCodePicker mPhoneCodeView;
-    private TextView mCountryView;
+    private TextView mCountryView, mLinkView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +50,7 @@ public class SignupActivity extends AppCompatActivity {
         mEmailView = (EditText) findViewById(R.id.txt_email);
         mPasswordView = (EditText) findViewById(R.id.txt_password);
         mCountryView = (TextView) findViewById(R.id.txt_country);
+        mLinkView = findViewById(R.id.txt_legacy);
 
         mPhoneNumberView = (EditText) findViewById(R.id.txt_phone_number);
         mPhoneNumberView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -60,7 +66,8 @@ public class SignupActivity extends AppCompatActivity {
         });
 
         mPhoneCodeView = (CountryCodePicker) findViewById(R.id.txt_phone_code);
-        mPhoneCodeView.registerCarrierNumberEditText(mPhoneNumberView);
+        //mPhoneCodeView.registerCarrierNumberEditText(mPhoneNumberView);
+        mPhoneCodeView.setCountryForNameCode("EC");
         mCountryView.setText(mPhoneCodeView.getDefaultCountryName());
         mPhoneCodeView.setOnCountryChangeListener(new CountryCodePicker.OnCountryChangeListener() {
             @Override
@@ -68,6 +75,9 @@ public class SignupActivity extends AppCompatActivity {
                 mCountryView.setText(mPhoneCodeView.getSelectedCountryName());
             }
         });
+
+        stripUnderlines(mLinkView);
+        mLinkView.setMovementMethod(LinkMovementMethod.getInstance());
 
         populateInformation();
     }
@@ -240,5 +250,28 @@ public class SignupActivity extends AppCompatActivity {
                 Util.hideLoading();
             }
         });
+    }
+
+    private void stripUnderlines(TextView textView) {
+        Spannable s = new SpannableString(textView.getText());
+        URLSpan[] spans = s.getSpans(0, s.length(), URLSpan.class);
+        for (URLSpan span: spans) {
+            int start = s.getSpanStart(span);
+            int end = s.getSpanEnd(span);
+            s.removeSpan(span);
+            span = new URLSpanNoUnderline(span.getURL());
+            s.setSpan(span, start, end, 0);
+        }
+        textView.setText(s);
+    }
+
+    private class URLSpanNoUnderline extends URLSpan {
+        public URLSpanNoUnderline(String url) {
+            super(url);
+        }
+        @Override public void updateDrawState(TextPaint ds) {
+            super.updateDrawState(ds);
+            ds.setUnderlineText(false);
+        }
     }
 }

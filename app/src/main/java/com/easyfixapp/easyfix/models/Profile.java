@@ -1,11 +1,10 @@
 package com.easyfixapp.easyfix.models;
 
 import com.easyfixapp.easyfix.util.Util;
+import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
-import java.net.URI;
-import java.net.URISyntaxException;
 
 import io.realm.RealmObject;
 
@@ -15,20 +14,29 @@ import io.realm.RealmObject;
 
 public class Profile extends RealmObject implements Serializable {
 
+    @Expose
     @SerializedName("role")
     private int role;
 
+    @Expose
     @SerializedName("phone")
     private String phone;
 
+    @Expose
     @SerializedName("token")
     private String token;
 
+    @Expose
     @SerializedName("image")
     private String image;
 
+    @Expose
     @SerializedName("payment_method")
     private int paymentMethod;
+
+    @Expose
+    @SerializedName("score")
+    private float score;
 
     public static final int CASH_KEY = 1;
     public static final String CASH_VALUE = "Efectivo";
@@ -80,5 +88,13 @@ public class Profile extends RealmObject implements Serializable {
 
     public void setPaymentMethod(int paymentMethod) {
         this.paymentMethod = paymentMethod;
+    }
+
+    public float getScore() {
+        return score;
+    }
+
+    public void setScore(float score) {
+        this.score = score;
     }
 }

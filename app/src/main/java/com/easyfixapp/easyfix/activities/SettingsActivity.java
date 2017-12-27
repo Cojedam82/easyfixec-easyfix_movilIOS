@@ -8,13 +8,13 @@ import android.support.v4.app.TaskStackBuilder;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.webkit.WebView;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.easyfixapp.easyfix.R;
 import com.easyfixapp.easyfix.models.Settings;
 import com.easyfixapp.easyfix.util.Util;
 
+import de.hdodenhof.circleimageview.CircleImageView;
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 public class SettingsActivity extends AppCompatActivity {
@@ -37,8 +37,9 @@ public class SettingsActivity extends AppCompatActivity {
         // Set image from toolbar
         findViewById(R.id.img_menu_setting).setVisibility(View.INVISIBLE);
 
-        ImageView mActionView = findViewById(R.id.img_menu_profile);
+        CircleImageView mActionView = findViewById(R.id.img_menu_profile);
         mActionView.setPadding(0,0,15,0);
+        mActionView.setBorderWidth(0);
         mActionView.setImageDrawable(getApplicationContext().
                 getResources().getDrawable(R.drawable.ic_navigate_previous));
         mActionView.setOnClickListener(new View.OnClickListener() {

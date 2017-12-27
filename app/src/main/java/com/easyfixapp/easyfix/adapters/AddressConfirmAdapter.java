@@ -1,10 +1,9 @@
 package com.easyfixapp.easyfix.adapters;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.support.v4.app.Fragment;
+import android.graphics.Color;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -17,19 +16,23 @@ import android.widget.TextView;
 import com.easyfixapp.easyfix.R;
 import com.easyfixapp.easyfix.activities.MainActivity;
 import com.easyfixapp.easyfix.activities.MapActivity;
-import com.easyfixapp.easyfix.fragments.AddressConfirmFragment;
-import com.easyfixapp.easyfix.fragments.ServiceDetailFragment;
+import com.easyfixapp.easyfix.fragments.NotificationFragment;
 import com.easyfixapp.easyfix.models.Address;
 import com.easyfixapp.easyfix.models.Reservation;
 import com.easyfixapp.easyfix.util.ApiService;
 import com.easyfixapp.easyfix.util.ServiceGenerator;
 import com.easyfixapp.easyfix.util.SessionManager;
 import com.easyfixapp.easyfix.util.Util;
+import com.google.gson.Gson;
 
+import java.io.File;
+import java.util.HashMap;
 import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
-import io.realm.Realm;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -132,9 +135,9 @@ public class AddressConfirmAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             if (address.isDefault()) {
                 defaultIdAddress = address.getId();
                 defaultPositionAddress = position;
-                mStatusView.setImageDrawable(mContext.getResources().getDrawable(R.drawable.ic_add));
+                mStatusView.setCircleBackgroundColorResource(R.color.green);
             } else {
-                mStatusView.setImageDrawable(mContext.getResources().getDrawable(android.R.drawable.ic_dialog_dialer));
+                mStatusView.setCircleBackgroundColor(Color.GRAY);
             }
 
             mNameView.setText(address.getName());
@@ -166,11 +169,13 @@ public class AddressConfirmAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     public class FooterViewHolder
             extends RecyclerView.ViewHolder {
 
+        public CircleImageView mStatusView;
         public TextView mNameView, mDescriptionView;
         public ImageView mActionView;
 
         public FooterViewHolder(View itemView) {
             super(itemView);
+            mStatusView = itemView.findViewById(R.id.img_status);
             mNameView = itemView.findViewById(R.id.txt_name);
             mDescriptionView = itemView.findViewById(R.id.txt_address);
             mActionView = itemView.findViewById(R.id.img_action);
@@ -181,13 +186,14 @@ public class AddressConfirmAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             mNameView.setText(itemView.getContext().getString(R.string.address_message_footer));
             mDescriptionView.setVisibility(View.GONE);
 
-            mActionView.setImageDrawable(mContext.getResources().getDrawable(R.drawable.ic_navigate_next));
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override public void onClick(View v) {
                     Intent intent = new Intent(mContext, MapActivity.class);
                     mContext.startActivity(intent);
                 }
             });
+
+            mStatusView.setCircleBackgroundColor(Color.GRAY);
         }
 
     }
@@ -198,8 +204,44 @@ public class AddressConfirmAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         final SessionManager sessionManager = new SessionManager(mContext);
         String token = sessionManager.getToken();
 
+        Gson gson = new Gson();
+
+        MediaType json = MediaType.parse("application/json");
+        MediaType img = MediaType.parse("image/*");
+        MediaType text = MediaType.parse("text/plain");
+
+        RequestBody type = RequestBody.create(text, reservation.getType());
+        RequestBody description = RequestBody.create(text, reservation.getDescription());
+        RequestBody artifact = RequestBody.create(text, gson.toJson(reservation.getArtifact()));
+        RequestBody address = RequestBody.create(text, "" + reservation.getAddress().getId());
+        RequestBody service = RequestBody.create(text, "" + reservation.getService().getId());
+
+        HashMap<String, RequestBody> params = new HashMap<>();
+
+        params.put("type", type);
+        params.put("description", description);
+        params.put("artifact", artifact);
+        params.put("address", address);
+        params.put("service", service);
+
+        MultipartBody.Part[] images = new MultipartBody.Part[4];
+
+        for (int i = 0; i< reservation.getImageFileList().length; i++) {
+            File file = reservation.getImageFileList()[i];
+
+            if (file != null) {
+
+                RequestBody requestBody = RequestBody.create(img,
+                        reservation.getImageByteList()[i]);
+                MultipartBody.Part image = MultipartBody.Part.createFormData("image" + (i + 1),
+                        file.getName(), requestBody);
+                images[i] = image;
+            }
+        }
+
         ApiService apiService = ServiceGenerator.createApiService();
-        Call<Reservation> call = apiService.createReservation(token, reservation);
+        Call<Reservation> call = apiService.createReservation(
+                token, params, images[0], images[1], images[2], images[3]);
         call.enqueue(new Callback<Reservation>() {
             @Override
             public void onResponse(Call<Reservation> call, Response<Reservation> response) {
@@ -207,6 +249,14 @@ public class AddressConfirmAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                     Log.i(Util.TAG_RESERVATION, "Reservation result: success!");
                     Util.longToast(mContext,
                             mContext.getString(R.string.reservation_message_create_response));
+
+                    // Save id of new reservation
+                    Reservation r = response.body();
+                    //sessionManager.setServiceDetail(r.getId());
+
+                    // Update reservations
+                    //NotificationFragment.showPostDetail(r);
+                    NotificationFragment.updateReservations();
 
                     ((MainActivity)MainActivity.activity).clearService();
 

@@ -19,7 +19,6 @@ import com.easyfixapp.easyfix.fragments.ServiceDetailFragment;
 import com.easyfixapp.easyfix.fragments.SubServiceFragment;
 import com.easyfixapp.easyfix.models.Service;
 import com.easyfixapp.easyfix.util.SessionManager;
-import com.easyfixapp.easyfix.util.Util;
 
 import java.io.Serializable;
 import java.util.List;
@@ -46,7 +45,7 @@ public class ServiceAdapter extends RecyclerView.Adapter<ServiceAdapter.ServiceV
         this.mFragment = fragment;
     }
 
-    static class ServiceViewHolder
+    public class ServiceViewHolder
             extends RecyclerView.ViewHolder{
 
         public CircleImageView mServiceImageView;
@@ -58,7 +57,7 @@ public class ServiceAdapter extends RecyclerView.Adapter<ServiceAdapter.ServiceV
             mNameView = (TextView) itemView.findViewById(R.id.txt_name);
         }
 
-        public void bind(final Fragment fragment, RequestOptions options, final Service service) {
+        public void bind(RequestOptions options, final Service service) {
             // Set service image
             Glide.with(itemView.getContext())
                     .load(service.getImage())
@@ -74,10 +73,10 @@ public class ServiceAdapter extends RecyclerView.Adapter<ServiceAdapter.ServiceV
                     SessionManager sessionManager = new SessionManager(itemView.getContext());
                     sessionManager.resetFragment();
 
-                    ((RootFragment)fragment).setBackPressedIcon();
+                    ((RootFragment)mFragment).setBackPressedIcon();
                     List<Service> services = service.getSubServiceList();
 
-                    FragmentTransaction transaction = fragment.
+                    FragmentTransaction transaction = mFragment.
                             getChildFragmentManager().beginTransaction();
 
                     // Store the Fragment in stack
@@ -120,7 +119,7 @@ public class ServiceAdapter extends RecyclerView.Adapter<ServiceAdapter.ServiceV
 
     @Override
     public void onBindViewHolder(ServiceViewHolder serviceHolder, int position) {
-        serviceHolder.bind(mFragment, mOptions, mServiceList.get(position));
+        serviceHolder.bind(mOptions, mServiceList.get(position));
     }
 
     @Override

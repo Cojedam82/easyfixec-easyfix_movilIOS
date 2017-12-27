@@ -13,8 +13,8 @@
     <string name="prompt_recovery">Recordar contraseña</string>
     <string name="prompt_payment_method">Método de Pago</string>
     <string name="prompt_legacy">Al concluir con el registro usted declara que ha leído y acepta nuestras
-        <a href="http://easyfix.com/">condiciones de uso</a> y
-        <a href="http://easyfix.com/">política de privacidad</a>
+        <a href="http://easyfix.ec/">condiciones de uso</a> y
+        <a href="http://easyfix.ec/">política de privacidad</a>
     </string>
 
     <string name="action_sign_in">Ingresar</string>
@@ -164,6 +164,8 @@
     <string name="preferences_profile_payment_method">PROFILE_PAYMENT_METHOD</string>
 
     <string name="preferences_number_fragment">NUMBER_FRAGMENT</string>
+
+    <string name="preferences_service_detail">SERVICE_DETAIL</string>
 
     <array name="days_week">
         <item>L</item>

@@ -9,7 +9,6 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.easyfixapp.easyfix.R;
-import com.easyfixapp.easyfix.activities.MainActivity;
 import com.easyfixapp.easyfix.adapters.ServiceAdapter;
 import com.easyfixapp.easyfix.models.Service;
 import com.easyfixapp.easyfix.util.SessionManager;

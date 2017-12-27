@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;
@@ -21,6 +22,7 @@ import retrofit2.http.Multipart;
 import retrofit2.http.PATCH;
 import retrofit2.http.POST;
 import retrofit2.http.Part;
+import retrofit2.http.PartMap;
 import retrofit2.http.Path;
 
 /**
@@ -41,17 +43,24 @@ public interface ApiService {
      *      4 --> No Realizada
      *      5 --> Realizada
      **/
+    @Multipart
     @POST("reservations/")
-    Call<Reservation> createReservation(@Header("Authorization") String authorization, @Body Reservation reservation);
+    Call<Reservation> createReservation(
+            @Header("Authorization") String authorization,
+            @PartMap() Map<String, RequestBody> params,
+            @Part MultipartBody.Part image1,
+            @Part MultipartBody.Part image2,
+            @Part MultipartBody.Part image3,
+            @Part MultipartBody.Part image4);
 
     @GET("reservations/?status__in=1,3")
     Call<List<Reservation>> getNotifications(@Header("Authorization") String authorization);
 
-    @GET("reservations/?status__in=5")
+    @GET("reservations/?status__in=4,5")
     Call<List<Reservation>> getRecord(@Header("Authorization") String authorization);
 
     @DELETE("reservations/{pk}/")
-    Call<Reservation> deleteReservation(@Path("pk") int pk, @Header("Authorization") String authorization);
+    Call<Void> deleteReservation(@Path("pk") int pk, @Header("Authorization") String authorization);
 
 
     /** Address **/

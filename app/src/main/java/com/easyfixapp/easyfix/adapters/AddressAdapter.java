@@ -3,6 +3,8 @@ package com.easyfixapp.easyfix.adapters;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
+import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -13,7 +15,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.easyfixapp.easyfix.R;
+import com.easyfixapp.easyfix.activities.MainActivity;
 import com.easyfixapp.easyfix.activities.MapActivity;
+import com.easyfixapp.easyfix.activities.ServiceDetailActivity;
 import com.easyfixapp.easyfix.models.Address;
 import com.easyfixapp.easyfix.util.ApiService;
 import com.easyfixapp.easyfix.util.ServiceGenerator;
@@ -149,12 +153,16 @@ public class AddressAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             if (address.isDefault()) {
                 defaultIdAddress = address.getId();
                 defaultPositionAddress = position;
-                mStatusView.setImageDrawable(mContext.getResources().getDrawable(R.drawable.ic_add));
+                //mStatusView.setImageDrawable(mContext.getResources().getDrawable(R.drawable.ic_add));
+                mStatusView.setOnClickListener(null);
+                mStatusView.setCircleBackgroundColorResource(R.color.green);
             } else {
-                mStatusView.setImageDrawable(mContext.getResources().getDrawable(android.R.drawable.ic_dialog_dialer));
-                itemView.setOnLongClickListener(new View.OnLongClickListener() {
+                //mStatusView.setImageDrawable(mContext.getResources().getDrawable(android.R.drawable.ic_dialog_dialer));
+                mStatusView.setCircleBackgroundColor(Color.GRAY);
+
+                mStatusView.setOnClickListener(new View.OnClickListener() {
                     @Override
-                    public boolean onLongClick(View v) {
+                    public void onClick(View v) {
                         AlertDialog.Builder builder = new AlertDialog.Builder(mContext, R.style.AlertDialog);
                         builder.setMessage(R.string.address_message_update_dialog)
                                 .setPositiveButton(R.string.dialog_message_yes, new DialogInterface.OnClickListener() {
@@ -167,8 +175,6 @@ public class AddressAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                                 });
 
                         builder.show();
-
-                        return true;
                     }
                 });
             }
@@ -193,6 +199,21 @@ public class AddressAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                     builder.show();
                 }
             });
+
+
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                    Bundle bundle = new Bundle();
+                    bundle.putSerializable("address", address);
+
+                    Intent intent = new Intent(mContext, MapActivity.class);
+                    intent.putExtras(bundle);
+                    mContext.startActivity(intent);
+
+                }
+            });
         }
 
     }
@@ -200,11 +221,13 @@ public class AddressAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     public class FooterViewHolder
             extends RecyclerView.ViewHolder {
 
+        public CircleImageView mStatusView;
         public TextView mNameView, mDescriptionView;
         public ImageView mActionView;
 
         public FooterViewHolder(View itemView) {
             super(itemView);
+            mStatusView = itemView.findViewById(R.id.img_status);
             mNameView = itemView.findViewById(R.id.txt_name);
             mDescriptionView = itemView.findViewById(R.id.txt_address);
             mActionView = itemView.findViewById(R.id.img_action);
@@ -222,6 +245,8 @@ public class AddressAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                     mContext.startActivity(intent);
                 }
             });
+
+            mStatusView.setCircleBackgroundColor(Color.GRAY);
         }
 
     }

@@ -1,5 +1,6 @@
 package com.easyfixapp.easyfix.models;
 
+import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
@@ -13,24 +14,31 @@ import io.realm.annotations.Ignore;
 
 public class User implements Serializable {
 
+    @Expose
     @SerializedName("id")
     private int id;
 
+    @Expose
     @SerializedName("first_name")
     private String firstName;
 
+    @Expose
     @SerializedName("last_name")
     private String lastName;
 
+    @Expose
     @SerializedName("email")
     private String email;
 
+    @Expose(deserialize = false)
     @Ignore
     private String password;
 
+    @Expose
     @SerializedName("profile")
     private Profile profile;
 
+    @Expose
     @SerializedName("addresses")
     private RealmList<Address> addresses;
 
@@ -98,5 +106,15 @@ public class User implements Serializable {
 
     public void setAddresses(RealmList<Address> addresses) {
         this.addresses = addresses;
+    }
+
+    public float getScore() {
+        float score = 0;
+
+        try {
+            score = getProfile().getScore();
+        } catch (Exception ignore) {}
+
+        return score;
     }
 }

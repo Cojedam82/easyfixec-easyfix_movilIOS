@@ -15,7 +15,9 @@
         android:layout_height="@dimen/address_item_image_size"
         android:layout_width="@dimen/address_item_image_size"
         android:layout_margin="@dimen/notification_item_margin"
-        android:src="@android:drawable/ic_dialog_dialer" />
+        android:src="@drawable/address"
+        app:paddingEnd="10dp"
+        app:paddingStart="10dp"/>
 
 
     <LinearLayout

@@ -100,6 +100,20 @@ public class SessionManager {
         mEditor.apply();
     }
 
+    public int getServiceDetail() {
+        return mSharedPreferences.getInt(mResources.getString(R.string.preferences_service_detail), 0);
+    }
+
+    public void setServiceDetail(int id) {
+        mEditor.putInt(mResources.getString(R.string.preferences_service_detail), id);
+        mEditor.apply();
+    }
+
+    public void resetServiceDetail() {
+        mEditor.putInt(mResources.getString(R.string.preferences_service_detail), 0);
+        mEditor.apply();
+    }
+
     public void clear(){
         mEditor.clear();
         mEditor.apply();

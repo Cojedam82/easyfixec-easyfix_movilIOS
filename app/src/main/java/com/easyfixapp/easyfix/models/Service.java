@@ -1,31 +1,39 @@
 package com.easyfixapp.easyfix.models;
 
 import com.easyfixapp.easyfix.util.Util;
+import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
 import java.util.List;
 
 /**
- * Created by cristian on 30/05/17.
+ * Created by jrealpe on 30/05/17.
  */
 
 public class Service implements Serializable {
+
+    @Expose
     @SerializedName("id")
     private int id;
 
+    @Expose
     @SerializedName("name")
     private String name;
 
+    @Expose
     @SerializedName("image")
     private String image;
 
+    @Expose
     @SerializedName("is_parent")
     private boolean isParent;
 
+    @Expose
     @SerializedName("sub_services")
     private List<Service> subServiceList;
 
+    @Expose
     @SerializedName("artifacts")
     private List<Artifact> artifactList;
 
