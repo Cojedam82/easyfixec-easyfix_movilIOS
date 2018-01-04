@@ -1,5 +1,6 @@
 package com.easyfixapp.easyfix.models;
 
+import com.easyfixapp.easyfix.R;
 import com.easyfixapp.easyfix.util.Util;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
@@ -83,5 +84,40 @@ public class Service implements Serializable {
 
     public void setArtifactList(List<Artifact> artifactList) {
         this.artifactList = artifactList;
+    }
+
+    public int getImageDrawable() {
+        switch (id) {
+            case 1:
+                return R.drawable.service_1;
+            case 2:
+                return R.drawable.service_2;
+            case 3:
+                return R.drawable.service_3;
+            case 4:
+                return R.drawable.service_4;
+            case 5:
+                return R.drawable.service_5;
+            case 6:
+                return R.drawable.service_6;
+            case 7:
+                return R.drawable.service_7;
+            case 8:
+                return R.drawable.service_8;
+            case 9:
+                return R.drawable.service_9;
+            case 10:
+                return R.drawable.service_10;
+            case 11:
+                return R.drawable.service_11;
+            case 12:
+                return R.drawable.service_12;
+            case 13:
+                return R.drawable.service_13;
+            default:
+                return R.drawable.ic_settings;
+
+        }
+
     }
 }

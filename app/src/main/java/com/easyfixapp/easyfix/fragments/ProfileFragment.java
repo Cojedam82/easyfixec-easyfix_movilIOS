@@ -1,23 +1,8 @@
 package com.easyfixapp.easyfix.fragments;
 
-import android.app.Activity;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Matrix;
-import android.media.ExifInterface;
-import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
-import android.provider.MediaStore;
-import android.support.annotation.NonNull;
-import android.support.v4.content.FileProvider;
-import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,33 +11,15 @@ import android.widget.EditText;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
-import com.easyfixapp.easyfix.BuildConfig;
 import com.easyfixapp.easyfix.R;
 import com.easyfixapp.easyfix.activities.ProfileUpdateActivity;
 import com.easyfixapp.easyfix.models.Profile;
 import com.easyfixapp.easyfix.models.User;
-import com.easyfixapp.easyfix.util.ApiService;
-import com.easyfixapp.easyfix.util.ServiceGenerator;
 import com.easyfixapp.easyfix.util.SessionManager;
-import com.easyfixapp.easyfix.util.Util;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
-import okhttp3.MediaType;
-import okhttp3.MultipartBody;
-import okhttp3.RequestBody;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-
-import static android.Manifest.permission.CAMERA;
-import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 
 /**
  * Created by julio on 09/10/17.
@@ -62,7 +29,7 @@ public class ProfileFragment extends RootFragment{
 
     private EditText mFirstNameView, mLastNameView, mEmailView,
             mPasswordView, mPhoneView, mPaymentMethod;
-    private CircleImageView mProfileView;
+    public static CircleImageView mProfileView;
     private View view;
 
     private File mFile;
@@ -100,6 +67,7 @@ public class ProfileFragment extends RootFragment{
     /**
      * Callback received when a permissions request has been completed.
      */
+    /*
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
@@ -159,6 +127,7 @@ public class ProfileFragment extends RootFragment{
             }
         }
     }
+    */
 
     private void init() {
         SessionManager sessionManager = new SessionManager(getContext());
@@ -168,7 +137,7 @@ public class ProfileFragment extends RootFragment{
         mProfileView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                actionPicture();
+                MenuFragment.showProfileImageZoom(null);
             }
         });
 
@@ -259,6 +228,7 @@ public class ProfileFragment extends RootFragment{
     }
 
     /** Permission to read phone state **/
+    /*
     private boolean mayRequestCamera() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
             return true;
@@ -269,12 +239,13 @@ public class ProfileFragment extends RootFragment{
             requestPermissions(new String[]{CAMERA, WRITE_EXTERNAL_STORAGE}, Util.CAMERA_REQUEST_CODE);
         }
         return false;
-    }
+    }*/
 
 
     /**
      * Image action handler
      */
+    /*
     private void actionPicture() {
         List<String> opts = new ArrayList<>();
         opts.add("Desde la cámara");
@@ -451,4 +422,8 @@ public class ProfileFragment extends RootFragment{
             }
         });
     }
+
+    public static void updateProfileImage() {
+        mProfileView
+    }*/
 }

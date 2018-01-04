@@ -351,11 +351,11 @@ public class ServiceDetailFragment extends RootFragment{
         RequestOptions options = new RequestOptions()
                 .error(R.drawable.ic_settings)
                 .placeholder(R.drawable.ic_settings)
-                .diskCacheStrategy(DiskCacheStrategy.ALL);
+                .diskCacheStrategy(DiskCacheStrategy.NONE);
 
         Glide.with(getContext())
-                .load(mService.getImage())
-                .apply(options)
+                .load(mService.getImageDrawable())
+                //.apply(options)
                 .into(mImageServiceView);
 
         // Set title

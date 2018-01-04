@@ -31,8 +31,8 @@
 
 
     <!-- Splash Activity -->
-    <dimen name="splash_activity_image_size">250dp</dimen>
-    <dimen name="splash_activity_title_text_size">48sp</dimen>
+    <dimen name="splash_activity_image_size">150dp</dimen>
+    <dimen name="splash_activity_title_text_size">42sp</dimen>
 
 
     <!-- Auth Activity -->
@@ -79,7 +79,11 @@
 
     <!-- Account - Address -->
     <dimen name="address_item_image_size">30dp</dimen>
+    <dimen name="address_item_action_image_size">25dp</dimen>
 
     <!-- Account - Address - Map -->
     <dimen name="map_vertical_margin">32dp</dimen>
+
+    <!-- Preview Profile Image -->
+    <dimen name="preview_profile_image_size">300dp</dimen>
 </resources>

@@ -54,8 +54,8 @@
 
         <ImageView
             android:id="@+id/img_action"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
+            android:layout_width="@dimen/address_item_action_image_size"
+            android:layout_height="@dimen/address_item_action_image_size"
             tools:src="@drawable/ic_navigate_next"/>
 
     </LinearLayout>

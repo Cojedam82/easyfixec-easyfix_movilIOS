@@ -24,7 +24,6 @@ import android.widget.TextView;
 
 import com.easyfixapp.easyfix.R;
 import com.easyfixapp.easyfix.models.Address;
-import com.easyfixapp.easyfix.models.Reservation;
 import com.easyfixapp.easyfix.util.ApiService;
 import com.easyfixapp.easyfix.util.ServiceGenerator;
 import com.easyfixapp.easyfix.util.SessionManager;

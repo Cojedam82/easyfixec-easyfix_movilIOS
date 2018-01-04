@@ -1,3 +1,14 @@
 <resources>
 
+    <!-- Splash Activity -->
+    <dimen name="splash_activity_image_size">250dp</dimen>
+    <dimen name="splash_activity_title_text_size">48sp</dimen>
+
+    <!-- Preview Profile Image -->
+    <dimen name="preview_profile_image_size">450dp</dimen>
+
+    <!-- Account - Address -->
+    <dimen name="address_item_image_size">30dp</dimen>
+    <dimen name="address_item_action_image_size">30dp</dimen>
+
 </resources>

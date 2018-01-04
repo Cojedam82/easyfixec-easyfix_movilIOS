@@ -1,11 +1,17 @@
 package com.easyfixapp.easyfix.fragments;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
+import android.graphics.Point;
+import android.graphics.Rect;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Build;
@@ -23,10 +29,16 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.DecelerateInterpolator;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -37,6 +49,7 @@ import com.easyfixapp.easyfix.R;
 import com.easyfixapp.easyfix.activities.SettingsActivity;
 import com.easyfixapp.easyfix.adapters.ViewPagerAdapter;
 import com.easyfixapp.easyfix.listeners.OnBackPressListener;
+import com.easyfixapp.easyfix.models.Profile;
 import com.easyfixapp.easyfix.models.Settings;
 import com.easyfixapp.easyfix.models.User;
 import com.easyfixapp.easyfix.util.ApiService;
@@ -44,6 +57,7 @@ import com.easyfixapp.easyfix.util.ServiceGenerator;
 import com.easyfixapp.easyfix.util.SessionManager;
 import com.easyfixapp.easyfix.util.Util;
 import com.easyfixapp.easyfix.widget.CustomViewPager;
+import com.github.chrisbanes.photoview.PhotoView;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -66,15 +80,26 @@ import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 public class MenuFragment extends Fragment
         implements NavigationView.OnNavigationItemSelectedListener {
 
+    public static RelativeLayout mContainerView;
+    public static PhotoView mImageZoomView;
+    public static View mStartAnimationView;
+
     private CustomViewPager mViewPager;
     private ViewPagerAdapter mViewPagerAdapter;
-    private CircleImageView mMenuProfileView, mMenuSettingView;
+    private CircleImageView mMenuSettingView;
     private TextView mTitleView;
     private MenuItem prevMenuItem;
-    private static BottomNavigationView bottomNavigationView;
     private View view;
-
     private File mFile;
+
+    private static LinearLayout mProfileImageContainerView;
+    private static CircleImageView mMenuProfileView;
+    private static Rect startBounds;
+    private static float startScaleFinal;
+    private static Button mUpdateProfileImageView;
+    private static Animator mCurrentAnimator;
+    private static BottomNavigationView bottomNavigationView;
+    //private static int mContainerColor;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -106,10 +131,17 @@ public class MenuFragment extends Fragment
                              Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_menu, container, false);
 
-        mViewPager = (CustomViewPager) view.findViewById(R.id.view_pager);
-        mMenuProfileView = (CircleImageView) view.findViewById(R.id.img_menu_profile);
-        mMenuSettingView = (CircleImageView) view.findViewById(R.id.img_menu_setting);
-        mTitleView = (TextView) view.findViewById(R.id.txt_toolbar_title);
+        mViewPager = view.findViewById(R.id.view_pager);
+        mMenuProfileView = view.findViewById(R.id.img_menu_profile);
+        mMenuSettingView = view.findViewById(R.id.img_menu_setting);
+        mTitleView = view.findViewById(R.id.txt_toolbar_title);
+
+        mContainerView = view.findViewById(R.id.rl_container);
+        mProfileImageContainerView = view.findViewById(R.id.ll_image_zoom);
+        mImageZoomView = view.findViewById(R.id.img_zoom);
+        mUpdateProfileImageView = view.findViewById(R.id.btn_update_image);
+
+        //mContainerColor = getContext().getResources().getColor(R.color.black_35);
 
         return view;
     }
@@ -118,7 +150,23 @@ public class MenuFragment extends Fragment
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
+        /* Update Profile Image */
         setProfileImage();
+        setProfileImageZoom();
+
+        mContainerView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                hideProfileImgeZoom(null);
+            }
+        });
+
+        mUpdateProfileImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                actionPicture();
+            }
+        });
 
         mMenuProfileView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -126,7 +174,8 @@ public class MenuFragment extends Fragment
                 if (getChildFragmentCount() != 0)
                     getActivity().onBackPressed();
                 else {
-                    actionPicture();
+                    mStartAnimationView = v;
+                    showProfileImageZoom(mStartAnimationView);
                 }
             }
         });
@@ -376,6 +425,7 @@ public class MenuFragment extends Fragment
             // preserve size
             mMenuProfileView.setPadding(0,0,0,0);
 
+            // Set  profile image
             RequestOptions options = new RequestOptions()
                     .error(R.drawable.ic_empty_profile)
                     .placeholder(R.drawable.ic_empty_profile)
@@ -385,6 +435,25 @@ public class MenuFragment extends Fragment
                     .load(user.getProfile().getImage())
                     .apply(options)
                     .into(mMenuProfileView);
+        }
+    }
+
+    private void setProfileImageZoom() {
+
+        SessionManager sessionManager = new SessionManager(getContext());
+        User user = sessionManager.getUser();
+        String url = user.getProfile().getImage();
+
+        if (!TextUtils.isEmpty(url)) {
+
+            // Set  profile image zoom
+            RequestOptions options = new RequestOptions()
+                    .diskCacheStrategy(DiskCacheStrategy.ALL);
+
+            Glide.with(getContext())
+                    .load(user.getProfile().getImage())
+                    .apply(options)
+                    .into(mImageZoomView);
         }
     }
 
@@ -543,7 +612,7 @@ public class MenuFragment extends Fragment
                     User user = response.body();
                     sessionManager.saveUser(user);
 
-                    // Set image
+                    // Set profile image
                     RequestOptions options = new RequestOptions()
                             .error(R.drawable.ic_empty_profile)
                             .placeholder(R.drawable.ic_empty_profile)
@@ -553,6 +622,23 @@ public class MenuFragment extends Fragment
                             .load(user.getProfile().getImage())
                             .apply(options)
                             .into(mMenuProfileView);
+
+                    try {
+                        Glide.with(getContext())
+                                .load(user.getProfile().getImage())
+                                .apply(options)
+                                .into(ProfileFragment.mProfileView);
+                    } catch (Exception ignore){}
+
+
+                    // Set  profile image zoom
+                    RequestOptions options2 = new RequestOptions()
+                            .diskCacheStrategy(DiskCacheStrategy.ALL);
+
+                    Glide.with(getContext())
+                            .load(user.getProfile().getImage())
+                            .apply(options2)
+                            .into(mImageZoomView);
 
                     Util.longToast(getContext(), getString(R.string.acount_message_update_response));
                 } else {
@@ -577,5 +663,154 @@ public class MenuFragment extends Fragment
 
     public static void setSelectedTab(int idTab){
         bottomNavigationView.setSelectedItemId(idTab);
+    }
+
+    public static void showProfileImageZoom(final View mStartAnimationView) {
+
+        //mContainerView.setBackgroundColor(mContainerColor);
+        mContainerView.setVisibility(View.VISIBLE);
+
+        /*
+        // If there's an animation in progress, cancel it
+        // immediately and proceed with this one.
+        if (mCurrentAnimator != null) {
+            mCurrentAnimator.cancel();
+        }
+
+        // Calculate the starting and ending bounds for the zoomed-in image.
+        // This step involves lots of math. Yay, math.
+        startBounds = new Rect();
+        final Rect finalBounds = new Rect();
+        final Point globalOffset = new Point();
+
+        // The start bounds are the global visible rectangle of the thumbnail,
+        // and the final bounds are the global visible rectangle of the container
+        // view. Also set the container view's offset as the origin for the
+        // bounds, since that's the origin for the positioning animation
+        // properties (X, Y).
+        mMenuProfileView.getGlobalVisibleRect(startBounds);
+        mContainerView.getGlobalVisibleRect(finalBounds, globalOffset);
+        startBounds.offset(-globalOffset.x, -globalOffset.y);
+        finalBounds.offset(-globalOffset.x, -globalOffset.y);
+
+        // Adjust the start bounds to be the same aspect ratio as the final
+        // bounds using the "center crop" technique. This prevents undesirable
+        // stretching during the animation. Also calculate the start scaling
+        // factor (the end scaling factor is always 1.0).
+        float startScale;
+        if ((float) finalBounds.width() / finalBounds.height()
+                > (float) startBounds.width() / startBounds.height()) {
+            // Extend start bounds horizontally
+            startScale = (float) startBounds.height() / finalBounds.height();
+            float startWidth = startScale * finalBounds.width();
+            float deltaWidth = (startWidth - startBounds.width()) / 2;
+            startBounds.left -= deltaWidth;
+            startBounds.right += deltaWidth;
+        } else {
+            // Extend start bounds vertically
+            startScale = (float) startBounds.width() / finalBounds.width();
+            float startHeight = startScale * finalBounds.height();
+            float deltaHeight = (startHeight - startBounds.height()) / 2;
+            startBounds.top -= deltaHeight;
+            startBounds.bottom += deltaHeight;
+        }
+
+        // Hide the thumbnail and show the zoomed-in view. When the animation
+        // begins, it will position the zoomed-in view in the place of the
+        // thumbnail.
+        //mStartAnimationView.setAlpha(0f);
+        mContainerView.setVisibility(View.VISIBLE);
+
+        // Set the pivot point for SCALE_X and SCALE_Y transformations
+        // to the top-left corner of the zoomed-in view (the default
+        // is the center of the view).
+        mImageZoomView.setPivotX(0f);
+        mImageZoomView.setPivotY(0f);
+
+        // Construct and run the parallel animation of the four translation and
+        // scale properties (X, Y, SCALE_X, and SCALE_Y).
+        AnimatorSet set = new AnimatorSet();
+        set
+                .play(ObjectAnimator.ofFloat(mImageZoomView, View.X,
+                        startBounds.left, finalBounds.left))
+                .with(ObjectAnimator.ofFloat(mImageZoomView, View.Y,
+                        startBounds.top, finalBounds.top))
+                .with(ObjectAnimator.ofFloat(mImageZoomView, View.SCALE_X,
+                        startScale, 1f)).with(ObjectAnimator.ofFloat(mImageZoomView,
+                View.SCALE_Y, startScale, 1f));
+        set.setDuration(400);
+        set.setInterpolator(new DecelerateInterpolator());
+        set.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                mCurrentAnimator = null;
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animation) {
+                mCurrentAnimator = null;
+            }
+        });
+        set.start();
+        mCurrentAnimator = set;
+
+        // Upon clicking the zoomed-in image, it should zoom back down
+        // to the original bounds and show the thumbnail instead of
+        // the expanded image.
+        startScaleFinal = startScale;*/
+    }
+
+    public static boolean hideProfileImgeZoom(final View mStartAnimationView) {
+
+
+        if(mContainerView.getVisibility() == View.VISIBLE) {
+
+            mContainerView.setVisibility(View.GONE);
+            //mContainerView.setBackgroundColor(mContainerColor);
+
+            /*
+            if (mCurrentAnimator != null) {
+                mCurrentAnimator.cancel();
+            }
+
+            // Animate the four positioning/sizing properties in parallel,
+            // back to their original values.
+            AnimatorSet set = new AnimatorSet();
+            set.play(ObjectAnimator
+                    .ofFloat(mImageZoomView, View.X, startBounds.left))
+                    .with(ObjectAnimator
+                            .ofFloat(mImageZoomView,
+                                    View.Y, startBounds.top))
+                    .with(ObjectAnimator
+                            .ofFloat(mImageZoomView,
+                                    View.SCALE_X, startScaleFinal))
+                    .with(ObjectAnimator
+                            .ofFloat(mImageZoomView,
+                                    View.SCALE_Y, startScaleFinal));
+            set.setDuration(400);
+            set.setInterpolator(new DecelerateInterpolator());
+            set.addListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    //mStartAnimationView.setAlpha(1f);
+                    mContainerView.setVisibility(View.GONE);
+                    mCurrentAnimator = null;
+                }
+
+                @Override
+                public void onAnimationCancel(Animator animation) {
+                    //mStartAnimationView.setAlpha(1f);
+                    mContainerView.setVisibility(View.GONE);
+                    mCurrentAnimator = null;
+                }
+            });
+            set.start();
+            mCurrentAnimator = set;
+            */
+
+            return true;
+        }
+
+        return false;
     }
 }

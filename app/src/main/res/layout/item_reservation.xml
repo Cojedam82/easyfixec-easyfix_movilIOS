@@ -148,8 +148,8 @@
 
         <ImageView
             android:id="@+id/img_cancel"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
             android:layout_gravity="center"
             android:src="@drawable/ic_delete"/>
 

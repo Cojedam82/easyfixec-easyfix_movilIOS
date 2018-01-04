@@ -15,9 +15,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.easyfixapp.easyfix.R;
-import com.easyfixapp.easyfix.activities.MainActivity;
 import com.easyfixapp.easyfix.activities.MapActivity;
-import com.easyfixapp.easyfix.activities.ServiceDetailActivity;
 import com.easyfixapp.easyfix.models.Address;
 import com.easyfixapp.easyfix.util.ApiService;
 import com.easyfixapp.easyfix.util.ServiceGenerator;
@@ -238,8 +236,12 @@ public class AddressAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             mNameView.setText(itemView.getContext().getString(R.string.address_message_footer));
             mDescriptionView.setVisibility(View.GONE);
 
-            mActionView.setImageDrawable(mContext.getResources().getDrawable(R.drawable.ic_navigate_next));
-            itemView.setOnClickListener(new View.OnClickListener() {
+            mActionView.setImageDrawable(mContext
+                    .getResources().getDrawable(R.drawable.ic_action_right));
+            //mActionView.getLayoutParams().height = 65;
+            //mActionView.getLayoutParams().width = 65;
+
+            mActionView.setOnClickListener(new View.OnClickListener() {
                 @Override public void onClick(View v) {
                     Intent intent = new Intent(mContext, MapActivity.class);
                     mContext.startActivity(intent);

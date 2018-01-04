@@ -151,9 +151,9 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         String password = mPasswordView.getText().toString();
 
         //TODO: Remove this por production
-        if(email.equals("prueba")){
-            startActivity(new Intent(getApplicationContext(),MainActivity.class));
-        }
+        //if(email.equals("prueba")){
+        //    startActivity(new Intent(getApplicationContext(),MainActivity.class));
+        //}
 
         boolean cancel = false;
         View focusView = null;

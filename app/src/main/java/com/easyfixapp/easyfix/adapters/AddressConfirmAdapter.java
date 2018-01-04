@@ -143,6 +143,8 @@ public class AddressConfirmAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             mNameView.setText(address.getName());
             mDescriptionView.setText(address.getDescription());
 
+            mActionView.setVisibility(View.GONE);
+
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override public void onClick(View v) {
                     AlertDialog.Builder builder = new AlertDialog.Builder(mContext, R.style.AlertDialog);
@@ -186,14 +188,19 @@ public class AddressConfirmAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             mNameView.setText(itemView.getContext().getString(R.string.address_message_footer));
             mDescriptionView.setVisibility(View.GONE);
 
-            itemView.setOnClickListener(new View.OnClickListener() {
+            mStatusView.setCircleBackgroundColor(Color.GRAY);
+
+            mActionView.setImageDrawable(mContext
+                    .getResources().getDrawable(R.drawable.ic_action_right));
+            //mActionView.getLayoutParams().height = 65;
+            //mActionView.getLayoutParams().width = 65;
+
+            mActionView.setOnClickListener(new View.OnClickListener() {
                 @Override public void onClick(View v) {
                     Intent intent = new Intent(mContext, MapActivity.class);
                     mContext.startActivity(intent);
                 }
             });
-
-            mStatusView.setCircleBackgroundColor(Color.GRAY);
         }
 
     }

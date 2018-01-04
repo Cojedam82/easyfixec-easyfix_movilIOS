@@ -36,8 +36,8 @@ public class ServiceAdapter extends RecyclerView.Adapter<ServiceAdapter.ServiceV
     private Fragment mFragment;
     private RequestOptions mOptions = new RequestOptions()
             .error(R.drawable.ic_settings)
-            .placeholder(R.drawable.ic_settings)
-            .diskCacheStrategy(DiskCacheStrategy.ALL);
+            //.placeholder(R.drawable.ic_settings)
+            .diskCacheStrategy(DiskCacheStrategy.NONE);
 
     public ServiceAdapter(Fragment fragment, Context context, List<Service> serviceList) {
         this.mServiceList = serviceList;
@@ -60,9 +60,12 @@ public class ServiceAdapter extends RecyclerView.Adapter<ServiceAdapter.ServiceV
         public void bind(RequestOptions options, final Service service) {
             // Set service image
             Glide.with(itemView.getContext())
-                    .load(service.getImage())
-                    .apply(options)
+                    .load(service.getImageDrawable())
+                    //.apply(options)
                     .into(mServiceImageView);
+
+            //mServiceImageView.setImageDrawable(mContext
+            // .getResources().getDrawable(service.getImageDrawable()));
 
             // Set service name
             mNameView.setText(service.getName());

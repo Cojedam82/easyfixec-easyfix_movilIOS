@@ -57,7 +57,9 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
 
-        if (!mMenuFragment.onBackPressed()) {
+        if (MenuFragment.hideProfileImgeZoom(MenuFragment.mStartAnimationView)) {
+            // hide profile image zoom
+        } else if (!mMenuFragment.onBackPressed()) {
 
             // container Fragment or its associates couldn't handle the back pressed task
             // delegating the task to super class
