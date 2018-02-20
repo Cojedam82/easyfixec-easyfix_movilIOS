@@ -1,6 +1,7 @@
 package com.easyfixapp.easyfix.adapters;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -14,8 +15,10 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
 import com.easyfixapp.easyfix.R;
+import com.easyfixapp.easyfix.activities.MapCallService;
 import com.easyfixapp.easyfix.fragments.RootFragment;
 import com.easyfixapp.easyfix.fragments.ServiceDetailFragment;
+import com.easyfixapp.easyfix.fragments.ServiceFragment;
 import com.easyfixapp.easyfix.fragments.SubServiceFragment;
 import com.easyfixapp.easyfix.models.Service;
 import com.easyfixapp.easyfix.util.SessionManager;
@@ -73,35 +76,41 @@ public class ServiceAdapter extends RecyclerView.Adapter<ServiceAdapter.ServiceV
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override public void onClick(View v) {
 
-                    SessionManager sessionManager = new SessionManager(itemView.getContext());
-                    sessionManager.resetFragment();
+//                    SessionManager sessionManager = new SessionManager(itemView.getContext());
+//                    sessionManager.resetFragment();
+//                    ((RootFragment)mFragment).setBackPressedIcon();
+//                    FragmentTransaction transaction = mFragment.
+//                            getChildFragmentManager().beginTransaction();
 
-                    ((RootFragment)mFragment).setBackPressedIcon();
                     List<Service> services = service.getSubServiceList();
-
-                    FragmentTransaction transaction = mFragment.
-                            getChildFragmentManager().beginTransaction();
-
-                    // Store the Fragment in stack
-                    transaction.addToBackStack(null);
-
                     if (services.size() > 0) {
+                        SessionManager sessionManager = new SessionManager(itemView.getContext());
+                        sessionManager.resetFragment();
+                        ((RootFragment)mFragment).setBackPressedIcon();
+                        FragmentTransaction transaction = mFragment.
+                        getChildFragmentManager().beginTransaction();
+
+                        // Store the Fragment in stack
+                        transaction.addToBackStack(null);
                         Bundle bundle = new Bundle();
                         bundle.putSerializable("services", (Serializable) services);
                         SubServiceFragment mSubServiceFragment = new SubServiceFragment();
                         mSubServiceFragment.setArguments(bundle);
                         transaction.replace(R.id.sub_container, mSubServiceFragment);
+                        transaction.commit();
 
                     } else {
                         Bundle bundle = new Bundle();
                         bundle.putSerializable("service", service);
                         ServiceDetailFragment mServiceDetailFragment = new ServiceDetailFragment();
-                        mServiceDetailFragment.setArguments(bundle);
-                        transaction.replace(R.id.sub_container, mServiceDetailFragment);
+//                        mServiceDetailFragment.setArguments(bundle);
+//                        transaction.replace(R.id.sub_container, mServiceDetailFragment);
+                        Intent mIntent = new Intent(mContext, MapCallService.class);
+                        mIntent.putExtras(bundle);
+                        mContext.startActivity(mIntent);
                     }
 
                     // commit transaction
-                    transaction.commit();
                 }
             });
         }

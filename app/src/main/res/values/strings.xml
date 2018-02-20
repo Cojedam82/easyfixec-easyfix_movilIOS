@@ -87,6 +87,10 @@
     <string name="dialog_no">No</string>
 
 
+    <string name="dialog_1_hour">1 hora</string>
+    <string name="dialog_2_hours">2 horas</string>
+
+
     <!-- Network And Api -->
     <string name="message_network_local_failed">Hubo problemas, revise su conexión a internet e intente nuevamente</string>
     <string name="message_network_connectivity_failed">No hay conexión a internet</string>

@@ -24,6 +24,8 @@ import android.widget.TextView;
 
 import com.easyfixapp.easyfix.R;
 import com.easyfixapp.easyfix.models.Address;
+import com.easyfixapp.easyfix.models.Reservation;
+import com.easyfixapp.easyfix.models.Service;
 import com.easyfixapp.easyfix.util.ApiService;
 import com.easyfixapp.easyfix.util.ServiceGenerator;
 import com.easyfixapp.easyfix.util.SessionManager;
@@ -57,6 +59,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Locale;
 
@@ -102,15 +105,35 @@ public class MapCallService extends AppCompatActivity implements
 
     private Address mAddress = null;
 
+    private Service mService = null;
+    private Reservation mReservation = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
 
+        if (mService==null && mReservation == null) {
+            try {
+                Serializable serializable = savedInstanceState.getSerializable("service");
+                if (serializable == null) {
+                    mReservation = (Reservation) savedInstanceState.getSerializable("reservation");
+                    mService = mReservation.getService();
+                    savedInstanceState.remove("reservation");
+                } else {
+                    mService = (Service) serializable;
+                    savedInstanceState.remove("service");
+                }
+            } catch (Exception ignore) {}
+        }
+
+
         try {
             mAddress = (Address) getIntent().getExtras().getSerializable("address");
         } catch (Exception ignore) {}
 
+        Button button = (Button)findViewById(R.id.btn_update);
+        button.setText("Solicitar Servicio");
         mAddressView = findViewById(R.id.txt_autocomplete);
         mReferenceView = findViewById(R.id.txt_reference);
 
@@ -512,7 +535,7 @@ public class MapCallService extends AppCompatActivity implements
             final LayoutInflater adbInflater = LayoutInflater.from(getApplicationContext());
             View v = adbInflater.inflate(R.layout.dialog_checkbox, null);
             final CheckBox checkBox = (CheckBox) v.findViewById(R.id.location_default);
-
+            checkBox.setVisibility(View.GONE);
             AlertDialog.Builder displayAlert = new AlertDialog.Builder(MapCallService.this, R.style.AlertDialog);
 
             if (mAddress != null) {
@@ -523,32 +546,40 @@ public class MapCallService extends AppCompatActivity implements
                 displayAlert.setView(v);
             }
             displayAlert.setCancelable(false);
-            displayAlert.setMessage("¿Esta seguro de agregar esta nueva dirección?")
-                    .setPositiveButton(R.string.dialog_message_continue, new DialogInterface.OnClickListener() {
+            displayAlert.setMessage("¿Cuánto puedes esperar?")
+                    .setPositiveButton(R.string.dialog_1_hour, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
-
-                            Address address = new Address();
-                            address.setName(mName);
-                            address.setDescription(mDescription);
-                            address.setReference(mReferenceView.getText().toString());
-                            address.setLatitude(String.valueOf(mLastLocation.latitude));
-                            address.setLongitude(String.valueOf(mLastLocation.longitude));
-
-                            address.setActive(true);
-                            address.setDefault(checkBox.isChecked());
-
-                            if (mAddress == null) {
-                                createAddressTask(address);
-                            } else {
-                                address.setId(mAddress.getId());
-                                updateAddressTask(address);
-                            }
+                            //TODO agendar una hora respecto al tiempo actual
+//                            Address address = new Address();
+//                            address.setName(mName);
+//                            address.setDescription(mDescription);
+//                            address.setReference(mReferenceView.getText().toString());
+//                            address.setLatitude(String.valueOf(mLastLocation.latitude));
+//                            address.setLongitude(String.valueOf(mLastLocation.longitude));
+//
+//                            address.setActive(true);
+//                            address.setDefault(checkBox.isChecked());
+//
+//                            if (mAddress == null) {
+//                                createAddressTask(address);
+//                            } else {
+//                                address.setId(mAddress.getId());
+//                                updateAddressTask(address);
+//                            }
                         }
                     })
-                    .setNegativeButton(R.string.dialog_message_no, new DialogInterface.OnClickListener() {
+                    .setNegativeButton(R.string.dialog_2_hours, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
+
+                            //TODO agendar dos horas respecto al tiempo actual
                         }
-                    });
+                    })
+                    .setNeutralButton(R.string.action_service_detail_schedule, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+
+                    //TODO Abrir el fragment de agendar
+                }
+            }).setCancelable(true);
 
             displayAlert.show();
         } else {
