@@ -42,7 +42,8 @@ public class User implements Serializable {
     @SerializedName("addresses")
     private RealmList<Address> addresses;
 
-    public User(){};
+    public User(){
+    }
 
     public int getId() {
         return id;

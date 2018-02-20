@@ -10,12 +10,19 @@
     android:clickable="false"
     tools:context=".activities.MainActivity">
 
-    <RelativeLayout
-        android:orientation="vertical"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="?android:windowBackground">
+        <ScrollView
+            android:orientation="vertical"
+            android:background="?android:windowBackground"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/btn_request"
+            android:layout_below="@+id/tabs">
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tabs"
+            android:orientation="vertical">
         <LinearLayout
             android:id="@+id/header"
             android:layout_width="match_parent"
@@ -73,6 +80,8 @@
 
         <TextView
             android:id="@+id/txt_time"
+            android:paddingTop="@dimen/service_fragment_title_margin"
+            android:paddingBottom="@dimen/service_fragment_title_margin"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/calendar"
@@ -83,18 +92,22 @@
             android:gravity="center"
             tools:text="13:00"/>
 
+            <Button
+                android:id="@+id/btn_schedule"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_margin="@dimen/activity_vertical_min_margin"
 
-        <Button
-            android:id="@+id/btn_schedule"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="@dimen/activity_vertical_min_margin"
-            android:layout_alignParentBottom="true"
-            android:background="@color/colorPrimaryDark"
-            android:text="Agendar"
-            android:textAllCaps="false"
-            android:textColor="@color/white"
-            android:textSize="@dimen/auth_activity_input" />
-    </RelativeLayout>
+                android:background="@color/colorPrimaryDark"
+                android:text="Agendar"
+                android:textAllCaps="false"
+                android:textColor="@color/white"
+                android:textSize="@dimen/auth_activity_input" />
+
+
+        </LinearLayout>
+
+        </ScrollView>
 
 </FrameLayout>

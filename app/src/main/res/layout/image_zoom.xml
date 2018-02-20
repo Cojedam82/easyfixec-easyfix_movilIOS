@@ -22,12 +22,13 @@
         android:gravity="center"
         android:orientation="vertical">
 
-        <com.github.chrisbanes.photoview.PhotoView
+        <ImageView
             android:id="@+id/img_zoom"
             android:layout_width="@dimen/preview_profile_image_size"
             android:layout_height="@dimen/preview_profile_image_size"
             android:layout_gravity="center|center_vertical"
-            tools:src="@color/white"/>
+            tools:src="@color/white"
+            android:scaleType="centerCrop"/>
 
         <Button
             android:id="@+id/btn_update_image"

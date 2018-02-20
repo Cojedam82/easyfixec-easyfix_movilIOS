@@ -36,14 +36,34 @@ public class SessionManager {
         mEditor.putString(mResources.getString(R.string.preferences_user_last_name), user.getLastName());
         mEditor.putString(mResources.getString(R.string.preferences_user_email), user.getEmail());
 
-        mEditor.putString(mResources.getString(R.string.preferences_profile_image), profile.getImage());
-        mEditor.putString(mResources.getString(R.string.preferences_profile_phone), profile.getPhone());
-        mEditor.putString(mResources.getString(R.string.preferences_profile_token), profile.getToken());
-        mEditor.putInt(mResources.getString(R.string.preferences_profile_role), profile.getRole());
-        mEditor.putInt(mResources.getString(R.string.preferences_profile_payment_method), profile.getPaymentMethod());
+        try {
+            mEditor.putString(mResources.getString(R.string.preferences_profile_image), profile.getImage());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        try {
+            mEditor.putString(mResources.getString(R.string.preferences_profile_phone), profile.getPhone());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        try {
+            mEditor.putString(mResources.getString(R.string.preferences_profile_token), profile.getToken());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        try {
+            mEditor.putInt(mResources.getString(R.string.preferences_profile_role), profile.getRole());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        try {
+            mEditor.putInt(mResources.getString(R.string.preferences_profile_payment_method), profile.getPaymentMethod());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         mEditor.apply();
-
+try{
         if (!user.getAddresses().isEmpty()) {
             Realm realm = Realm.getDefaultInstance();
             try {
@@ -56,7 +76,7 @@ public class SessionManager {
                 realm.close();
             }
 
-        }
+        } }catch(Exception e){}
     }
 
     public User getUser(){

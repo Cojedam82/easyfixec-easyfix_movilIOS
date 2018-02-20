@@ -11,6 +11,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
@@ -19,26 +20,48 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.easyfixapp.easyfix.R;
+import com.easyfixapp.easyfix.models.Address;
 import com.easyfixapp.easyfix.models.AuthResponse;
+import com.easyfixapp.easyfix.models.Profile;
 import com.easyfixapp.easyfix.models.User;
 import com.easyfixapp.easyfix.util.AuthService;
 import com.easyfixapp.easyfix.util.ServiceGenerator;
 import com.easyfixapp.easyfix.util.SessionManager;
 import com.easyfixapp.easyfix.util.Util;
+import com.facebook.AccessToken;
+import com.facebook.AccessTokenTracker;
+import com.facebook.CallbackManager;
+import com.facebook.FacebookCallback;
+import com.facebook.FacebookException;
+import com.facebook.GraphRequest;
+import com.facebook.GraphResponse;
+import com.facebook.ProfileTracker;
+import com.facebook.login.LoginManager;
+import com.facebook.login.LoginResult;
+import com.facebook.login.widget.LoginButton;
 import com.google.firebase.iid.FirebaseInstanceId;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import io.realm.RealmList;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -49,16 +72,63 @@ import static android.Manifest.permission.READ_CONTACTS;
 /**
  * A login screen that offers login via email/password.
  */
+
 public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<Cursor> {
 
     // UI references.
     private AutoCompleteTextView mEmailView;
     private EditText mPasswordView;
-
+    LoginResult loginResultFinal;
+    CallbackManager mCallbackManager;
+    AccessTokenTracker accessTokenTraker;
+    ProfileTracker profileTracker;
+    AccessToken accessToken;
+    com.facebook.Profile profilefb;
+    private ProfileTracker mProfileTracker;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+        this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_UNSPECIFIED);
+
+
+        LoginButton loginButton = (LoginButton) findViewById(R.id.login_button);
+        loginButton.setReadPermissions("public_profile");
+        mCallbackManager = CallbackManager.Factory.create();
+        loginButton.registerCallback(mCallbackManager, new FacebookCallback<LoginResult>() {
+            @Override
+            public void onSuccess(LoginResult loginResult) {
+                if(com.facebook.Profile.getCurrentProfile() == null) {
+                    mProfileTracker = new ProfileTracker() {
+                        @Override
+                        protected void onCurrentProfileChanged(com.facebook.Profile oldProfile, com.facebook.Profile currentProfile) {
+                            com.facebook.Profile.setCurrentProfile(currentProfile);
+                            mProfileTracker.stopTracking();
+                        }
+                    };
+                    // no need to call startTracking() on mProfileTracker
+                    // because it is called by its constructor, internally.
+                }
+                else {
+                    com.facebook.Profile profile = com.facebook.Profile.getCurrentProfile();
+                    Log.v("facebook - profile", profile.getFirstName());
+                }
+
+
+            }
+
+            @Override
+            public void onCancel() {
+                Log.v("facebook - onCancel", "cancelled");
+            }
+
+            @Override
+            public void onError(FacebookException e) {
+                Log.v("facebook - onError", e.getMessage());
+            }
+        });
+
+
         // Set up the login form.
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
         mEmailView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -73,18 +143,64 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         });
         populateAutoComplete();
 
-        mPasswordView = (EditText) findViewById(R.id.password);
-        mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+        Button login = (Button) findViewById(R.id.login_buton);
+        login.setOnClickListener(new View.OnClickListener() {
             @Override
-            public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
-                if (id == R.id.login || id == EditorInfo.IME_ACTION_DONE) {
-                    Util.hideSoftKeyboard(getApplicationContext(), getCurrentFocus());
-                    attemptLogin(null);
-                    return true;
-                }
-                return false;
+            public void onClick(View view) {
+                Util.hideSoftKeyboard(getApplicationContext(), getCurrentFocus());
+                attemptLogin(null);
             }
         });
+
+        mPasswordView = (EditText) findViewById(R.id.password);
+//        mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+//            @Override
+//            public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
+//                if (id == R.id.login || id == EditorInfo.IME_ACTION_DONE) {
+//                    Util.hideSoftKeyboard(getApplicationContext(), getCurrentFocus());
+//                    attemptLogin(null);
+//                    return true;
+//                }
+//                return false;
+//            }
+//        });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        // if you don't add following block,
+        // your registered `FacebookCallback` won't be called
+        if (mCallbackManager.onActivityResult(requestCode, resultCode, data)) {
+            // Get user
+            Util.showLoading(this,"Ingresando con Facebook");
+            final Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    //Do something after 100ms
+                    User user = new User();
+                    user.setPassword("facebook_password");
+                    user.setFirstName(com.facebook.Profile.getCurrentProfile().getFirstName());
+                    user.setLastName(com.facebook.Profile.getCurrentProfile().getLastName());
+                    user.setEmail(com.facebook.Profile.getCurrentProfile().getLinkUri().toString());
+                    user.setId(9);
+                    Profile profile = new Profile();
+                    profile.setImage(com.facebook.Profile.getCurrentProfile().getProfilePictureUri(800,800).toString());
+                    profile.setPaymentMethod(1);
+                    profile.setRole(1);
+                    // Save user in shared preferences
+                    SessionManager sessionManager = new SessionManager(getApplicationContext());
+                    sessionManager.saveUser(user);
+                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                    startActivity(intent);
+                    finish();
+                }
+            }, 2000);
+
+            return;
+        }
+
     }
 
     @Override
@@ -161,25 +277,25 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         // Check for a valid password, if the user entered one.
         if (TextUtils.isEmpty(password) || Util.isPasswordMinimumLengthValid(password)) {
             mPasswordView.setError(getString(R.string.error_invalid_password));
-            focusView = mPasswordView;
+//            focusView = mPasswordView;
             cancel = true;
         }
 
         // Check for a valid email address.
         if (TextUtils.isEmpty(email)) {
             mEmailView.setError(getString(R.string.error_field_required));
-            focusView = mEmailView;
+//            focusView = mEmailView;
             cancel = true;
         } else if (!Util.isEmailValid(email)) {
             mEmailView.setError(getString(R.string.error_invalid_email));
-            focusView = mEmailView;
+//            focusView = mEmailView;
             cancel = true;
         }
 
         if (cancel) {
             // There was an error; don't attempt login and focus the first
             // form field with an error.
-            focusView.requestFocus();
+//            focusView.requestFocus();
         } else {
             if (Util.isNetworkAvailable(getApplicationContext())) {
                 // Show a progress spinner, and kick off a background task to
@@ -263,6 +379,15 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         int IS_PRIMARY = 1;
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        View view = this.getCurrentFocus();
+        if (view != null) {
+            InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
+    }
 
     public void signup(View view){
         // Init Signup

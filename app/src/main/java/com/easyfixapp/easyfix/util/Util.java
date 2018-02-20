@@ -78,6 +78,7 @@ public class Util {
     public static final int PLACE_AUTOCOMPLETE_REQUEST_CODE = 8;
     public static final int LOCATION_REQUEST_CODE = 9;
     public static final int PLAY_SERVICES_REQUEST_CODE = 10;
+    public static final int IMAGE_EDIT_REQUEST_CODE = 011;
 
 
     /**

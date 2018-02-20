@@ -25,6 +25,8 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
@@ -153,6 +155,7 @@ public class ServiceDetailFragment extends RootFragment{
         mTitleView = view.findViewById(R.id.txt_service_name);
         mArtifactView = view.findViewById(R.id.txt_artifact);
         mDescriptionView = view.findViewById(R.id.txt_description);
+        mDescriptionView.setSingleLine();
         mImageServiceView = view.findViewById(R.id.img_service);
         mTabLayout = view.findViewById(R.id.tabs);
         mImage1View = view.findViewById(R.id.img_detail_1);
@@ -162,6 +165,17 @@ public class ServiceDetailFragment extends RootFragment{
         mTimeView = view.findViewById(R.id.txt_time);
         mCustomRadioGroup = view.findViewById(R.id.rg_actions);
         mRequestView = view.findViewById(R.id.btn_request);
+
+
+        getActivity().getWindow().setSoftInputMode(
+                WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN
+        );
+
+//        View view = getActivity().getCurrentFocus();
+//        if (view != null) {
+//            InputMethodManager imm = (InputMethodManager)getActivity().getApplicationContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+//            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+//        }
 
         return view;
     }

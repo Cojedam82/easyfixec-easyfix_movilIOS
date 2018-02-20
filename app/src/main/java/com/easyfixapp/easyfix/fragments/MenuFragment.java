@@ -1,9 +1,12 @@
 package com.easyfixapp.easyfix.fragments;
 
+import android.Manifest;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
+import android.app.Activity;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -17,11 +20,14 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Parcel;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
@@ -40,6 +46,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
@@ -57,6 +64,7 @@ import com.easyfixapp.easyfix.util.ServiceGenerator;
 import com.easyfixapp.easyfix.util.SessionManager;
 import com.easyfixapp.easyfix.util.Util;
 import com.easyfixapp.easyfix.widget.CustomViewPager;
+import com.facebook.login.Login;
 import com.github.chrisbanes.photoview.PhotoView;
 
 import java.io.ByteArrayOutputStream;
@@ -76,12 +84,13 @@ import retrofit2.Response;
 
 import static android.Manifest.permission.CAMERA;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
+import static android.R.attr.grantUriPermissions;
 
 public class MenuFragment extends Fragment
         implements NavigationView.OnNavigationItemSelectedListener {
 
     public static RelativeLayout mContainerView;
-    public static PhotoView mImageZoomView;
+    public static ImageView mImageZoomView;
     public static View mStartAnimationView;
 
     private CustomViewPager mViewPager;
@@ -231,21 +240,84 @@ public class MenuFragment extends Fragment
         });
     }
 
-    /**
-     * Callback received when a permissions request has been completed.
-     */
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
-        if (requestCode == Util.CAMERA_REQUEST_CODE) {
-            if (permissions.length == 2 && permissions[0].equals(CAMERA)
-                    && permissions[1].equals(WRITE_EXTERNAL_STORAGE)
-                    && grantResults[0] == PackageManager.PERMISSION_GRANTED
-                    && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
-                actionPicture();
+
+
+    public static final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 123;
+
+    public boolean checkPermissionREAD_EXTERNAL_STORAGE(
+            final Context context) {
+        int currentAPIVersion = Build.VERSION.SDK_INT;
+        if (currentAPIVersion >= android.os.Build.VERSION_CODES.M) {
+            if (ContextCompat.checkSelfPermission(context,
+                    Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                if (ActivityCompat.shouldShowRequestPermissionRationale(
+                        (Activity) context,
+                        Manifest.permission.READ_EXTERNAL_STORAGE)) {
+                    showDialog("External storage", context,
+                            Manifest.permission.READ_EXTERNAL_STORAGE);
+
+                } else {
+                    ActivityCompat
+                            .requestPermissions(
+                                    (Activity) context,
+                                    new String[] { Manifest.permission.READ_EXTERNAL_STORAGE },
+                                    MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
+                }
+                return false;
+            } else {
+                return true;
             }
+
+        } else {
+            return true;
         }
     }
+
+    public void showDialog(final String msg, final Context context,
+                           final String permission) {
+        AlertDialog.Builder alertBuilder = new AlertDialog.Builder(context);
+        alertBuilder.setCancelable(true);
+        alertBuilder.setTitle("Permission necessary");
+        alertBuilder.setMessage(msg + " permission is necessary");
+        alertBuilder.setPositiveButton(android.R.string.yes,
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        ActivityCompat.requestPermissions((Activity) context,
+                                new String[] { permission },
+                                MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
+                    }
+                });
+        AlertDialog alert = alertBuilder.create();
+        alert.show();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String[] permissions, int[] grantResults) {
+        switch (requestCode) {
+            case MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE:
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // do your stuff
+
+                    actionPicture();
+
+                } else {
+
+                }
+                break;
+            case Util.CAMERA_REQUEST_CODE:
+                if (permissions.length == 2 && permissions[0].equals(CAMERA)
+                        && permissions[1].equals(WRITE_EXTERNAL_STORAGE)
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED
+                        && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+                }actionPicture();
+                break;
+            default:
+                super.onRequestPermissionsResult(requestCode, permissions,
+                        grantResults);
+        }
+    }
+
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -254,12 +326,37 @@ public class MenuFragment extends Fragment
             return;
 
         Bitmap mImageBitmap = null;
-
         if (requestCode == Util.IMAGE_CAMERA_REQUEST_CODE) {
-            mImageBitmap = adjustImage(mFile);
+//            mImageBitmap = adjustImage(mFile);
+            Uri mImageUri = FileProvider.getUriForFile(getActivity().getApplicationContext(),
+                    getActivity().getApplicationContext().getPackageName() + ".com.easyfixapp.easyfix.provider", mFile);
+
+//            Uri mImageUri = Uri.fromFile(mFile);
+//            Uri mImageUri = data.getData();
+//            mFile = new File(mImageUri.getPath());
+
+//            Intent editIntent = new Intent(Intent.ACTION_EDIT);
+//            editIntent.setDataAndType(mImageUri, "image/*");
+//            editIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+//            startActivityForResult(Intent.createChooser(editIntent, null), Util.IMAGE_EDIT_REQUEST_CODE);
+
+            if (mImageUri != null) {
+                try {
+                    mImageBitmap = MediaStore.Images.Media.getBitmap(
+                            getActivity().getContentResolver(), mImageUri);
+                    mImageBitmap = scaleImage(mImageBitmap);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
         } else if (requestCode == Util.IMAGE_GALLERY_REQUEST_CODE) {
             Uri mImageUri = data.getData();
             mFile = new File(mImageUri.getPath());
+
+//            Intent editIntent = new Intent(Intent.ACTION_EDIT);
+//            editIntent.setDataAndType(mImageUri, "image/*");
+//            editIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+//            startActivityForResult(Intent.createChooser(editIntent, null), Util.IMAGE_EDIT_REQUEST_CODE);
 
             if (mImageUri != null) {
                 try {
@@ -522,10 +619,11 @@ public class MenuFragment extends Fragment
 
                 Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                 intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-
                 //intent.putExtra(MediaStore.EXTRA_SCREEN_ORIENTATION, ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
                 intent.putExtra(MediaStore.EXTRA_OUTPUT, mImageUri);
                 startActivityForResult(intent, Util.IMAGE_CAMERA_REQUEST_CODE);
+
+
             } catch (Exception e) {
                 Log.e(Util.TAG_SERVICE_DETAIL_IMAGE, "Cannot take picture");
                 Util.longToast(getContext(), "Hubo un problema, intente nuevamente en un momento");
@@ -575,8 +673,7 @@ public class MenuFragment extends Fragment
 
     private Bitmap scaleImage(Bitmap bitmap) {
         int targetWidth = 800;
-        int targetHeight = 800; //(int) (bitmap.getHeight() * targetWidth / (double) bitmap.getWidth());
-
+        int targetHeight = bitmap.getHeight()*800/bitmap.getWidth(); //(int) (bitmap.getHeight() * targetWidth / (double) bitmap.getWidth());
         return Bitmap.createScaledBitmap(bitmap, targetWidth, targetHeight, true);
     }
 

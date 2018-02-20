@@ -1,7 +1,8 @@
 <resources>
     <string name="app_name">EasyFix</string>
-    <string name="app_message">Tenemos las solución</string>
-
+    <string name="app_message">Tenemos la solución</string>
+    <string name="facebook_app_id">2026471540702678</string>
+    <string name="fb_login_protocol_scheme">fb2026471540702678</string>
     <!-- Strings related to login and signup -->
     <string name="prompt_first_name">Nombres</string>
     <string name="prompt_last_name">Apellidos</string>

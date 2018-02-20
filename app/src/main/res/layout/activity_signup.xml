@@ -75,14 +75,14 @@
                 android:id="@+id/txt_password"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center_vertical"
                 android:drawableLeft="@drawable/password"
                 android:drawablePadding="@dimen/auth_activity_regular_margin"
-                android:inputType="textPassword"
-                android:hint="@string/prompt_password"
                 android:ellipsize="start"
+                android:gravity="center_vertical"
+                android:hint="@string/prompt_password"
+                android:inputType="textPassword"
                 android:maxLines="1"
-                android:textSize="@dimen/auth_activity_input"/>
+                android:textSize="@dimen/auth_activity_input" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -93,9 +93,9 @@
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight=".3"
-                    android:gravity="center_vertical"
+                    android:layout_weight=".45"
                     android:background="@drawable/input_border_bottom"
+                    android:gravity="center_vertical"
                     android:orientation="horizontal">
 
                     <ImageView
@@ -114,11 +114,16 @@
                             android:id="@+id/txt_country"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:textSize="18sp"
                             android:ellipsize="end"
-                            android:maxLines="1"
                             android:maxLength="7"
-                            tools:text="Ecuador"/>
+                            android:maxLines="1"
+                            android:textSize="18sp"
+                            tools:text="Ecuador"
+                            android:layout_alignParentTop="true"
+                            android:layout_alignLeft="@+id/txt_phone_code"
+                            android:layout_alignStart="@+id/txt_phone_code"
+                            android:layout_marginLeft="10dp"
+                            android:layout_marginStart="10dp" />
 
                         <com.hbb20.CountryCodePicker
                             android:id="@+id/txt_phone_code"
@@ -126,11 +131,12 @@
                             android:layout_height="wrap_content"
                             android:paddingTop="10dp"
                             app:ccp_arrowSize="20dp"
+                            app:ccp_defaultLanguage="SPANISH"
+                            app:ccp_defaultNameCode="EC"
                             app:ccp_showFlag="false"
                             app:ccp_showNameCode="true"
-                            app:ccp_defaultNameCode="EC"
-                            app:ccp_defaultLanguage="SPANISH"
-                            app:ccp_textSize="@dimen/auth_activity_input" />
+                            app:ccp_textSize="@dimen/auth_activity_input"
+                            android:layout_alignParentBottom="true" />
 
                     </RelativeLayout>
 
@@ -138,21 +144,21 @@
 
                 <View
                     android:layout_width="1dp"
-                    android:layout_height="match_parent"/>
+                    android:layout_height="match_parent" />
 
                 <EditText
                     android:id="@+id/txt_phone_number"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight=".7"
-                    android:paddingTop="21dp"
-                    android:paddingBottom="22dp"
+                    android:layout_weight=".55"
                     android:hint="@string/prompt_phone"
                     android:imeOptions="actionDone"
                     android:inputType="phone"
                     android:maxLength="10"
                     android:maxLines="1"
-                    android:textSize="@dimen/auth_activity_input"/>
+                    android:paddingBottom="22dp"
+                    android:paddingTop="21dp"
+                    android:textSize="@dimen/auth_activity_input" />
 
             </LinearLayout>
 

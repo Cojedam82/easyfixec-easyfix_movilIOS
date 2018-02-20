@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/easyfix-android.iml" filepath="$PROJECT_DIR$/easyfix-android.iml" />
+      <module fileurl="file://$PROJECT_DIR$/easyfix_movilandroid.iml" filepath="$PROJECT_DIR$/easyfix_movilandroid.iml" />
     </modules>
   </component>
 </project>

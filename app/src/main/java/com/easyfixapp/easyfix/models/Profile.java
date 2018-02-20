@@ -38,6 +38,11 @@ public class Profile extends RealmObject implements Serializable {
     @SerializedName("score")
     private float score;
 
+    public Profile(String token, String image) {
+        this.token = token;
+        this.image = image;
+    }
+
     public static final int CASH_KEY = 1;
     public static final String CASH_VALUE = "Efectivo";
 

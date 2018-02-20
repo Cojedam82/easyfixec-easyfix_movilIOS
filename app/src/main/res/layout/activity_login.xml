@@ -24,12 +24,12 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <include layout="@layout/app_header_main" ></include>
+            <include layout="@layout/app_header_main"></include>
 
             <View
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="@dimen/auth_activity_extra_margin"/>
+                android:layout_margin="@dimen/auth_activity_extra_margin" />
 
             <android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"
@@ -46,7 +46,7 @@
                     android:inputType="textEmailAddress"
                     android:maxLines="1"
                     android:singleLine="true"
-                    android:textSize="@dimen/auth_activity_input"/>
+                    android:textSize="@dimen/auth_activity_input" />
 
             </android.support.design.widget.TextInputLayout>
 
@@ -61,45 +61,52 @@
                     android:drawableLeft="@drawable/password"
                     android:drawablePadding="@dimen/auth_activity_regular_margin"
                     android:hint="@string/prompt_password"
-                    android:imeActionId="@+id/login"
-                    android:imeOptions="actionDone"
                     android:inputType="textPassword"
                     android:maxLines="1"
                     android:singleLine="true"
-                    android:textSize="@dimen/auth_activity_input"/>
+                    android:textSize="@dimen/auth_activity_input" />
 
             </android.support.design.widget.TextInputLayout>
 
             <TextView
+                android:id="@+id/textView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/auth_activity_regular_margin"
                 android:gravity="center"
-                android:text="@string/prompt_sign_up"
-                android:layout_marginTop="@dimen/auth_activity_extra_margin"
-                android:onClick="signup"
-                android:textSize="@dimen/auth_activity_action"/>
+                android:onClick="attemptRecovery"
+                android:text="@string/prompt_recovery"
+                android:textSize="@dimen/auth_activity_action" />
 
             <Button
-                android:id="@+id/email_sign_in_button"
+                android:id="@+id/login_buton"
                 style="?android:textAppearanceSmall"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/auth_activity_extra_margin"
                 android:background="@color/colorPrimaryDark"
+                android:onClick="attemptLogin"
                 android:text="@string/action_sign_in"
-                android:textSize="@dimen/auth_activity_action"
-                android:textColor="@color/white"
                 android:textAllCaps="false"
-                android:onClick="attemptLogin"/>
+                android:textColor="@color/white"
+                android:textSize="@dimen/auth_activity_action" />
+
+            <com.facebook.login.widget.LoginButton
+                android:id="@+id/login_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginBottom="@dimen/auth_activity_extra_margin"
+                android:layout_marginTop="@dimen/auth_activity_extra_margin" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/auth_activity_regular_margin"
                 android:gravity="center"
-                android:text="@string/prompt_recovery"
-                android:textSize="@dimen/auth_activity_action"
-                android:onClick="attemptRecovery"/>
+                android:onClick="signup"
+                android:text="@string/prompt_sign_up"
+                android:textSize="@dimen/auth_activity_action" />
+
 
         </LinearLayout>
     </ScrollView>

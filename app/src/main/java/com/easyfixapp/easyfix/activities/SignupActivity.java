@@ -177,7 +177,6 @@ public class SignupActivity extends AppCompatActivity {
 
                 Profile profile = new Profile();
                 profile.setPhone(phone);
-
                 User user = new User();
                 user.setEmail(email);
                 user.setFirstName(firstName);
