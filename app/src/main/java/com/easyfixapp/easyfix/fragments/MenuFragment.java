@@ -66,6 +66,8 @@ import com.easyfixapp.easyfix.util.Util;
 import com.easyfixapp.easyfix.widget.CustomViewPager;
 import com.facebook.login.Login;
 import com.github.chrisbanes.photoview.PhotoView;
+import com.theartofdev.edmodo.cropper.CropImage;
+import com.theartofdev.edmodo.cropper.CropImageView;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -324,12 +326,35 @@ public class MenuFragment extends Fragment
 
         if(resultCode != getActivity().RESULT_OK)
             return;
-
         Bitmap mImageBitmap = null;
+
+        if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
+            CropImage.ActivityResult result = CropImage.getActivityResult(data);
+            if (resultCode == getActivity().RESULT_OK) {
+                Uri mImageUri = result.getUri();
+                if (mImageUri != null) {
+                    try {
+                        mImageBitmap = MediaStore.Images.Media.getBitmap(
+                                getActivity().getContentResolver(), mImageUri);
+                        mImageBitmap = scaleImage(mImageBitmap);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
+                Exception error = result.getError();
+            }
+        }
+
         if (requestCode == Util.IMAGE_CAMERA_REQUEST_CODE) {
 //            mImageBitmap = adjustImage(mFile);
             Uri mImageUri = FileProvider.getUriForFile(getActivity().getApplicationContext(),
                     getActivity().getApplicationContext().getPackageName() + ".com.easyfixapp.easyfix.provider", mFile);
+
+
+            CropImage.activity(mImageUri)
+                    .start(getContext(), this);
+
 
 //            Uri mImageUri = Uri.fromFile(mFile);
 //            Uri mImageUri = data.getData();
@@ -340,15 +365,7 @@ public class MenuFragment extends Fragment
 //            editIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
 //            startActivityForResult(Intent.createChooser(editIntent, null), Util.IMAGE_EDIT_REQUEST_CODE);
 
-            if (mImageUri != null) {
-                try {
-                    mImageBitmap = MediaStore.Images.Media.getBitmap(
-                            getActivity().getContentResolver(), mImageUri);
-                    mImageBitmap = scaleImage(mImageBitmap);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
+
         } else if (requestCode == Util.IMAGE_GALLERY_REQUEST_CODE) {
             Uri mImageUri = data.getData();
             mFile = new File(mImageUri.getPath());
@@ -358,15 +375,10 @@ public class MenuFragment extends Fragment
 //            editIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
 //            startActivityForResult(Intent.createChooser(editIntent, null), Util.IMAGE_EDIT_REQUEST_CODE);
 
-            if (mImageUri != null) {
-                try {
-                    mImageBitmap = MediaStore.Images.Media.getBitmap(
-                            getActivity().getContentResolver(), mImageUri);
-                    mImageBitmap = scaleImage(mImageBitmap);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
+            CropImage.activity(mImageUri)
+                    .start(getContext(), this);
+
+
         }
 
         if(mImageBitmap!=null) {
