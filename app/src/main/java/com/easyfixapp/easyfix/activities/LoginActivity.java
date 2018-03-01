@@ -165,7 +165,9 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 //            }
 //        });
     }
-
+    User user;
+    String tokenauth;
+    Profile profileFB;
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -179,22 +181,45 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 @Override
                 public void run() {
                     //Do something after 100ms
-                    User user = new User();
+                    user = new User();
                     user.setPassword("facebook_password");
                     user.setFirstName(com.facebook.Profile.getCurrentProfile().getFirstName());
                     user.setLastName(com.facebook.Profile.getCurrentProfile().getLastName());
                     user.setEmail(com.facebook.Profile.getCurrentProfile().getLinkUri().toString());
                     user.setId(9);
-                    Profile profile = new Profile();
-                    profile.setImage(com.facebook.Profile.getCurrentProfile().getProfilePictureUri(800,800).toString());
-                    profile.setPaymentMethod(1);
-                    profile.setRole(1);
+                    profileFB = new Profile();
+                    profileFB.setImage(com.facebook.Profile.getCurrentProfile().getProfilePictureUri(800,800).toString());
+                    profileFB.setPaymentMethod(1);
+                    profileFB.setRole(1);
                     // Save user in shared preferences
-                    SessionManager sessionManager = new SessionManager(getApplicationContext());
-                    sessionManager.saveUser(user);
-                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                    startActivity(intent);
-                    finish();
+
+                    //CAMBIOS
+                    String registrationId = FirebaseInstanceId.getInstance().getToken();
+
+                    Map<String, Object> params = new HashMap<>();
+                    params.put("email", "raveledo.opinion@gmail.com");
+                    params.put("password", "admin1234");
+                    params.put("role", Util.USER_ROLE);
+                    params.put("registration_id", registrationId);
+                    params.put("type", Util.TYPE_DEVICE);
+                    loginTaskFB(params);
+                    //CAMBIOS
+
+                    final Handler handler2 = new Handler();
+                    handler2.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+
+                            profileFB.setToken(tokenToPass);
+                            user.setProfile(profileFB);
+                            Log.i("FACEBOOKTOKEN ", "El token es "+profileFB.getToken());
+                            SessionManager sessionManager = new SessionManager(getApplicationContext());
+                            sessionManager.saveUser(user);
+                            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                            startActivity(intent);
+                            finish();
+                        }
+                    }, 1000);
                 }
             }, 2000);
 
@@ -421,6 +446,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                         SessionManager sessionManager = new SessionManager(getApplicationContext());
                         sessionManager.saveUser(user);
 
+                        Log.d("FACEBOOK","El token es: "+user.getProfile().getToken());
                         // Show message success
                         Util.longToast(getApplicationContext(), userResponse.getMsg());
 
@@ -447,6 +473,51 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 Log.i(Util.TAG_LOGIN, "Login result: failed, " + t.getMessage());
                 Util.longToast(getApplicationContext(), getString(R.string.message_network_local_failed));
                 Util.hideLoading();
+            }
+        });
+    }
+    String tokenToPass;
+
+    private void loginTaskFB(Map<String,Object> params){
+
+        AuthService authService = ServiceGenerator.createAuthService();
+        Call<AuthResponse<User>> call = authService.login(params);
+        call.enqueue(new Callback<AuthResponse<User>>() {
+            @Override
+            public void onResponse(@NonNull Call<AuthResponse<User>> call, @NonNull Response<AuthResponse<User>> response) {
+                if (response.isSuccessful()) {
+                    Log.i(Util.TAG_LOGIN, "Login result: success!");
+
+                    AuthResponse userResponse = response.body();
+
+                    if (!userResponse.isError()) {
+
+                        // Get user
+                        User userfb = (User) userResponse.getData();
+                        tokenToPass = userfb.getProfile().getToken();
+                        // Save user in shared preferences
+//                        SessionManager sessionManager = new SessionManager(getApplicationContext());
+//                        sessionManager.saveUser(user);
+
+                        Log.d("FACEBOOK","El token es: "+tokenToPass);
+                        // Show message success
+
+                    } else {
+                        // Show message error
+                        Util.longToast(getApplicationContext(), userResponse.getMsg());
+                    }
+                } else {
+                    // Error response, no access to resource?
+                    Log.i(Util.TAG_LOGIN, "Login result: " + response.toString());
+                    Util.longToast(getApplicationContext(), getString(R.string.message_service_server_failed));
+                }
+                Util.hideLoading();
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<AuthResponse<User>> call, @NonNull Throwable t) {
+                // Something went completely south (like no internet connection)
+
             }
         });
     }
