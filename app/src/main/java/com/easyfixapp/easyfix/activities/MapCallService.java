@@ -14,15 +14,22 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.easyfixapp.easyfix.R;
+import com.easyfixapp.easyfix.adapters.AddressAdapter;
+import com.easyfixapp.easyfix.adapters.AddressAdapterCallService;
 import com.easyfixapp.easyfix.models.Address;
 import com.easyfixapp.easyfix.models.Reservation;
 import com.easyfixapp.easyfix.models.Service;
@@ -30,6 +37,7 @@ import com.easyfixapp.easyfix.util.ApiService;
 import com.easyfixapp.easyfix.util.ServiceGenerator;
 import com.easyfixapp.easyfix.util.SessionManager;
 import com.easyfixapp.easyfix.util.Util;
+import com.easyfixapp.easyfix.widget.DividerItemDecoration;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
@@ -60,10 +68,13 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
 import io.realm.Realm;
+import io.realm.RealmResults;
+import io.realm.Sort;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -77,7 +88,7 @@ public class MapCallService extends AppCompatActivity implements
         LocationListener {
 
     private PlaceAutocompleteFragment autocompleteFragment;
-    private TextView mAddressView;
+    private TextView mAddressViewText;
     private EditText mReferenceView;
 
     private GoogleMap mMap;
@@ -108,11 +119,15 @@ public class MapCallService extends AppCompatActivity implements
     private Service mService = null;
     private Reservation mReservation = null;
 
+    private RecyclerView mAddressView;
+    private AddressAdapterCallService mAddressAdapter;
+    private List<Address> mAddressList = new ArrayList<>();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_map);
-
+        setContentView(R.layout.call_service);
+        mapLayout = (RelativeLayout)findViewById(R.id.mapLayout);
         if (mService==null && mReservation == null) {
             try {
                 Serializable serializable = savedInstanceState.getSerializable("service");
@@ -134,7 +149,7 @@ public class MapCallService extends AppCompatActivity implements
 
         Button button = (Button)findViewById(R.id.btn_update);
         button.setText("Solicitar Servicio");
-        mAddressView = findViewById(R.id.txt_autocomplete);
+        mAddressViewText = findViewById(R.id.txt_autocomplete);
         mReferenceView = findViewById(R.id.txt_reference);
 
         findViewById(R.id.img_close).setOnClickListener(new View.OnClickListener() {
@@ -147,6 +162,64 @@ public class MapCallService extends AppCompatActivity implements
         SupportMapFragment fm = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         fm.getMapAsync(this);
+
+
+        mAddressView = findViewById(R.id.rv_address);
+        mAddressAdapter = new AddressAdapterCallService(this, mAddressList);
+
+        // set true if your RecyclerView is finite and has fixed size
+        //mRecyclerView.setHasFixedSize(false);
+        //mRecyclerView.addItemDecoration(new ItemOffsetDecoration(10));
+        // Set requirements to show recyclerview
+        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(this);
+        mAddressView.setLayoutManager(mLayoutManager);
+
+        // Set item divider
+        mAddressView.addItemDecoration(new DividerItemDecoration(this, LinearLayoutManager.VERTICAL));
+        mAddressView.setItemAnimator(new DefaultItemAnimator());
+
+        mAddressView.setAdapter(mAddressAdapter);
+
+        this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+
+    }
+    RelativeLayout mapLayout;
+
+    private void populate(){
+        Util.showLoading(this, "Cargando ...");
+
+        // Clean address
+        mAddressList.clear();
+
+        Realm realm = Realm.getDefaultInstance();
+        try {
+            RealmResults<Address> result = realm.where(Address.class)
+                    .equalTo("isActive", true)
+                    .findAllSorted("id", Sort.DESCENDING);
+            if(!result.isEmpty()){
+                // Copy persist query
+                for (Address address : realm.copyFromRealm(result)) {
+                    mAddressList.add(address);
+                }
+            }
+        } finally {
+            realm.close();
+        }
+//        if(mAddressList.size()>1){
+//            mapLayout.setVisibility(View.VISIBLE);
+//        } else {
+//            mapLayout.setVisibility(View.GONE);
+//        }
+        Util.hideLoading();
+
+        // Always notify data
+        mAddressAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        populate();
     }
 
     @Override
@@ -288,7 +361,7 @@ public class MapCallService extends AppCompatActivity implements
             mName = mAddress.getName();
             mDescription = mAddress.getDescription();
 
-            mAddressView.setText( mName + ", " + mDescription);
+            mAddressViewText.setText( mName + ", " + mDescription);
             mReferenceView.setText(mAddress.getReference());
 
             mLastLocation = new LatLng(Double.valueOf(mAddress.getLatitude()), Double.valueOf(mAddress.getLongitude()));
@@ -476,7 +549,7 @@ public class MapCallService extends AppCompatActivity implements
 
     public void onPlaceSelected(Place place) {
         addressFromLatLong(place.getLatLng());
-        //mAddressView.setText(place.getAddress());
+        //mAddressViewText.setText(place.getAddress());
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(place.getLatLng(), CUSTOM_ZOOM));
     }
 
@@ -509,7 +582,7 @@ public class MapCallService extends AppCompatActivity implements
             Geocoder geo = new Geocoder(getApplicationContext(), Locale.getDefault());
             List<android.location.Address> addresses = geo.getFromLocation(latLng.latitude, latLng.longitude, 1);
             if (addresses.isEmpty()) {
-                mAddressView.setText("Desconocido");
+                mAddressViewText.setText("Desconocido");
             } else {
                 if (addresses.size() > 0) {
 
@@ -518,7 +591,7 @@ public class MapCallService extends AppCompatActivity implements
                     mDescription = address.getLocality() + ", " +
                             addresses.get(0).getAdminArea();
 
-                    mAddressView.setText( mName + ", " + mDescription);
+                    mAddressViewText.setText( mName + ", " + mDescription);
 
                 }
             }
