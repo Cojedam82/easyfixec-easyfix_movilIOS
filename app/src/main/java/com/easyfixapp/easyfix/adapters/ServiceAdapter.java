@@ -1,10 +1,12 @@
 package com.easyfixapp.easyfix.adapters;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -100,14 +102,32 @@ public class ServiceAdapter extends RecyclerView.Adapter<ServiceAdapter.ServiceV
                         transaction.commit();
 
                     } else {
-                        Bundle bundle = new Bundle();
-                        bundle.putSerializable("service", service);
-                        ServiceDetailFragment mServiceDetailFragment = new ServiceDetailFragment();
-//                        mServiceDetailFragment.setArguments(bundle);
-//                        transaction.replace(R.id.sub_container, mServiceDetailFragment);
-                        Intent mIntent = new Intent(mContext, MapCallService.class);
-                        mIntent.putExtras(bundle);
-                        mContext.startActivity(mIntent);
+
+                        AlertDialog.Builder displayAlert = new AlertDialog.Builder(mContext, R.style.AlertDialog);
+
+                        displayAlert.setCancelable(false);
+                        displayAlert.setMessage("¿Desea usar su dirección por defecto?")
+                                .setPositiveButton("SI", new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int id) {
+
+
+
+                                    }
+                                })
+                                .setNegativeButton("NO", new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int id) {
+                                        Bundle bundle = new Bundle();
+                                        bundle.putSerializable("service", service);
+                                        ServiceDetailFragment mServiceDetailFragment = new ServiceDetailFragment();
+                                        Intent mIntent = new Intent(mContext, MapCallService.class); //aca debe ir directo a solicitarlonnnnn
+                                        mIntent.putExtras(bundle);
+                                        mContext.startActivity(mIntent);
+                                    }
+                                }).setCancelable(true);
+
+                        displayAlert.show();
+
+
                     }
 
                     // commit transaction
