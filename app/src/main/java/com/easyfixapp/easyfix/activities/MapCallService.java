@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
@@ -18,12 +19,17 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -72,6 +78,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import de.hdodenhof.circleimageview.CircleImageView;
 import io.realm.Realm;
 import io.realm.RealmResults;
 import io.realm.Sort;
@@ -122,12 +129,31 @@ public class MapCallService extends AppCompatActivity implements
     private RecyclerView mAddressView;
     private AddressAdapterCallService mAddressAdapter;
     private List<Address> mAddressList = new ArrayList<>();
-
+    private LinearLayout mList;
+    private LinearLayout mScheduler;
+    private TextView mOneHourText;
+    private TextView mTwoHourText;
+    private TextView mScheduleText;
+    private Button mButtonService;
+    private Boolean verifier = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.call_service);
         mapLayout = (RelativeLayout)findViewById(R.id.mapLayout);
+        mOneHourText=(TextView)findViewById(R.id.oneHour_Scheduler);
+        mTwoHourText=(TextView)findViewById(R.id.twoHour_Scheduler);
+        mScheduleText=(TextView)findViewById(R.id.schedule_Scheduler);
+        mList = (LinearLayout)findViewById(R.id.header);
+        mScheduler = (LinearLayout)findViewById(R.id.Scheduler);
+        mButtonService = (Button)findViewById(R.id.btn_update_Scheduler);
+        Bundle b = getIntent().getExtras();
+        String location = b.getString("location");
+        if(location.equals("predetermined")){
+            verifier = true;
+            scheduleQuestion();
+        }
+
         if (mService==null && mReservation == null) {
             try {
                 Serializable serializable = savedInstanceState.getSerializable("service");
@@ -141,8 +167,16 @@ public class MapCallService extends AppCompatActivity implements
                 }
             } catch (Exception ignore) {}
         }
-
-
+        LinearLayout addDirection = (LinearLayout)findViewById(R.id.addDirection);
+        addDirection.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getApplicationContext(), MapActivity.class);
+                startActivity(intent);
+            }
+        });
+        CircleImageView icon = (CircleImageView)findViewById(R.id.img_status_icon);
+        icon.setCircleBackgroundColorResource(R.color.com_facebook_messenger_blue);
         try {
             mAddress = (Address) getIntent().getExtras().getSerializable("address");
         } catch (Exception ignore) {}
@@ -180,9 +214,71 @@ public class MapCallService extends AppCompatActivity implements
 
         mAddressView.setAdapter(mAddressAdapter);
 
+        mAddressView.addOnItemTouchListener(new RecyclerTouchListener(this,
+                mAddressView, new ClickListener() {
+            @Override
+            public void onClick(View view, final int position) {
+                //Values are passing to activity & to fragment as well
+                double latitude = Double.parseDouble(mAddressList.get(position).getLatitude());
+                double longitude = Double.parseDouble(mAddressList.get(position).getLongitude());
+                mLastLocation = new LatLng(latitude, longitude);
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(mLastLocation, CUSTOM_ZOOM));
+
+
+                scheduleQuestion();
+            }
+
+            @Override
+            public void onLongClick(View view, int position) {
+            }
+        }));
+
+
         this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
     }
+
+
+
+    private void scheduleQuestion(){
+        mList.setVisibility(View.GONE);
+        mScheduler.setVisibility(View.VISIBLE);
+        mOneHourText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mOneHourText.setTextColor(Color.parseColor("#428ff4"));
+                mTwoHourText.setTextColor(Color.parseColor("#a3a3a3"));
+                mScheduleText.setTextColor(Color.parseColor("#a3a3a3"));
+            }
+        });
+        mTwoHourText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mOneHourText.setTextColor(Color.parseColor("#a3a3a3"));
+                mTwoHourText.setTextColor(Color.parseColor("#428ff4"));
+                mScheduleText.setTextColor(Color.parseColor("#a3a3a3"));
+            }
+        });
+        mScheduleText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mOneHourText.setTextColor(Color.parseColor("#a3a3a3"));
+                mTwoHourText.setTextColor(Color.parseColor("#a3a3a3"));
+                mScheduleText.setTextColor(Color.parseColor("#428ff4"));
+            }
+        });
+        mButtonService.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Util.shortToast(getApplicationContext(),"En desarrollo");
+
+            }
+        });
+
+
+    }
+
+
     RelativeLayout mapLayout;
 
     private void populate(){
@@ -220,6 +316,7 @@ public class MapCallService extends AppCompatActivity implements
     protected void onResume() {
         super.onResume();
         populate();
+
     }
 
     @Override
@@ -245,6 +342,7 @@ public class MapCallService extends AppCompatActivity implements
         updateLocationUI();
 
         init();
+
     }
 
     @Override
@@ -366,6 +464,9 @@ public class MapCallService extends AppCompatActivity implements
 
             mLastLocation = new LatLng(Double.valueOf(mAddress.getLatitude()), Double.valueOf(mAddress.getLongitude()));
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(mLastLocation, CUSTOM_ZOOM));
+
+
+
         }
     }
 
@@ -438,8 +539,20 @@ public class MapCallService extends AppCompatActivity implements
                                     Location location = LocationServices.FusedLocationApi.getLastLocation(
                                             mGoogleApiClient);
 
+                                    if(verifier){
+                                        for(int i=0;i<mAddressList.size();i++){
+                                            if(mAddressList.get(i).isDefault()){
+                                                double latitude = Double.parseDouble(mAddressList.get(i).getLatitude());
+                                                double longitude = Double.parseDouble(mAddressList.get(i).getLongitude());
+                                                mLastLocation = new LatLng(latitude, longitude);
+                                                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(mLastLocation, CUSTOM_ZOOM));
+                                            }
+                                        }
+                                    }else{
                                     mLastLocation = new LatLng(location.getLatitude(), location.getLongitude());
                                     mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(mLastLocation, CUSTOM_ZOOM));
+                                    }
+
 
                                     disconnectAPIGoogle();
                                 } catch (SecurityException e) {
@@ -601,65 +714,65 @@ public class MapCallService extends AppCompatActivity implements
         }
     }
 
-    public void attemptCreate(View view) {
-
-        if (mLastLocation != null && mName != null && mDescription != null) {
-
-            final LayoutInflater adbInflater = LayoutInflater.from(getApplicationContext());
-            View v = adbInflater.inflate(R.layout.dialog_checkbox, null);
-            final CheckBox checkBox = (CheckBox) v.findViewById(R.id.location_default);
-            checkBox.setVisibility(View.GONE);
-            AlertDialog.Builder displayAlert = new AlertDialog.Builder(MapCallService.this, R.style.AlertDialog);
-
-            if (mAddress != null) {
-                if (!mAddress.isDefault()) {
-                    displayAlert.setView(v);
-                }
-            } else {
-                displayAlert.setView(v);
-            }
-            displayAlert.setCancelable(false);
-            displayAlert.setMessage("¿Cuánto puedes esperar?")
-                    .setPositiveButton(R.string.dialog_1_hour, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            //TODO agendar una hora respecto al tiempo actual
-//                            Address address = new Address();
-//                            address.setName(mName);
-//                            address.setDescription(mDescription);
-//                            address.setReference(mReferenceView.getText().toString());
-//                            address.setLatitude(String.valueOf(mLastLocation.latitude));
-//                            address.setLongitude(String.valueOf(mLastLocation.longitude));
+//    public void attemptCreate(View view) {
 //
-//                            address.setActive(true);
-//                            address.setDefault(checkBox.isChecked());
+//        if (mLastLocation != null && mName != null && mDescription != null) {
 //
-//                            if (mAddress == null) {
-//                                createAddressTask(address);
-//                            } else {
-//                                address.setId(mAddress.getId());
-//                                updateAddressTask(address);
-//                            }
-                        }
-                    })
-                    .setNegativeButton(R.string.dialog_2_hours, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-
-                            //TODO agendar dos horas respecto al tiempo actual
-                        }
-                    })
-                    .setNeutralButton(R.string.action_service_detail_schedule, new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int id) {
-
-                    //TODO Abrir el fragment de agendar
-                }
-            }).setCancelable(true);
-
-            displayAlert.show();
-        } else {
-            Util.longToast(getApplicationContext(),
-                    getString(R.string.address_message_create_error));
-        }
-    }
+//            final LayoutInflater adbInflater = LayoutInflater.from(getApplicationContext());
+//            View v = adbInflater.inflate(R.layout.dialog_checkbox, null);
+//            final CheckBox checkBox = (CheckBox) v.findViewById(R.id.location_default);
+//            checkBox.setVisibility(View.GONE);
+//            AlertDialog.Builder displayAlert = new AlertDialog.Builder(MapCallService.this, R.style.AlertDialog);
+//
+//            if (mAddress != null) {
+//                if (!mAddress.isDefault()) {
+//                    displayAlert.setView(v);
+//                }
+//            } else {
+//                displayAlert.setView(v);
+//            }
+//            displayAlert.setCancelable(false);
+//            displayAlert.setMessage("¿Cuánto puedes esperar?")
+//                    .setPositiveButton(R.string.dialog_1_hour, new DialogInterface.OnClickListener() {
+//                        public void onClick(DialogInterface dialog, int id) {
+//                            //TODO agendar una hora respecto al tiempo actual
+////                            Address address = new Address();
+////                            address.setName(mName);
+////                            address.setDescription(mDescription);
+////                            address.setReference(mReferenceView.getText().toString());
+////                            address.setLatitude(String.valueOf(mLastLocation.latitude));
+////                            address.setLongitude(String.valueOf(mLastLocation.longitude));
+////
+////                            address.setActive(true);
+////                            address.setDefault(checkBox.isChecked());
+////
+////                            if (mAddress == null) {
+////                                createAddressTask(address);
+////                            } else {
+////                                address.setId(mAddress.getId());
+////                                updateAddressTask(address);
+////                            }
+//                        }
+//                    })
+//                    .setNegativeButton(R.string.dialog_2_hours, new DialogInterface.OnClickListener() {
+//                        public void onClick(DialogInterface dialog, int id) {
+//
+//                            //TODO agendar dos horas respecto al tiempo actual
+//                        }
+//                    })
+//                    .setNeutralButton(R.string.action_service_detail_schedule, new DialogInterface.OnClickListener() {
+//                public void onClick(DialogInterface dialog, int id) {
+//
+//                    //TODO Abrir el fragment de agendar
+//                }
+//            }).setCancelable(true);
+//
+//            displayAlert.show();
+//        } else {
+//            Util.longToast(getApplicationContext(),
+//                    getString(R.string.address_message_create_error));
+//        }
+//    }
 
     private void createAddressTask(final Address address){
         Util.showLoading(MapCallService.this, getString(R.string.address_message_create_request));
@@ -775,5 +888,55 @@ public class MapCallService extends AppCompatActivity implements
                 Util.hideLoading();
             }
         });
+    }
+
+    public static interface ClickListener{
+        public void onClick(View view,int position);
+        public void onLongClick(View view,int position);
+    }
+
+    class RecyclerTouchListener implements RecyclerView.OnItemTouchListener{
+
+        private ClickListener clicklistener;
+        private GestureDetector gestureDetector;
+
+        public RecyclerTouchListener(Context context, final RecyclerView recycleView, final ClickListener clicklistener){
+
+            this.clicklistener=clicklistener;
+            gestureDetector=new GestureDetector(context,new GestureDetector.SimpleOnGestureListener(){
+                @Override
+                public boolean onSingleTapUp(MotionEvent e) {
+                    return true;
+                }
+
+                @Override
+                public void onLongPress(MotionEvent e) {
+                    View child=recycleView.findChildViewUnder(e.getX(),e.getY());
+                    if(child!=null && clicklistener!=null){
+                        clicklistener.onLongClick(child,recycleView.getChildAdapterPosition(child));
+                    }
+                }
+            });
+        }
+
+        @Override
+        public boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent e) {
+            View child=rv.findChildViewUnder(e.getX(),e.getY());
+            if(child!=null && clicklistener!=null && gestureDetector.onTouchEvent(e)){
+                clicklistener.onClick(child,rv.getChildAdapterPosition(child));
+            }
+
+            return false;
+        }
+
+        @Override
+        public void onTouchEvent(RecyclerView rv, MotionEvent e) {
+
+        }
+
+        @Override
+        public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
+
+        }
     }
 }

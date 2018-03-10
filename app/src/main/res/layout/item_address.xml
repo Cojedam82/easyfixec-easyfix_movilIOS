@@ -3,6 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/list_item_direction"
     android:layout_height="wrap_content"
     android:layout_width="match_parent"
     android:paddingLeft="@dimen/fragment_horizontal_margin"
@@ -12,12 +13,12 @@
 
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/img_status"
-        android:layout_height="@dimen/address_item_image_size"
         android:layout_width="@dimen/address_item_image_size"
+        android:layout_height="@dimen/address_item_image_size"
         android:layout_margin="@dimen/notification_item_margin"
         android:src="@drawable/address"
         app:paddingEnd="10dp"
-        app:paddingStart="10dp"/>
+        app:paddingStart="10dp" />
 
 
     <LinearLayout

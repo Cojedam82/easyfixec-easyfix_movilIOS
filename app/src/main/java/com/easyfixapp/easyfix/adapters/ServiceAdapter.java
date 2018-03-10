@@ -109,8 +109,13 @@ public class ServiceAdapter extends RecyclerView.Adapter<ServiceAdapter.ServiceV
                         displayAlert.setMessage("¿Desea usar su dirección por defecto?")
                                 .setPositiveButton("SI", new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog, int id) {
-
-
+                                        Bundle bundle = new Bundle();
+                                        bundle.putSerializable("service", service);
+                                        bundle.putString("location", "predetermined");
+                                        ServiceDetailFragment mServiceDetailFragment = new ServiceDetailFragment();
+                                        Intent mIntent = new Intent(mContext, MapCallService.class); //aca debe ir directo a solicitarlonnnnn
+                                        mIntent.putExtras(bundle);
+                                        mContext.startActivity(mIntent);
 
                                     }
                                 })
@@ -118,6 +123,7 @@ public class ServiceAdapter extends RecyclerView.Adapter<ServiceAdapter.ServiceV
                                     public void onClick(DialogInterface dialog, int id) {
                                         Bundle bundle = new Bundle();
                                         bundle.putSerializable("service", service);
+                                        bundle.putString("location", "newLocation");
                                         ServiceDetailFragment mServiceDetailFragment = new ServiceDetailFragment();
                                         Intent mIntent = new Intent(mContext, MapCallService.class); //aca debe ir directo a solicitarlonnnnn
                                         mIntent.putExtras(bundle);

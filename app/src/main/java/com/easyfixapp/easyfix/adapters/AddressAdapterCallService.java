@@ -11,8 +11,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.CheckBox;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.easyfixapp.easyfix.R;
@@ -31,6 +33,8 @@ import io.realm.Realm;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+
+import static android.view.View.GONE;
 
 public class AddressAdapterCallService extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
@@ -133,6 +137,7 @@ public class AddressAdapterCallService extends RecyclerView.Adapter<RecyclerView
         public CircleImageView mStatusView;
         public TextView mNameView, mDescriptionView;
         public ImageView mActionView;
+        public LinearLayout mItemList;
 
         public AddressViewHolder(View itemView) {
             super(itemView);
@@ -140,18 +145,20 @@ public class AddressAdapterCallService extends RecyclerView.Adapter<RecyclerView
             mNameView = itemView.findViewById(R.id.txt_name);
             mDescriptionView = itemView.findViewById(R.id.txt_address);
             mActionView = itemView.findViewById(R.id.img_action);
-            mActionView.setVisibility(View.GONE);
+            mActionView.setVisibility(GONE);
+            mItemList = itemView.findViewById(R.id.list_item_direction);
         }
 
         public void bind(final int position) {
 
             final Address address = mAddressList.get(position);
 
+
             if (address.isDefault()) {
                 defaultIdAddress = address.getId();
                 defaultPositionAddress = position;
                 //mStatusView.setImageDrawable(mContext.getResources().getDrawable(R.drawable.ic_add));
-                mStatusView.setOnClickListener(null);
+//                mStatusView.setOnClickListener(null);
                 mStatusView.setCircleBackgroundColorResource(R.color.green);
             } else {
                 //mStatusView.setImageDrawable(mContext.getResources().getDrawable(android.R.drawable.ic_dialog_dialer));
@@ -220,59 +227,59 @@ public class AddressAdapterCallService extends RecyclerView.Adapter<RecyclerView
             });
 
 
-
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    AlertDialog.Builder displayAlert = new AlertDialog.Builder(mContext, R.style.AlertDialog);
-
-                    displayAlert.setCancelable(false);
-                    displayAlert.setMessage("¿Cuánto puedes esperar?")
-                            .setPositiveButton(R.string.dialog_1_hour, new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int id) {
-                                    //TODO agendar una hora respecto al tiempo actual
-//                            Address address = new Address();
-//                            address.setName(mName);
-//                            address.setDescription(mDescription);
-//                            address.setReference(mReferenceView.getText().toString());
-//                            address.setLatitude(String.valueOf(mLastLocation.latitude));
-//                            address.setLongitude(String.valueOf(mLastLocation.longitude));
+//TODO OnclickListener para tomar las direcciones si no lo logro hacer desde la activity
+//            itemView.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View view) {
+//                    AlertDialog.Builder displayAlert = new AlertDialog.Builder(mContext, R.style.AlertDialog);
 //
-//                            address.setActive(true);
-//                            address.setDefault(checkBox.isChecked());
+//                    displayAlert.setCancelable(false);
+//                    displayAlert.setMessage("¿Cuánto puedes esperar?")
+//                            .setPositiveButton(R.string.dialog_1_hour, new DialogInterface.OnClickListener() {
+//                                public void onClick(DialogInterface dialog, int id) {
+//                                    //TODO agendar una hora respecto al tiempo actual
+////                            Address address = new Address();
+////                            address.setName(mName);
+////                            address.setDescription(mDescription);
+////                            address.setReference(mReferenceView.getText().toString());
+////                            address.setLatitude(String.valueOf(mLastLocation.latitude));
+////                            address.setLongitude(String.valueOf(mLastLocation.longitude));
+////
+////                            address.setActive(true);
+////                            address.setDefault(checkBox.isChecked());
+////
+////                            if (mAddress == null) {
+////                                createAddressTask(address);
+////                            } else {
+////                                address.setId(mAddress.getId());
+////                                updateAddressTask(address);
+////                            }
+//                                }
+//                            })
+//                            .setNegativeButton(R.string.dialog_2_hours, new DialogInterface.OnClickListener() {
+//                                public void onClick(DialogInterface dialog, int id) {
 //
-//                            if (mAddress == null) {
-//                                createAddressTask(address);
-//                            } else {
-//                                address.setId(mAddress.getId());
-//                                updateAddressTask(address);
-//                            }
-                                }
-                            })
-                            .setNegativeButton(R.string.dialog_2_hours, new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int id) {
-
-                                    //TODO agendar dos horas respecto al tiempo actual
-                                }
-                            })
-                            .setNeutralButton(R.string.action_service_detail_schedule, new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int id) {
-
-                                    //TODO Abrir el fragment de agendar
-                                }
-                            }).setCancelable(true);
-
-                    displayAlert.show();
-
-//                    Bundle bundle = new Bundle();
-//                    bundle.putSerializable("address", address);
+//                                    //TODO agendar dos horas respecto al tiempo actual
+//                                }
+//                            })
+//                            .setNeutralButton(R.string.action_service_detail_schedule, new DialogInterface.OnClickListener() {
+//                                public void onClick(DialogInterface dialog, int id) {
 //
-//                    Intent intent = new Intent(mContext, MapActivity.class);
-//                    intent.putExtras(bundle);
-//                    mContext.startActivity(intent);
-
-                }
-            });
+//                                    //TODO Abrir el fragment de agendar
+//                                }
+//                            }).setCancelable(true);
+//
+//                    displayAlert.show();
+//
+////                    Bundle bundle = new Bundle();
+////                    bundle.putSerializable("address", address);
+////
+////                    Intent intent = new Intent(mContext, MapActivity.class);
+////                    intent.putExtras(bundle);
+////                    mContext.startActivity(intent);
+//
+//                }
+//            });
         }
 
     }
@@ -283,6 +290,8 @@ public class AddressAdapterCallService extends RecyclerView.Adapter<RecyclerView
         public CircleImageView mStatusView;
         public TextView mNameView, mDescriptionView;
         public ImageView mActionView;
+        public LinearLayout mItemList;
+
 
         public FooterViewHolder(View itemView) {
             super(itemView);
@@ -290,27 +299,29 @@ public class AddressAdapterCallService extends RecyclerView.Adapter<RecyclerView
             mNameView = itemView.findViewById(R.id.txt_name);
             mDescriptionView = itemView.findViewById(R.id.txt_address);
             mActionView = itemView.findViewById(R.id.img_action);
+            mItemList = itemView.findViewById(R.id.list_item_direction);
         }
 
         public void bind() {
 
-            mNameView.setText(itemView.getContext().getString(R.string.address_message_footer));
-            mDescriptionView.setVisibility(View.GONE);
+            mDescriptionView.setVisibility(GONE);
 
-            mActionView.setImageDrawable(mContext
-                    .getResources().getDrawable(R.drawable.ic_action_right));
-            //mActionView.getLayoutParams().height = 65;
-            //mActionView.getLayoutParams().width = 65;
-
-            mActionView.setOnClickListener(new View.OnClickListener() {
-                @Override public void onClick(View v) {
-                    Intent intent = new Intent(mContext, MapActivity.class);
-                    mContext.startActivity(intent);
-                }
-            });
-
-
-            mStatusView.setCircleBackgroundColor(Color.GRAY);
+//            mNameView.setText(itemView.getContext().getString(R.string.address_message_footer));
+//            mItemList.setVisibility(GONE);
+//            mActionView.setImageDrawable(mContext
+//                    .getResources().getDrawable(R.drawable.ic_action_right));
+//            //mActionView.getLayoutParams().height = 65;
+//            //mActionView.getLayoutParams().width = 65;
+//
+//            mActionView.setOnClickListener(new View.OnClickListener() {
+//                @Override public void onClick(View v) {
+//                    Intent intent = new Intent(mContext, MapActivity.class);
+//                    mContext.startActivity(intent);
+//                }
+//            });
+//
+//
+//            mStatusView.setCircleBackgroundColor(Color.GRAY);
         }
 
     }
