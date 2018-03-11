@@ -69,14 +69,14 @@
             </android.support.design.widget.TextInputLayout>
 
             <TextView
-                android:id="@+id/textView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/auth_activity_regular_margin"
+                android:layout_marginTop="20dp"
                 android:gravity="center"
-                android:onClick="attemptRecovery"
-                android:text="@string/prompt_recovery"
+                android:onClick="signup"
+                android:text="@string/prompt_sign_up"
                 android:textSize="@dimen/auth_activity_action" />
+
 
             <Button
                 android:id="@+id/login_buton"
@@ -91,6 +91,16 @@
                 android:textColor="@color/white"
                 android:textSize="@dimen/auth_activity_action" />
 
+            <TextView
+                android:id="@+id/textView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/auth_activity_regular_margin"
+                android:gravity="center"
+                android:onClick="attemptRecovery"
+                android:text="@string/prompt_recovery"
+                android:textSize="@dimen/auth_activity_action" />
+
             <com.facebook.login.widget.LoginButton
                 android:id="@+id/login_button"
                 android:layout_width="match_parent"
@@ -99,13 +109,7 @@
                 android:layout_marginBottom="@dimen/auth_activity_extra_margin"
                 android:layout_marginTop="@dimen/auth_activity_extra_margin" />
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:onClick="signup"
-                android:text="@string/prompt_sign_up"
-                android:textSize="@dimen/auth_activity_action" />
+
 
 
         </LinearLayout>

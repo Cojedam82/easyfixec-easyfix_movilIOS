@@ -271,8 +271,8 @@
             android:id="@+id/textView2_Scheduler"
             android:layout_width="match_parent"
             android:textAlignment="center"
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="10dp"
+            android:layout_marginTop="25dp"
+            android:layout_marginBottom="25dp"
             android:layout_height="wrap_content"
             android:text="¿Cuánto puedes esperar?" />
 
@@ -287,6 +287,8 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:paddingTop="25dp"
+            android:paddingBottom="25dp"
             android:orientation="horizontal">
 
             <RelativeLayout
