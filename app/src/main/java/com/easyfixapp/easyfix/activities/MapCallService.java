@@ -277,7 +277,7 @@ public class MapCallService extends AppCompatActivity implements
         mButtonService.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Util.shortToast(getApplicationContext(),"En desarrollo");
+//                Util.shortToast(getApplicationContext(),"En desarrollo");
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
                 builder.setTitle("Detalles adicionales del problema ");
@@ -301,6 +301,7 @@ public class MapCallService extends AppCompatActivity implements
                         m_Text = input.getText().toString();
                         Intent intent = new Intent(mContext,WaitingQueue.class);
                         startActivity(intent);
+                        finish();
                     }
                 });
                 builder.setNegativeButton("Enviar", new DialogInterface.OnClickListener() {
@@ -309,6 +310,7 @@ public class MapCallService extends AppCompatActivity implements
                         dialog.cancel();
                         Intent intent = new Intent(mContext,WaitingQueue.class);
                         startActivity(intent);
+                        finish();
                     }
                 });
 
