@@ -181,4 +181,5 @@
         <item>S</item>
         <item>D</item>
     </array>
+    <string name="title_activity_waiting_queue">WaitingQueue</string>
 </resources>

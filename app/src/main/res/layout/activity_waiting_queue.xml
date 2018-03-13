@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:layout_editor_absoluteY="8dp"
+        tools:layout_editor_absoluteX="8dp">
+
+    <LinearLayout
+        android:id="@+id/TechList"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/blackOverlay"
+        android:orientation="vertical"
+        android:weightSum="1"
+        tools:ignore="UselessParent"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true">
+
+        <RelativeLayout
+            android:id="@+id/list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="0.5">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <EditText
+                    android:id="@+id/txtsolicitudes"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:inputType="textPersonName"
+                    android:text="Solicitudes Pendientes:"
+                    android:textSize="12sp" />
+
+                <ImageView
+                    android:id="@+id/imageView2"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    app:srcCompat="@color/blackOverlayDark" />
+
+            </LinearLayout>
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/wait"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="0.5"
+            android:background="@color/colorPrimary">
+
+            <TextView
+                android:id="@+id/esperetxt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/textView5"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="5dp"
+                android:text="En espera"
+                android:textColor="@android:color/background_light"
+                android:textSize="12dp" />
+
+            <TextView
+                android:id="@+id/textView5"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/textView4"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="5dp"
+                android:text="Estamos buscando lo que necesita"
+                android:textColor="@android:color/holo_red_dark"
+                android:textSize="12dp" />
+
+            <TextView
+                android:id="@+id/textView4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/logo"
+                android:layout_marginTop="14dp"
+                android:layout_toLeftOf="@+id/x"
+                android:layout_toStartOf="@+id/x"
+                android:text="Estamos buscando lo que necesita"
+                android:textColor="@color/cardview_light_background"
+                android:textSize="15dp" />
+
+            <ImageView
+                android:id="@+id/x"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentTop="true"
+                android:background="@android:drawable/ic_menu_close_clear_cancel"
+                app:srcCompat="@color/blackOverlayDark" />
+
+            <ImageView
+                android:id="@+id/logo"
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                android:layout_below="@+id/x"
+                android:layout_centerHorizontal="true"
+                android:scaleType="centerCrop"
+                app:srcCompat="@mipmap/ic_launcher" />
+        </RelativeLayout>
+
+    </LinearLayout>
+
+</RelativeLayout>

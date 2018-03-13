@@ -47,11 +47,14 @@ repositories {
     mavenCentral()
 }
 dependencies {
-    compile 'com.facebook.android:facebook-android-sdk:[4,5)'
     compile fileTree(include: ['*.jar'], dir: 'libs')
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
+    compile('com.crashlytics.sdk.android:crashlytics:2.8.0@aar') {
+        transitive = true;
+    }
+    compile 'com.facebook.android:facebook-android-sdk:[4,5)'
     compile 'com.theartofdev.edmodo:android-image-cropper:2.5.1'
     compile 'com.android.support:multidex:1.0.1'
     compile 'com.android.support:appcompat-v7:26.+'
@@ -73,11 +76,8 @@ dependencies {
     compile 'com.github.bumptech.glide:glide:4.2.0'
     compile 'com.nineoldandroids:library:2.4.0'
     compile 'com.github.chrisbanes:PhotoView:2.0.0'
-    compile('com.crashlytics.sdk.android:crashlytics:2.8.0@aar') {
-        transitive = true;
-    }
-    annotationProcessor 'com.github.bumptech.glide:compiler:4.2.0'
     testCompile 'junit:junit:4.12'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.2.0'
 }
 
 

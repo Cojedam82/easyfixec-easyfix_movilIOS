@@ -18,8 +18,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.InputType;
 import android.util.Log;
 import android.view.GestureDetector;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -136,10 +138,12 @@ public class MapCallService extends AppCompatActivity implements
     private TextView mScheduleText;
     private Button mButtonService;
     private Boolean verifier = false;
+    private Context mContext;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.call_service);
+        mContext = this;
         mapLayout = (RelativeLayout)findViewById(R.id.mapLayout);
         mOneHourText=(TextView)findViewById(R.id.oneHour_Scheduler);
         mTwoHourText=(TextView)findViewById(R.id.twoHour_Scheduler);
@@ -226,6 +230,8 @@ public class MapCallService extends AppCompatActivity implements
 
 
                 scheduleQuestion();
+
+
             }
 
             @Override
@@ -240,6 +246,7 @@ public class MapCallService extends AppCompatActivity implements
 
 
 
+    private String m_Text = "";
     private void scheduleQuestion(){
         mList.setVisibility(View.GONE);
         mScheduler.setVisibility(View.VISIBLE);
@@ -271,6 +278,42 @@ public class MapCallService extends AppCompatActivity implements
             @Override
             public void onClick(View v) {
                 Util.shortToast(getApplicationContext(),"En desarrollo");
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+                builder.setTitle("Detalles adicionales del problema ");
+
+// Set up the input
+                final EditText input = new EditText(mContext);
+// Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
+                input.setInputType(InputType.TYPE_CLASS_TEXT);
+                input.setHint("¿Quiere darnos detalles del problema? (Si es posible incluir marca, modelo, entre otros)");
+                input.setLines(4);
+                input.setMaxLines(5);
+                input.setGravity(Gravity.LEFT | Gravity.TOP);
+                input.setHorizontalScrollBarEnabled(false);
+                input.setHorizontallyScrolling(false);
+                builder.setView(input);
+
+// Set up the buttons
+                builder.setPositiveButton("Omitir", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        m_Text = input.getText().toString();
+                        Intent intent = new Intent(mContext,WaitingQueue.class);
+                        startActivity(intent);
+                    }
+                });
+                builder.setNegativeButton("Enviar", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                        Intent intent = new Intent(mContext,WaitingQueue.class);
+                        startActivity(intent);
+                    }
+                });
+
+                builder.show();
+
 
             }
         });

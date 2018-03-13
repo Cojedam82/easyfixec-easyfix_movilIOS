@@ -8,7 +8,7 @@
     <color name="textColorSecondary">#000</color>
 
     <color name="blackOverlay">#f4eaed</color>
-    <color name="blackOverlayDark">#aba3a5</color>
+    <color name="blackOverlayDark">#00ffffff</color>
 
     <color name="white">#FFFFFFFF</color>
     <color name="white_75">#BFFFFFFF</color>
