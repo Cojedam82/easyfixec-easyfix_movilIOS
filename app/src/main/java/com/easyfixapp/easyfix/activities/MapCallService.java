@@ -12,6 +12,8 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -38,6 +40,7 @@ import android.widget.TextView;
 import com.easyfixapp.easyfix.R;
 import com.easyfixapp.easyfix.adapters.AddressAdapter;
 import com.easyfixapp.easyfix.adapters.AddressAdapterCallService;
+import com.easyfixapp.easyfix.fragments.ScheduleFragment;
 import com.easyfixapp.easyfix.models.Address;
 import com.easyfixapp.easyfix.models.Reservation;
 import com.easyfixapp.easyfix.models.Service;
@@ -139,10 +142,13 @@ public class MapCallService extends AppCompatActivity implements
     private Button mButtonService;
     private Boolean verifier = false;
     private Context mContext;
+    private RelativeLayout base;
+    private RelativeLayout map;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.call_service);
+
         mContext = this;
         mapLayout = (RelativeLayout)findViewById(R.id.mapLayout);
         mOneHourText=(TextView)findViewById(R.id.oneHour_Scheduler);
@@ -247,15 +253,18 @@ public class MapCallService extends AppCompatActivity implements
 
 
     private String m_Text = "";
+    private int tipo;
     private void scheduleQuestion(){
         mList.setVisibility(View.GONE);
         mScheduler.setVisibility(View.VISIBLE);
+        tipo=0;
         mOneHourText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mOneHourText.setTextColor(Color.parseColor("#428ff4"));
                 mTwoHourText.setTextColor(Color.parseColor("#a3a3a3"));
                 mScheduleText.setTextColor(Color.parseColor("#a3a3a3"));
+                messageToDisplay.message = "Tu técnico está en camino y llegará en 30 minutos!";
             }
         });
         mTwoHourText.setOnClickListener(new View.OnClickListener() {
@@ -264,6 +273,7 @@ public class MapCallService extends AppCompatActivity implements
                 mOneHourText.setTextColor(Color.parseColor("#a3a3a3"));
                 mTwoHourText.setTextColor(Color.parseColor("#428ff4"));
                 mScheduleText.setTextColor(Color.parseColor("#a3a3a3"));
+                messageToDisplay.message = "Tu técnico está en camino y llegará en 30 minutos!";
             }
         });
         mScheduleText.setOnClickListener(new View.OnClickListener() {
@@ -272,51 +282,65 @@ public class MapCallService extends AppCompatActivity implements
                 mOneHourText.setTextColor(Color.parseColor("#a3a3a3"));
                 mTwoHourText.setTextColor(Color.parseColor("#a3a3a3"));
                 mScheduleText.setTextColor(Color.parseColor("#428ff4"));
+                tipo = 1;
             }
         });
         mButtonService.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+
+                if (tipo==0) {
 //                Util.shortToast(getApplicationContext(),"En desarrollo");
 
-                AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
-                builder.setTitle("Detalles adicionales del problema ");
+                    AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+                    builder.setTitle("Detalles adicionales del problema ");
 
 // Set up the input
-                final EditText input = new EditText(mContext);
+                    final EditText input = new EditText(mContext);
 // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
-                input.setInputType(InputType.TYPE_CLASS_TEXT);
-                input.setHint("¿Quiere darnos detalles del problema? (Si es posible incluir marca, modelo, entre otros)");
-                input.setLines(4);
-                input.setMaxLines(5);
-                input.setGravity(Gravity.LEFT | Gravity.TOP);
-                input.setHorizontalScrollBarEnabled(false);
-                input.setHorizontallyScrolling(false);
-                builder.setView(input);
+                    input.setInputType(InputType.TYPE_CLASS_TEXT);
+                    input.setHint("¿Quiere darnos detalles del problema? (Si es posible incluir marca, modelo, entre otros)");
+                    input.setLines(4);
+                    input.setMaxLines(5);
+                    input.setGravity(Gravity.LEFT | Gravity.TOP);
+                    input.setHorizontalScrollBarEnabled(false);
+                    input.setHorizontallyScrolling(false);
+                    builder.setView(input);
 
 // Set up the buttons
-                builder.setPositiveButton("Omitir", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        m_Text = input.getText().toString();
-                        Intent intent = new Intent(mContext,WaitingQueue.class);
-                        startActivity(intent);
-                        finish();
-                    }
-                });
-                builder.setNegativeButton("Enviar", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-                        Intent intent = new Intent(mContext,WaitingQueue.class);
-                        startActivity(intent);
-                        finish();
-                    }
-                });
+                    builder.setPositiveButton("Omitir", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            m_Text = input.getText().toString();
+                            Intent intent = new Intent(mContext, WaitingQueue.class);
+                            startActivity(intent);
+                            finish();
+                        }
+                    });
+                    builder.setNegativeButton("Enviar", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.cancel();
+                            Intent intent = new Intent(mContext, WaitingQueue.class);
+                            startActivity(intent);
+                            finish();
+                        }
+                    });
 
-                builder.show();
+                    builder.show();
 
-
+                } else {
+                    RelativeLayout schedule = (RelativeLayout)findViewById(R.id.schedule);
+                    RelativeLayout baseMap = (RelativeLayout)findViewById(R.id.baseMap);
+                    schedule.setVisibility(View.VISIBLE);
+                    baseMap.setVisibility(View.GONE);
+                    FragmentManager fragmentManager = getSupportFragmentManager();
+                    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                    ScheduleFragment fragment = new ScheduleFragment();
+                    fragmentTransaction.add(R.id.schedule, fragment);
+                    fragmentTransaction.commit();
+                }
             }
         });
 
@@ -983,5 +1007,10 @@ public class MapCallService extends AppCompatActivity implements
         public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
 
         }
+    }
+
+    public static class messageToDisplay{
+        public static String message = "Tu técnico está en camino y llegará en 30 minutos!";
+
     }
 }

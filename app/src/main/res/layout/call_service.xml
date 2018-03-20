@@ -7,6 +7,23 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
+    <RelativeLayout
+        xmlns:tools="http://schemas.android.com/tools"
+        android:orientation="vertical"
+        android:id="@+id/schedule"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"  >
+
+
+    </RelativeLayout>
+
+<RelativeLayout
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:id="@+id/baseMap"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"  >
 
 
     <RelativeLayout
@@ -356,5 +373,8 @@
 
     </LinearLayout>
     </LinearLayout>
+
+</RelativeLayout>
+
 
 </RelativeLayout>

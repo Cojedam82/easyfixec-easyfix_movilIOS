@@ -3,20 +3,25 @@ package com.easyfixapp.easyfix.fragments;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
+import android.text.InputType;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.TimePicker;
 
 import com.easyfixapp.easyfix.R;
 import com.easyfixapp.easyfix.activities.MainActivity;
+import com.easyfixapp.easyfix.activities.WaitingQueue;
 import com.easyfixapp.easyfix.models.Address;
 import com.easyfixapp.easyfix.models.Reservation;
 import com.easyfixapp.easyfix.util.ApiService;
@@ -42,6 +47,8 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import static com.easyfixapp.easyfix.activities.MapCallService.messageToDisplay.message;
+
 /**
  * Created by julio on 09/10/17.
  */
@@ -63,7 +70,12 @@ public class ScheduleFragment extends RootFragment{
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_schedule, container, false);
-        mReservation = (Reservation) getArguments().getSerializable("reservation");
+        try {
+            mReservation = (Reservation) getArguments().getSerializable("reservation");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        ;
 
         mCalendarView = view.findViewById(R.id.calendar);
 
@@ -101,7 +113,43 @@ public class ScheduleFragment extends RootFragment{
         view.findViewById(R.id.btn_schedule).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                attemptSchedule();
+                message="Tu servicio está agendado para el " + mCalendarView.getCurrentDate().getDay() + "-"
+                        + mCalendarView.getCurrentDate().getMonth() + "-"
+                        + mCalendarView.getCurrentDate().getYear();
+                AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext());
+                builder.setTitle("Detalles adicionales del problema ");
+
+// Set up the input
+                final EditText input = new EditText(view.getContext());
+// Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
+                input.setInputType(InputType.TYPE_CLASS_TEXT);
+                input.setHint("¿Quiere darnos detalles del problema? (Si es posible incluir marca, modelo, entre otros)");
+                input.setLines(4);
+                input.setMaxLines(5);
+                input.setGravity(Gravity.LEFT | Gravity.TOP);
+                input.setHorizontalScrollBarEnabled(false);
+                input.setHorizontallyScrolling(false);
+                builder.setView(input);
+
+// Set up the buttons
+                builder.setPositiveButton("Omitir", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Intent intent = new Intent(view.getContext(), WaitingQueue.class);
+                        startActivity(intent);
+                    }
+                });
+                builder.setNegativeButton("Enviar", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                        Intent intent = new Intent(view.getContext(), WaitingQueue.class);
+                        startActivity(intent);
+                    }
+                });
+
+                builder.show();
+                //attemptSchedule();
             }
         });
 
@@ -203,7 +251,16 @@ public class ScheduleFragment extends RootFragment{
             mReservation.setTime(mTimeView.getText().toString());
 
             confirmAddress(getContext(), mReservation);
+
+
+
         }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+
     }
 
     public void confirmAddress (final Context context, final Reservation reservation) {

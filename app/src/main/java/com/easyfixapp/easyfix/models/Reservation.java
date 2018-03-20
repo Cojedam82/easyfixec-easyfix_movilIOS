@@ -22,7 +22,6 @@ public class Reservation implements Serializable {
     public static final int  Pending = 3;
     public static final int  Unrealized = 4;
     public static final int  Done = 5;
-
     @Expose
     @SerializedName("id")
     private int id;
