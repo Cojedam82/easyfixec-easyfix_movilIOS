@@ -5,6 +5,9 @@ import com.easyfixapp.easyfix.models.AuthResponse;
 import com.easyfixapp.easyfix.models.Reservation;
 import com.easyfixapp.easyfix.models.Service;
 import com.easyfixapp.easyfix.models.User;
+import com.google.gson.JsonObject;
+
+import org.json.JSONObject;
 
 import java.util.List;
 import java.util.Map;
@@ -24,6 +27,9 @@ import retrofit2.http.POST;
 import retrofit2.http.Part;
 import retrofit2.http.PartMap;
 import retrofit2.http.Path;
+import retrofit2.http.Query;
+import retrofit2.http.QueryMap;
+import retrofit2.http.QueryName;
 
 /**
  * Created by julio on 22/05/17.
@@ -66,7 +72,16 @@ public interface ApiService {
     /** Address **/
     @POST("addresses/")
     Call<Address> createAddress(@Header("Authorization") String authorization, @Body Address address);
-
+//FACEBOOK INTEGRATION:
+    @POST("signupsocial2/")
+    Call<com.google.gson.JsonObject> signUpSocial(@Query("first_name") String first_name,
+                                  @Query("last_name") String last_name,
+                                  @Query("password") String password,
+                                  @Query("email") String email,
+                                  @Query("username") String username,
+                                  @Query("profile") RequestBody profile,
+                                  @Query("social") RequestBody social);
+//HASTA ACA ES FB
     @PATCH("addresses/{pk}/")
     Call<Void> updateAddress(@Path("pk") int pk, @Header("Authorization") String authorization);
 
