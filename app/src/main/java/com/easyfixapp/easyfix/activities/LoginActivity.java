@@ -35,6 +35,7 @@ import com.easyfixapp.easyfix.models.Address;
 import com.easyfixapp.easyfix.models.AuthResponse;
 import com.easyfixapp.easyfix.models.Profile;
 import com.easyfixapp.easyfix.models.User;
+import com.easyfixapp.easyfix.models.UserFacebook;
 import com.easyfixapp.easyfix.util.ApiService;
 import com.easyfixapp.easyfix.util.AuthService;
 import com.easyfixapp.easyfix.util.ServiceGenerator;
@@ -73,9 +74,12 @@ import java.util.Map;
 import io.realm.RealmList;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 import static android.Manifest.permission.READ_CONTACTS;
@@ -182,6 +186,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 //        });
     }
     User user;
+    UserFacebook userFacebook;
     String tokenauth;
     Profile profileFB;
     @Override
@@ -232,60 +237,56 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                             profileFB.setToken(tokenToPass);
                             user.setProfile(profileFB);
                             try {//CAMBIOS PARA FACEBOOK DESDE ACA
-                                profile = new com.google.gson.JsonObject();
-                                profile.addProperty("phone", user.getProfile().getPhone());
-                                System.out.println(profile);
-                                social = new com.google.gson.JsonObject();
-                                social.addProperty("social_id", "1234");
-                                social.addProperty("social_token", "555");
-                                System.out.println(profile);
-                                System.out.println(user.getFirstName()+" "+user.getLastName());
-                                System.out.println(user.getEmail()+" ");
-                                System.out.println();
-                                System.out.println(profile);
-                                System.out.println(social);
-
-                            ApiService apiService = ServiceGenerator.createApiService();
-                            RequestBody phone = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), profile.getAsJsonObject()+"");
-                            RequestBody socialreq = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), social.getAsJsonObject()+"");
-                            Call<com.google.gson.JsonObject> call = apiService.signUpSocial(
-                                    user.getFirstName(),
-                                    user.getLastName(),
-                                    "",
-                                    user.getFirstName()+user.getLastName()+"@facebook.com",
-                                    user.getFirstName()+user.getLastName()+"@facebook.com",
-                                    phone,
-                                    socialreq);
+                                userFacebook = new UserFacebook();
+                                Retrofit.Builder builder = new Retrofit.Builder()
+                                        .baseUrl("http://206.225.95.194:8000/")
+                                        .addConverterFactory(GsonConverterFactory.create());
+                                Retrofit retrofit = builder.build();
+                                ApiService client = retrofit.create(ApiService.class);
+                                userFacebook.setFirst_name(com.facebook.Profile.getCurrentProfile().getFirstName());
+                                userFacebook.setLast_name(com.facebook.Profile.getCurrentProfile().getLastName());
+                                userFacebook.setPassword("");
+                                userFacebook.setEmail(userFacebook.getFirst_name()+userFacebook.getLast_name()+"@facebook.com");
+                                userFacebook.setUsername(userFacebook.getEmail());
+                                userFacebook.setProfile(userFacebook.createProfile("000000000"));
+                                userFacebook.setSocial(userFacebook.createSocial("1234","555"));
+                                Call<com.google.gson.JsonObject> call = client.signUpSocial(userFacebook);
 
                                 System.out.println("SOLICITUD> "+ call.request());
-                            call.enqueue(new Callback<JsonObject>() {
-                                @Override
-                                public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
-                                    JsonObject object = response.body();
-                                    try {
-                                        System.out.println("RESPUESTA> " + object);
-                                        //parse object
-                                        JsonObject data = object.getAsJsonObject("data");
-                                        JsonObject profile = data.getAsJsonObject("profile");
-                                        String tokenFB = profile.getAsString();
-                                        tokenToPass = tokenFB;
-                                        System.out.println("FUNCIONO LA LLAMDA. TOKEN> " + tokenFB);
-                                    } catch (Exception e) {
-                                        e.printStackTrace();
+                                call.enqueue(new Callback<com.google.gson.JsonObject>() {
+                                    @Override
+                                    public void onResponse(Call<com.google.gson.JsonObject> call, Response<com.google.gson.JsonObject> response) {
+                                        System.out.println("Respuesta> " + response);
+                                        User user = new User();
+                                        user.setPassword("facebook_password");
+                                        user.setFirstName(com.facebook.Profile.getCurrentProfile().getFirstName());
+                                        user.setLastName(com.facebook.Profile.getCurrentProfile().getLastName());
+                                        user.setEmail(com.facebook.Profile.getCurrentProfile().getLinkUri().toString());
+                                        user.setId(9);
+                                        Profile profile = new Profile();
+                                        profile.setImage(com.facebook.Profile.getCurrentProfile().getProfilePictureUri(800,800).toString());
+                                        profile.setPaymentMethod(1);
+                                        profile.setRole(1);
+                                        // Save user in shared preferences
+                                        SessionManager sessionManager = new SessionManager(getApplicationContext());
+                                        sessionManager.saveUser(user);
+                                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                                        startActivity(intent);
+                                        finish();
+
                                     }
-                                }
 
-                                @Override
-                                public void onFailure(Call<JsonObject> call, Throwable t) {
+                                    @Override
+                                    public void onFailure(Call<com.google.gson.JsonObject> call, Throwable t) {
 
-                                }
-                            }); //CAMBIOS PARA FACEBOOK HASTA ACA
-                            Log.i("FACEBOOKTOKEN ", "El token es "+profileFB.getToken());
-                            SessionManager sessionManager = new SessionManager(getApplicationContext());
-                            sessionManager.saveUser(user);
-                            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                            startActivity(intent);
-                            finish();
+                                    }
+                                }); //CAMBIOS PARA FACEBOOK HASTA ACA
+                                Log.i("FACEBOOKTOKEN ", "El token es "+profileFB.getToken());
+                                SessionManager sessionManager = new SessionManager(getApplicationContext());
+                                sessionManager.saveUser(user);
+                                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                                startActivity(intent);
+                                finish();
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
