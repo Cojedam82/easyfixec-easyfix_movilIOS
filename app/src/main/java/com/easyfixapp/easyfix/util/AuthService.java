@@ -24,6 +24,10 @@ public interface AuthService {
     @POST("login/")
     Call<AuthResponse<User>> login(@FieldMap Map<String, Object> params);
 
+    @FormUrlEncoded
+    @POST("login/facebook/")
+    Call<AuthResponse<User>> loginFb(@FieldMap Map<String, Object> params);
+
     @POST("signup/")
     Call<AuthResponse<User>> signup(@Body User user);
 }

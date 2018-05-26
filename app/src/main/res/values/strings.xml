@@ -149,7 +149,8 @@
     <!-- Credentials -->
     <string name="google_map_api_key">AIzaSyBBZANwRnL2_-it7PIpqHAhk7G3FF4WggU</string>
     <string name="fabric_api_key">d995fea19637aa88211f84ec1ee41065c5af0a01</string>
-
+    <string name="facebook_app_id">814537572068738</string>
+    <string name="fb_login_protocol_scheme">fb814537572068738</string>
 
     <!-- Preferences -->
     <string name="preferences_user_id">USER_ID</string>

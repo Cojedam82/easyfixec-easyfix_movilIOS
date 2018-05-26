@@ -32,13 +32,25 @@ import com.easyfixapp.easyfix.util.AuthService;
 import com.easyfixapp.easyfix.util.ServiceGenerator;
 import com.easyfixapp.easyfix.util.SessionManager;
 import com.easyfixapp.easyfix.util.Util;
+import com.facebook.AccessToken;
+import com.facebook.AccessTokenTracker;
+import com.facebook.CallbackManager;
+import com.facebook.FacebookCallback;
+import com.facebook.FacebookException;
+import com.facebook.FacebookSdk;
+import com.facebook.appevents.AppEventsLogger;
+import com.facebook.login.LoginManager;
+import com.facebook.login.LoginResult;
+import com.facebook.login.widget.LoginButton;
 import com.google.firebase.iid.FirebaseInstanceId;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import mehdi.sakout.fancybuttons.FancyButton;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -55,10 +67,16 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private AutoCompleteTextView mEmailView;
     private EditText mPasswordView;
 
+    // Facebook
+    private FancyButton mFacebookLogin;
+    private CallbackManager mFacebookCallbackManager;
+    private LoginButton mFacebookLoginButton;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
         // Set up the login form.
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
         mEmailView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -85,6 +103,13 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 return false;
             }
         });
+
+        mFacebookLogin = (FancyButton) findViewById(R.id.login_fb);
+        mFacebookLoginButton = (LoginButton) findViewById(R.id.fb_login_button);
+        mFacebookLoginButton.setReadPermissions("email");
+
+        logoutFacebook();
+        setupFacebookStuff();
     }
 
     @Override
@@ -135,12 +160,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         }
     }
 
-
-    /**
-     * Attempts to sign in or register the account specified by the login form.
-     * If there are form errors (invalid email, missing fields, etc.), the
-     * errors are presented and no actual login attempt is made.
-     */
     public void attemptLogin(View v) {
         // Reset errors.
         mEmailView.setError(null);
@@ -207,6 +226,12 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     public void attemptRecovery(View v) {
         Intent intent = new Intent(LoginActivity.this, RecoveryPasswordActivity.class);
         startActivity(intent);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        mFacebookCallbackManager.onActivityResult(requestCode, resultCode, data);
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
     @Override
@@ -286,28 +311,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                     Log.i(Util.TAG_LOGIN, "Login result: success!");
 
                     AuthResponse userResponse = response.body();
-
-                    if (!userResponse.isError()) {
-
-                        // Get user
-                        User user = (User) userResponse.getData();
-
-                        // Save user in shared preferences
-                        SessionManager sessionManager = new SessionManager(getApplicationContext());
-                        sessionManager.saveUser(user);
-
-                        // Show message success
-                        Util.longToast(getApplicationContext(), userResponse.getMsg());
-
-                        // Init Main
-                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                        startActivity(intent);
-                        finish();
-
-                    } else {
-                        // Show message error
-                        Util.longToast(getApplicationContext(), userResponse.getMsg());
-                    }
+                    loginSuccess(userResponse);
                 } else {
                     // Error response, no access to resource?
                     Log.i(Util.TAG_LOGIN, "Login result: " + response.toString());
@@ -324,5 +328,114 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 Util.hideLoading();
             }
         });
+    }
+
+
+    /**
+     * Facebook
+     */
+
+    public void attemptLoginFb(View v) {
+        mFacebookLoginButton.performClick();
+        mFacebookLogin.setEnabled(false);
+    }
+
+    private void setupFacebookStuff() {
+        FacebookSdk.sdkInitialize(getApplicationContext());
+        AppEventsLogger.activateApp(this);
+
+        mFacebookCallbackManager = CallbackManager.Factory.create();
+
+        LoginManager.getInstance().registerCallback(mFacebookCallbackManager, new FacebookCallback<LoginResult>() {
+            @Override
+            public void onSuccess(LoginResult loginResult) {
+                String access_token = loginResult.getAccessToken().getToken();
+                if (TextUtils.isEmpty(access_token)) {
+                    logoutFacebook();
+                } else {
+                    loginFbTask(access_token);
+                }
+            }
+
+            @Override
+            public void onCancel() {
+                logoutFacebook();
+            }
+
+            @Override
+            public void onError(FacebookException error) {
+                logoutFacebook();
+            }
+        });
+    }
+
+    private void logoutFacebook(){
+        LoginManager.getInstance().logOut();
+        mFacebookLogin.setEnabled(true);
+    }
+
+    private void loginFbTask(String access_token) {
+        Util.showLoading(LoginActivity.this, getString(R.string.message_login_request));
+
+        // Get firebase token
+        String registrationId = FirebaseInstanceId.getInstance().getToken();
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("access_token", access_token);
+        params.put("registration_id", registrationId);
+        params.put("type", Util.TYPE_DEVICE);
+
+        AuthService authService = ServiceGenerator.createAuthService();
+        Call<AuthResponse<User>> call = authService.loginFb(params);
+        call.enqueue(new Callback<AuthResponse<User>>() {
+            @Override
+            public void onResponse(@NonNull Call<AuthResponse<User>> call, @NonNull Response<AuthResponse<User>> response) {
+                if (response.isSuccessful()) {
+                    Log.i(Util.TAG_LOGIN, "Login result: success!");
+
+                    AuthResponse userResponse = response.body();
+                    loginSuccess(userResponse);
+                } else {
+                    // Error response, no access to resource?
+                    Log.i(Util.TAG_LOGIN, "Login result: " + response.toString());
+                    Util.longToast(getApplicationContext(), getString(R.string.message_service_server_failed));
+                    mFacebookLogin.setEnabled(true);
+                }
+                logoutFacebook();
+                Util.hideLoading();
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<AuthResponse<User>> call, @NonNull Throwable t) {
+                // Something went completely south (like no internet connection)
+                Log.i(Util.TAG_LOGIN, "Login result: failed, " + t.getMessage());
+                logoutFacebook();
+                Util.longToast(getApplicationContext(), getString(R.string.message_network_local_failed));
+                Util.hideLoading();
+            }
+        });
+    }
+
+    private void loginSuccess(AuthResponse authResponse) {
+        if (!authResponse.isError()) {
+            // Get user
+            User user = (User) authResponse.getData();
+
+            // Save user in shared preferences
+            SessionManager sessionManager = new SessionManager(getApplicationContext());
+            sessionManager.saveUser(user);
+
+            // Show message success
+            Util.longToast(getApplicationContext(), authResponse.getMsg());
+
+            // Init Main
+            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+            startActivity(intent);
+            finish();
+        } else {
+            // Show message error
+            Util.longToast(getApplicationContext(), authResponse.getMsg());
+            mFacebookLogin.setEnabled(true);
+        }
     }
 }
