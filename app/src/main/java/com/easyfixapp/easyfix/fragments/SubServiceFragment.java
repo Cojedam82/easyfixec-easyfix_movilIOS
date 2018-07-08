@@ -1,6 +1,7 @@
 package com.easyfixapp.easyfix.fragments;
 
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -10,8 +11,10 @@ import android.widget.TextView;
 
 import com.easyfixapp.easyfix.R;
 import com.easyfixapp.easyfix.adapters.ServiceAdapter;
+import com.easyfixapp.easyfix.models.Reservation;
 import com.easyfixapp.easyfix.models.Service;
 import com.easyfixapp.easyfix.util.SessionManager;
+import com.easyfixapp.easyfix.util.Util;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +25,7 @@ import java.util.List;
 
 public class SubServiceFragment extends RootFragment {
 
+    private View view;
     private RecyclerView mRecyclerView;
     private GridLayoutManager mGridLayoutManager;
     private ServiceAdapter mServiceAdapter;
@@ -33,16 +37,9 @@ public class SubServiceFragment extends RootFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        super.onCreateView(inflater, container, savedInstanceState);
 
-        View view = inflater.inflate(R.layout.fragment_service, container, false);
-
-        // prevent click under fragment
-        /*view.findViewById(R.id.sub_container).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-            }
-        });*/
+        view = inflater.inflate(R.layout.fragment_service, container, false);
 
         mWelcomeView = (TextView) view.findViewById(R.id.txt_welcome);
         mRecyclerView = (RecyclerView) view.findViewById(R.id.rv_services);
@@ -61,6 +58,8 @@ public class SubServiceFragment extends RootFragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
+        Util.showProgress(getContext(), mRecyclerView, view, true);
+
         SessionManager sessionManager = new SessionManager(getContext());
         sessionManager.addFragment();
 
@@ -73,11 +72,15 @@ public class SubServiceFragment extends RootFragment {
     }
 
     public void populate(){
+        Util.showProgress(getContext(), mRecyclerView, view, false);
         if (mServiceList.isEmpty()) {
-            List<Service> services = (List<Service>) getArguments().getSerializable("services");
+            List<Service> services = getArguments().getParcelableArrayList("services");
             for (Service service : services)
                 mServiceList.add(service);
             mServiceAdapter.notifyDataSetChanged();
+        } else {
+            Util.showMessage(mRecyclerView, view,
+                    getString(R.string.message_service_server_failed));
         }
     }
 }

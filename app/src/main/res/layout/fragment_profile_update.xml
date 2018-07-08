@@ -81,7 +81,7 @@
         android:layout_alignParentBottom="true"
         android:gravity="center"
         android:text="Actualizar"
-        android:background="@color/colorPrimaryDark"
+        android:background="@color/colorPrimary"
         android:textSize="@dimen/auth_activity_action"
         android:textColor="@color/white"
         android:textAllCaps="false"

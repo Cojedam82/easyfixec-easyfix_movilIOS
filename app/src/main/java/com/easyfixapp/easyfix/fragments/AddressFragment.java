@@ -12,8 +12,13 @@ import android.view.ViewGroup;
 import com.easyfixapp.easyfix.R;
 import com.easyfixapp.easyfix.adapters.AddressAdapter;
 import com.easyfixapp.easyfix.models.Address;
+import com.easyfixapp.easyfix.util.SessionManager;
 import com.easyfixapp.easyfix.util.Util;
 import com.easyfixapp.easyfix.widget.DividerItemDecoration;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -95,5 +100,12 @@ public class AddressFragment extends RootFragment{
 
         // Always notify data
         mAddressAdapter.notifyDataSetChanged();
+    }
+
+    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
+    public void onMapEvent(Address address) {
+        if(address != null) {
+            EventBus.getDefault().removeStickyEvent(address);
+        }
     }
 }

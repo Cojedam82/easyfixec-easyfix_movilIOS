@@ -137,7 +137,7 @@ public class ProfileFragment extends RootFragment{
         mProfileView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                MenuFragment.showProfileImageZoom(null);
+                MenuFragment.showProfileImageZoom();
             }
         });
 

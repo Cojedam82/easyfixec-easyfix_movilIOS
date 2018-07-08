@@ -29,8 +29,11 @@ import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
 import com.prolificinteractive.materialcalendarview.OnDateSelectedListener;
 import com.prolificinteractive.materialcalendarview.OnMonthChangedListener;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.io.File;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 
@@ -55,15 +58,12 @@ public class ScheduleFragment extends RootFragment{
     private CalendarDay mCalendarDay = null;
     private int hourOfDay=0, minutesOfDay=0;
 
-    private Reservation mReservation = null;
-
     public ScheduleFragment(){}
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_schedule, container, false);
-        mReservation = (Reservation) getArguments().getSerializable("reservation");
 
         mCalendarView = view.findViewById(R.id.calendar);
 
@@ -117,6 +117,18 @@ public class ScheduleFragment extends RootFragment{
         init();
     }
 
+    @Override
+    public boolean onBackPressed() {
+        return super.onBackPressed();
+    }
+
+    @Override
+    public void onDestroy() {
+        SessionManager sessionManager = new SessionManager(getContext());
+        sessionManager.setReservationDetail(true);
+        super.onDestroy();
+    }
+
     private void init() {
 
         if (mCalendarDay == null) {
@@ -162,7 +174,9 @@ public class ScheduleFragment extends RootFragment{
     private void monthEvent(CalendarDay date) {
         Calendar calendar = date.getCalendar();
         String monthName = calendar.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault());
-        mMonthView.setText(monthName);
+        mMonthView.setText(
+                Character.toUpperCase(monthName.charAt(0)) +
+                        monthName.substring(1, monthName.length()).toLowerCase());
     }
 
     private void timeEvent() {
@@ -180,165 +194,29 @@ public class ScheduleFragment extends RootFragment{
         // Set up time
         mTimeView.setText((hourOfDay < 10? "0"+ hourOfDay : hourOfDay) + ":" +
                 (minutesOfDay < 10? "0"+ minutesOfDay : minutesOfDay));
-
-        // Get time am or pm
-        //int am_pm = calendar.get(Calendar.AM_PM);
-        //mTimeFormatView.setText(am_pm == Calendar.AM? TIME_AM : TIME_PM);
     }
 
     private void attemptSchedule() {
-        CalendarDay calendarDay = CalendarDay.today();
-        int year = calendarDay.getYear();
-        int month = calendarDay.getMonth();
-        int day = calendarDay.getDay();
-        int currentHour = calendarDay.getCalendar().get(Calendar.HOUR_OF_DAY);
-        int currentMinute = calendarDay.getCalendar().get(Calendar.MINUTE);
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(new Date());
+        calendar.add(Calendar.HOUR_OF_DAY, 2);
 
+        Calendar calendarChoose = mCalendarDay.getCalendar();
+        calendarChoose.set(mCalendarDay.getYear(), mCalendarDay.getMonth(), mCalendarDay.getDay(), hourOfDay, minutesOfDay);
 
-        if (mCalendarDay.getYear() == year && mCalendarDay.getMonth() == month &&
-                mCalendarDay.getDay() == day && hourOfDay <= currentHour) {
-            Util.longToast(getContext(), "Para agendar debe ingresar por lo menos una hora despues de la actual");
+        Log.e("Horas", calendarChoose.toString());
+        Log.e("Horas", calendar.toString());
+
+        if (calendarChoose.before(calendar)) {
+            Util.longToast(getContext(), "Para agendar debe ingresar por lo menos dos horas despues de la actual");
         } else {
-            mReservation.setDate(year + "-" + month + "-" + day);
-            mReservation.setTime(mTimeView.getText().toString());
+            Reservation reservation = new Reservation();
+            reservation.setDate(calendarChoose.getTime());
+            reservation.setTime(calendarChoose.getTime().getTime());
+            reservation.setScheduled(true);
 
-            confirmAddress(getContext(), mReservation);
+            EventBus.getDefault().post(reservation);
         }
-    }
-
-    public void confirmAddress (final Context context, final Reservation reservation) {
-        Address address = null;
-
-        Realm realm = Realm.getDefaultInstance();
-        try {
-            Address addressBefore = realm
-                    .where(Address.class)
-                    .equalTo("isDefault", true)
-                    .findFirst();
-            address = realm.copyFromRealm(addressBefore);
-
-        } catch (Exception ignore){}
-        finally {
-            realm.close();
-        }
-
-        if (address != null) {
-            AlertDialog.Builder displayAlert = new AlertDialog.Builder(context, R.style.AlertDialog);
-            displayAlert.setTitle("Seleccionar dirección");
-            displayAlert.setCancelable(false);
-            final Address finalAddress = address;
-            displayAlert.setMessage("¿Desea solicitar el tecnico a su dirección por defecto?")
-                    .setPositiveButton(R.string.dialog_yes, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            reservation.setAddress(finalAddress);
-                            createReservationTask(context, reservation);
-                        }
-                    })
-                    .setNegativeButton(R.string.dialog_no, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            showAddressPickup(reservation);
-                        }
-                    });
-
-            displayAlert.show();
-        } else {
-            showAddressPickup(reservation);
-        }
-
-    }
-
-
-    public void createReservationTask(final Context context, Reservation reservation){
-        Util.showLoading(context, getString(R.string.reservation_message_create_request));
-
-        final SessionManager sessionManager = new SessionManager(context);
-        String token = sessionManager.getToken();
-
-        Gson gson = new Gson();
-
-        MediaType json = MediaType.parse("application/json");
-        MediaType img = MediaType.parse("image/*");
-        MediaType text = MediaType.parse("text/plain");
-
-        RequestBody type = RequestBody.create(text, reservation.getType());
-        RequestBody description = RequestBody.create(text, reservation.getDescription());
-        RequestBody artifact = RequestBody.create(text, gson.toJson(reservation.getArtifact()));
-        RequestBody address = RequestBody.create(text, "" + reservation.getAddress().getId());
-        RequestBody service = RequestBody.create(text, "" + reservation.getService().getId());
-
-        HashMap<String, RequestBody> params = new HashMap<>();
-
-        params.put("type", type);
-        params.put("description", description);
-        params.put("artifact", artifact);
-        params.put("address", address);
-        params.put("service", service);
-
-        MultipartBody.Part[] images = new MultipartBody.Part[4];
-
-        for (int i = 0; i< reservation.getImageFileList().length; i++) {
-            File file = reservation.getImageFileList()[i];
-
-            if (file != null) {
-
-                RequestBody requestBody = RequestBody.create(img,
-                        reservation.getImageByteList()[i]);
-                MultipartBody.Part image = MultipartBody.Part.createFormData("image" + (i + 1),
-                        file.getName(), requestBody);
-                images[i] = image;
-            }
-        }
-
-        ApiService apiService = ServiceGenerator.createApiService();
-        Call<Reservation> call = apiService.createReservation(
-                token, params, images[0], images[1], images[2], images[3]);
-        call.enqueue(new Callback<Reservation>() {
-            @Override
-            public void onResponse(Call<Reservation> call, Response<Reservation> response) {
-                if (response.isSuccessful()) {
-                    Log.i(Util.TAG_RESERVATION, "Reservation result: success!");
-                    Util.longToast(context,
-                            getString(R.string.reservation_message_create_response));
-
-                    // Save id of new reservation
-                    Reservation r = response.body();
-                    //sessionManager.setServiceDetail(r.getId());
-
-                    // Update reservations
-                    //NotificationFragment.showPostDetail(r);
-                    NotificationFragment.updateReservations();
-
-                    ((MainActivity)MainActivity.activity).clearService();
-
-                } else {
-                    Log.i(Util.TAG_RESERVATION, "Reservation result: " + response.toString());
-                    Util.longToast(context,
-                            getString(R.string.message_service_server_failed));
-                }
-                Util.hideLoading();
-            }
-
-            @Override
-            public void onFailure(Call<Reservation> call, Throwable t) {
-                Log.i(Util.TAG_RESERVATION, "Reservation result: failed, " + t.getMessage());
-                Util.longToast(context,
-                        getString(R.string.message_network_local_failed));
-                Util.hideLoading();
-            }
-        });
-    }
-
-    private void showAddressPickup(Reservation reservation) {
-        AddressConfirmFragment mAddressConfirmFragment = new AddressConfirmFragment();
-
-        Bundle bundle = new Bundle();
-        bundle.putSerializable("reservation", reservation);
-        mAddressConfirmFragment.setArguments(bundle);
-
-        FragmentTransaction transaction = getChildFragmentManager().beginTransaction();
-        transaction.replace(R.id.sub_container, mAddressConfirmFragment);
-        transaction.addToBackStack(null);
-        transaction.commit();
     }
 
 }

@@ -154,7 +154,7 @@ public class AddressConfirmAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                                     reservation.setAddress(address);
 
                                     //ServiceDetailFragment serviceDetailFragment = ServiceDetailFragment.getInstance();
-                                    createReservationTask(reservation);
+                                    //createReservationTask(reservation);
                                 }
                             })
                             .setNegativeButton(R.string.dialog_no, new DialogInterface.OnClickListener() {
@@ -205,6 +205,7 @@ public class AddressConfirmAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
     }
 
+    /*
     public void createReservationTask(Reservation reservation){
         Util.showLoading(mContext, mContext.getString(R.string.reservation_message_create_request));
 
@@ -283,5 +284,5 @@ public class AddressConfirmAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                 Util.hideLoading();
             }
         });
-    }
+    }*/
 }

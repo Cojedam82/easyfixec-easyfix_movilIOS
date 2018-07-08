@@ -1,5 +1,8 @@
 package com.easyfixapp.easyfix.models;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.easyfixapp.easyfix.R;
 import com.easyfixapp.easyfix.util.Util;
 import com.google.gson.annotations.Expose;
@@ -12,31 +15,52 @@ import java.util.List;
  * Created by jrealpe on 30/05/17.
  */
 
-public class Service implements Serializable {
+public class Service implements Parcelable {
 
     @Expose
     @SerializedName("id")
     private int id;
 
-    @Expose
+    @Expose(serialize = false)
     @SerializedName("name")
     private String name;
 
-    @Expose
+    @Expose(serialize = false)
     @SerializedName("image")
     private String image;
 
-    @Expose
+    @Expose(serialize = false)
     @SerializedName("is_parent")
     private boolean isParent;
 
-    @Expose
+    @Expose(serialize = false)
     @SerializedName("sub_services")
     private List<Service> subServiceList;
 
-    @Expose
-    @SerializedName("artifacts")
-    private List<Artifact> artifactList;
+    //@Expose
+    //@SerializedName("artifacts")
+    //private List<Artifact> artifactList;
+
+    public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
+        public Service createFromParcel(Parcel in) {
+            return new Service(in);
+        }
+
+        public Service[] newArray(int size) {
+            return new Service[size];
+        }
+    };
+
+    public Service(Parcel in) {
+        this.id = in.readInt();
+
+        this.name = in.readString();
+        this.image = in.readString();
+
+        this.isParent = in.readByte() != 0;
+
+        this.subServiceList.addAll(in.createTypedArrayList(Service.CREATOR));
+    }
 
     public int getId() {
         return id;
@@ -78,14 +102,6 @@ public class Service implements Serializable {
         this.subServiceList = subServiceList;
     }
 
-    public List<Artifact> getArtifactList() {
-        return artifactList;
-    }
-
-    public void setArtifactList(List<Artifact> artifactList) {
-        this.artifactList = artifactList;
-    }
-
     public int getImageDrawable() {
         switch (id) {
             case 1:
@@ -119,5 +135,22 @@ public class Service implements Serializable {
 
         }
 
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(this.id);
+
+        dest.writeString(this.name);
+        dest.writeString(this.image);
+
+        dest.writeByte((byte) (this.isParent ? 1 : 0));
+
+        dest.writeTypedList(this.subServiceList);
     }
 }

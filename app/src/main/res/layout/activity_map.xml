@@ -106,7 +106,7 @@
         android:layout_marginTop="@dimen/activity_vertical_margin"
         android:gravity="center"
         android:text="Guardar Dirección"
-        android:background="@color/colorPrimaryDark"
+        android:background="@color/colorPrimary"
         android:textSize="@dimen/auth_activity_action"
         android:textColor="@color/white"
         android:textAllCaps="false"

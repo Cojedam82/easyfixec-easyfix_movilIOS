@@ -86,7 +86,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/auth_activity_extra_margin"
-                android:background="@color/colorPrimaryDark"
+                android:background="@color/colorPrimary"
                 android:text="@string/action_sign_in"
                 android:textSize="@dimen/auth_activity_action"
                 android:textColor="@color/white"

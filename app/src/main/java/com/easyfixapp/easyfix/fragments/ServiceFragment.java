@@ -31,6 +31,7 @@ import retrofit2.Response;
  */
 public class ServiceFragment extends RootFragment {
 
+    private View view;
     private RecyclerView mRecyclerView;
     private GridLayoutManager mGridLayoutManager;
     private ServiceAdapter mServiceAdapter;
@@ -43,18 +44,10 @@ public class ServiceFragment extends RootFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        View view = inflater.inflate(R.layout.fragment_service, container, false);
+        view = inflater.inflate(R.layout.fragment_service, container, false);
 
-        // prevent click under fragment
-        /*view.findViewById(R.id.sub_container).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-            }
-        });*/
-
-        mWelcomeView = (TextView) view.findViewById(R.id.txt_welcome);
-        mRecyclerView = (RecyclerView) view.findViewById(R.id.rv_services);
+        mWelcomeView = view.findViewById(R.id.txt_welcome);
+        mRecyclerView = view.findViewById(R.id.rv_services);
 
         mGridLayoutManager = new GridLayoutManager(getActivity(), 3);
         mRecyclerView.setHasFixedSize(true);
@@ -82,7 +75,7 @@ public class ServiceFragment extends RootFragment {
 
     /** Fetch services **/
     private void serviceTask(){
-        Util.showLoading(getActivity(), getString(R.string.message_services_request));
+        Util.showProgress(getContext(), mRecyclerView, view, true);
 
         SessionManager sessionManager = new SessionManager(getContext());
         ApiService apiService = ServiceGenerator.createApiService();
@@ -92,9 +85,9 @@ public class ServiceFragment extends RootFragment {
         call.enqueue(new Callback<List<Service>>() {
             @Override
             public void onResponse(Call<List<Service>> call, Response<List<Service>> response) {
+                Util.showProgress(getContext(), mRecyclerView, view, false);
                 if (response.isSuccessful()) {
                     Log.i(Util.TAG_SERVICE, "Services result: success!");
-
                     List<Service> serviceList = response.body();
                     if (!serviceList.isEmpty()) {
                         for (Service service : serviceList){
@@ -102,24 +95,23 @@ public class ServiceFragment extends RootFragment {
                         }
                         mServiceAdapter.notifyDataSetChanged();
                     } else {
-                        Util.longToast(getContext(),
+                        Util.showMessage(mRecyclerView, view,
                                 getString(R.string.message_service_server_empty));
                     }
 
                 } else {
                     Log.i(Util.TAG_SERVICE, "Services result: " + response.toString());
-                    Util.longToast(getContext(),
+                    Util.showMessage(mRecyclerView, view,
                             getString(R.string.message_service_server_failed));
                 }
-                Util.hideLoading();
             }
 
             @Override
             public void onFailure(Call<List<Service>> call, Throwable t) {
                 Log.i(Util.TAG_SERVICE, "Services result: failed, " + t.getMessage());
-                Util.longToast(getContext(),
+                Util.showProgress(getContext(), mRecyclerView, view, false);
+                Util.showMessage(mRecyclerView, view,
                         getString(R.string.message_network_local_failed));
-                Util.hideLoading();
             }
         });
     }

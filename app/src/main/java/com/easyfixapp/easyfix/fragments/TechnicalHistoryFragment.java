@@ -14,11 +14,16 @@ import android.view.ViewGroup;
 import com.easyfixapp.easyfix.R;
 import com.easyfixapp.easyfix.activities.MainActivity;
 import com.easyfixapp.easyfix.adapters.ReservationAdapter;
+import com.easyfixapp.easyfix.models.Notification;
 import com.easyfixapp.easyfix.models.Reservation;
 import com.easyfixapp.easyfix.util.ApiService;
 import com.easyfixapp.easyfix.util.ServiceGenerator;
 import com.easyfixapp.easyfix.util.SessionManager;
 import com.easyfixapp.easyfix.util.Util;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,12 +38,10 @@ import retrofit2.Response;
 
 public class TechnicalHistoryFragment extends RootFragment{
 
-    private static View view;
-    private static RecyclerView mReservationView;
-    private static ReservationAdapter mReservationAdapter;
-    private static List<Reservation> mReservationList = new ArrayList<>();
-
-    private static Context context = null;
+    private View view;
+    private RecyclerView mReservationView;
+    private ReservationAdapter mReservationAdapter;
+    private List<Reservation> mReservationList = new ArrayList<>();
 
     public TechnicalHistoryFragment() {}
 
@@ -66,16 +69,38 @@ public class TechnicalHistoryFragment extends RootFragment{
     @Override
     public void onResume() {
         super.onResume();
-        this.context = getContext();
         reservationTask();
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        if (!EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().register(this);
+        }
+    }
+
+    @Override
+    public void onStop() {
+        EventBus.getDefault().unregister(this);
+        super.onStop();
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onTechnicalHistoryEvent(Notification notification) {
+        int action = notification.getAction();
+        if (action == Util.ACTION_UPDATE) {
+            reservationTask();
+        }
+
     }
 
 
     /** Fetch reservations **/
-    private static void reservationTask(){
-        Util.showProgress(context, mReservationView, view, true);
+    private void reservationTask(){
+        Util.showProgress(getContext(), mReservationView, view, true);
 
-        SessionManager sessionManager = new SessionManager(context);
+        SessionManager sessionManager = new SessionManager(getContext());
         ApiService apiService = ServiceGenerator.createApiService();
         String token = sessionManager.getToken();
 
@@ -83,7 +108,7 @@ public class TechnicalHistoryFragment extends RootFragment{
         call.enqueue(new Callback<List<Reservation>>() {
             @Override
             public void onResponse(Call<List<Reservation>> call, Response<List<Reservation>> response) {
-                Util.showProgress(context, mReservationView, view, false);
+                Util.showProgress(getContext(), mReservationView, view, false);
 
                 if (response.isSuccessful()) {
                     Log.i(Util.TAG_TECHNICAL_HISTORY, "Reservation result: success!");
@@ -99,36 +124,22 @@ public class TechnicalHistoryFragment extends RootFragment{
 
                     } else {
                         Util.showMessage(mReservationView, view,
-                                context.getString(R.string.message_service_server_empty));
+                                getString(R.string.message_service_server_empty));
                     }
                 } else {
                     Log.i(Util.TAG_TECHNICAL_HISTORY, "Reservation result: " + response.toString());
                     Util.showMessage(mReservationView, view,
-                            context.getString(R.string.message_service_server_failed));
+                            getString(R.string.message_service_server_failed));
                 }
             }
 
             @Override
             public void onFailure(Call<List<Reservation>> call, Throwable t) {
-                //Util.showProgress(getActivity(), mReservationView, view, false);
+                Util.showProgress(getActivity(), mReservationView, view, false);
                 Util.showMessage(mReservationView, view,
-                        context.getString(R.string.message_network_local_failed));
+                        getString(R.string.message_network_local_failed));
             }
         });
-    }
-
-    public static void updateReservations() {
-        final Activity activity = MainActivity.activity;
-
-        try {
-            activity.runOnUiThread(new Runnable() {
-                public void run() {
-                    reservationTask();
-                }
-            });
-        } catch (Exception e) {
-            e.getStackTrace();
-        }
     }
 
 }

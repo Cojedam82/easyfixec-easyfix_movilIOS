@@ -1,16 +1,22 @@
 package com.easyfixapp.easyfix.models;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 import java.io.File;
 import java.io.Serializable;
+import java.util.Date;
+
+import io.realm.RealmList;
 
 /**
  * Created by julio on 11/06/17.
  */
 
-public class Reservation implements Serializable {
+public class Reservation implements Parcelable {
 
     // To item
     public static final int TYPE_NOTIFICATION = 0;
@@ -32,28 +38,28 @@ public class Reservation implements Serializable {
     private int status;
 
     @Expose
-    @SerializedName("type")
-    private String type;
-
-    @Expose
-    @SerializedName("time")
-    private String time;
-
-    @Expose
-    @SerializedName("date")
-    private String date;
-
-    @Expose
     @SerializedName("cost")
-    private String cost;
+    private float cost;
 
     @Expose
     @SerializedName("description")
     private String description;
 
+    //@Expose
+    //@SerializedName("type")
+    //private String type;
+
     @Expose
-    @SerializedName("artifact")
-    private String artifact;
+    @SerializedName("time")
+    private Long time;
+
+    @Expose
+    @SerializedName("date")
+    private Date date;
+
+    //@Expose
+    //@SerializedName("artifact")
+    //private String artifact;
 
     @Expose
     @SerializedName("address")
@@ -63,33 +69,72 @@ public class Reservation implements Serializable {
     @SerializedName("service")
     private Service service;
 
-    @Expose
-    @SerializedName("client")
-    private User client;
+    //@Expose
+    //@SerializedName("client")
+    //private User client;
 
     @Expose
     @SerializedName("provider")
     private User provider;
 
-    @Expose(serialize = false)
-    @SerializedName("image1")
-    private String image1;
+    //@Expose(serialize = false)
+    //@SerializedName("image1")
+    //private String image1;
 
-    @Expose(serialize = false)
-    @SerializedName("image2")
-    private String image2;
+    //@Expose(serialize = false)
+    //@SerializedName("image2")
+    //private String image2;
 
-    @Expose(serialize = false)
-    @SerializedName("image3")
-    private String image3;
+    //@Expose(serialize = false)
+    //@SerializedName("image3")
+    //private String image3;
 
-    @Expose(serialize = false)
-    @SerializedName("image4")
-    private String image4;
+    //@Expose(serialize = false)
+    //@SerializedName("image4")
+    //private String image4;
 
-    private byte[][] imageByteList;
+    //private byte[][] imageByteList;
 
-    private File[] imageFileList;
+    //private File[] imageFileList;
+
+    @Expose
+    @SerializedName("is_scheduled")
+    private boolean isScheduled;
+
+    public Reservation() {
+        this.description = "";
+    }
+
+    public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
+        public Reservation createFromParcel(Parcel in) {
+            return new Reservation(in);
+        }
+
+        public Reservation[] newArray(int size) {
+            return new Reservation[size];
+        }
+    };
+
+    public Reservation(Parcel in) {
+        this.id = in.readInt();
+        this.status = in.readInt();
+
+        this.cost = in.readFloat();
+
+        this.description = in.readString();
+
+        long tmpTime = in.readLong();
+        this.time = tmpTime == -1 ? null : tmpTime;
+
+        long tmpDate = in.readLong();
+        this.date = tmpDate == -1 ? null : new Date(tmpDate);
+
+        this.address = in.readParcelable(Address.class.getClassLoader());
+        this.service = in.readParcelable(Service.class.getClassLoader());
+        this.provider = in.readParcelable(User.class.getClassLoader());
+
+        this.isScheduled = in.readByte() != 0;
+    }
 
     public int getId() {
         return id;
@@ -107,35 +152,11 @@ public class Reservation implements Serializable {
         this.status = status;
     }
 
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
-
-    public String getTime() {
-        return time;
-    }
-
-    public void setTime(String time) {
-        this.time = time;
-    }
-
-    public String getDate() {
-        return date;
-    }
-
-    public void setDate(String date) {
-        this.date = date;
-    }
-
-    public String getCost() {
+    public float getCost() {
         return cost;
     }
 
-    public void setCost(String cost) {
+    public void setCost(float cost) {
         this.cost = cost;
     }
 
@@ -147,12 +168,20 @@ public class Reservation implements Serializable {
         this.description = description;
     }
 
-    public String getArtifact() {
-        return artifact;
+    public Long getTime() {
+        return time;
     }
 
-    public void setArtifact(String artifact) {
-        this.artifact = artifact;
+    public void setTime(Long time) {
+        this.time = time;
+    }
+
+    public Date getDate() {
+        return date;
+    }
+
+    public void setDate(Date date) {
+        this.date = date;
     }
 
     public Address getAddress() {
@@ -171,14 +200,6 @@ public class Reservation implements Serializable {
         this.service = service;
     }
 
-    public User getClient() {
-        return client;
-    }
-
-    public void setClient(User client) {
-        this.client = client;
-    }
-
     public User getProvider() {
         return provider;
     }
@@ -187,51 +208,35 @@ public class Reservation implements Serializable {
         this.provider = provider;
     }
 
-    public String getImage1() {
-        return image1;
+    public boolean isScheduled() {
+        return isScheduled;
     }
 
-    public void setImage1(String image1) {
-        this.image1 = image1;
+    public void setScheduled(boolean scheduled) {
+        isScheduled = scheduled;
     }
 
-    public String getImage2() {
-        return image2;
+    @Override
+    public int describeContents() {
+        return 0;
     }
 
-    public void setImage2(String image2) {
-        this.image2 = image2;
-    }
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(this.id);
+        dest.writeInt(this.status);
 
-    public String getImage3() {
-        return image3;
-    }
+        dest.writeFloat(this.cost);
 
-    public void setImage3(String image3) {
-        this.image3 = image3;
-    }
+        dest.writeString(this.description);
 
-    public String getImage4() {
-        return image4;
-    }
+        dest.writeLong(this.time != null? this.time : -1);
+        dest.writeLong(this.date != null? this.date.getTime() : -1);
 
-    public void setImage4(String image4) {
-        this.image4 = image4;
-    }
+        dest.writeParcelable(this.address, flags);
+        dest.writeParcelable(this.service, flags);
+        dest.writeParcelable(this.provider, flags);
 
-    public byte[][] getImageByteList() {
-        return imageByteList;
-    }
-
-    public void setImageByteList(byte[][] imageByteList) {
-        this.imageByteList = imageByteList;
-    }
-
-    public File[] getImageFileList() {
-        return imageFileList;
-    }
-
-    public void setImageFileList(File[] imageFileList) {
-        this.imageFileList = imageFileList;
+        dest.writeByte((byte) (this.isScheduled ? 1 : 0));
     }
 }

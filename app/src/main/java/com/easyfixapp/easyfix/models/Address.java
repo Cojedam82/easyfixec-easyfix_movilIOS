@@ -1,9 +1,13 @@
 package com.easyfixapp.easyfix.models;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
+import java.util.Date;
 
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
@@ -12,7 +16,7 @@ import io.realm.annotations.PrimaryKey;
  * Created by julio on 6/11/17.
  */
 
-public class Address extends RealmObject implements Serializable {
+public class Address extends RealmObject implements Parcelable {
 
     @Expose
     @SerializedName("id")
@@ -33,11 +37,11 @@ public class Address extends RealmObject implements Serializable {
 
     @Expose
     @SerializedName("latitude")
-    private String latitude;
+    private Double latitude;
 
     @Expose
     @SerializedName("longitude")
-    private String longitude;
+    private Double longitude;
 
     @Expose
     @SerializedName("is_active")
@@ -49,6 +53,30 @@ public class Address extends RealmObject implements Serializable {
 
     public Address() {
         this.isActive = false;
+    }
+
+    public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
+        public Address createFromParcel(Parcel in) {
+            return new Address(in);
+        }
+
+        public Address[] newArray(int size) {
+            return new Address[size];
+        }
+    };
+
+    public Address(Parcel in) {
+        this.id = in.readInt();
+
+        this.name = in.readString();
+        this.description = in.readString();
+        this.reference = in.readString();
+
+        this.latitude = in.readDouble();
+        this.longitude = in.readDouble();
+
+        this.isActive = in.readByte() != 0;
+        this.isDefault = in.readByte() != 0;
     }
 
     public int getId() {
@@ -83,19 +111,19 @@ public class Address extends RealmObject implements Serializable {
         this.reference = reference;
     }
 
-    public String getLatitude() {
+    public Double getLatitude() {
         return latitude;
     }
 
-    public void setLatitude(String latitude) {
+    public void setLatitude(Double latitude) {
         this.latitude = latitude;
     }
 
-    public String getLongitude() {
+    public Double getLongitude() {
         return longitude;
     }
 
-    public void setLongitude(String longitude) {
+    public void setLongitude(Double longitude) {
         this.longitude = longitude;
     }
 
@@ -113,5 +141,25 @@ public class Address extends RealmObject implements Serializable {
 
     public void setDefault(boolean aDefault) {
         isDefault = aDefault;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(this.id);
+
+        dest.writeString(this.name);
+        dest.writeString(this.description);
+        dest.writeString(this.reference);
+
+        dest.writeDouble(this.latitude);
+        dest.writeDouble(this.longitude);
+
+        dest.writeByte((byte) (this.isActive ? 1 : 0));
+        dest.writeByte((byte) (this.isDefault ? 1 : 0));
     }
 }

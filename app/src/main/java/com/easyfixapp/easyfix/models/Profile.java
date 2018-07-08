@@ -1,18 +1,22 @@
 package com.easyfixapp.easyfix.models;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.easyfixapp.easyfix.util.Util;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
 
+import io.realm.RealmList;
 import io.realm.RealmObject;
 
 /**
  * Created by julio on 29/05/17.
  */
 
-public class Profile extends RealmObject implements Serializable {
+public class Profile extends RealmObject implements Parcelable {
 
     @Expose
     @SerializedName("role")
@@ -22,11 +26,11 @@ public class Profile extends RealmObject implements Serializable {
     @SerializedName("phone")
     private String phone;
 
-    @Expose
+    @Expose(serialize = false)
     @SerializedName("token")
     private String token;
 
-    @Expose
+    @Expose(serialize = false)
     @SerializedName("image")
     private String image;
 
@@ -45,6 +49,28 @@ public class Profile extends RealmObject implements Serializable {
     public static final String CREDIT_CARD_VALUE = "Tarjeta de crédito";
 
     public Profile(){};
+
+    public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
+        public Profile createFromParcel(Parcel in) {
+            return new Profile(in);
+        }
+
+        public Profile[] newArray(int size) {
+            return new Profile[size];
+        }
+    };
+
+    public Profile(Parcel in) {
+        this.role = in.readInt();
+
+        this.phone = in.readString();
+        this.token = in.readString();
+        this.image = in.readString();
+
+        this.paymentMethod = in.readInt();
+
+        this.score = in.readFloat();
+    }
 
     public int getRole() {
         return role;
@@ -96,5 +122,23 @@ public class Profile extends RealmObject implements Serializable {
 
     public void setScore(float score) {
         this.score = score;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(this.role);
+
+        dest.writeString(this.phone);
+        dest.writeString(this.token);
+        dest.writeString(this.image);
+
+        dest.writeInt(this.paymentMethod);
+
+        dest.writeFloat(this.score);
     }
 }

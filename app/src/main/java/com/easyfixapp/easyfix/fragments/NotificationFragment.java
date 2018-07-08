@@ -1,22 +1,40 @@
 package com.easyfixapp.easyfix.fragments;
 
 
+import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.view.animation.DecelerateInterpolator;
+import android.view.animation.TranslateAnimation;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import com.easyfixapp.easyfix.R;
+import com.easyfixapp.easyfix.activities.LoginActivity;
 import com.easyfixapp.easyfix.activities.MainActivity;
+import com.easyfixapp.easyfix.activities.SplashActivity;
 import com.easyfixapp.easyfix.adapters.ReservationAdapter;
+import com.easyfixapp.easyfix.models.Notification;
 import com.easyfixapp.easyfix.models.Reservation;
 import com.easyfixapp.easyfix.util.ApiService;
 import com.easyfixapp.easyfix.util.ServiceGenerator;
@@ -24,8 +42,13 @@ import com.easyfixapp.easyfix.util.SessionManager;
 import com.easyfixapp.easyfix.util.Util;
 import com.easyfixapp.easyfix.widget.DividerItemDecoration;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -36,13 +59,12 @@ import retrofit2.Response;
  */
 public class NotificationFragment extends RootFragment {
 
-    private static View view = null;
-    private static RecyclerView mReservationView = null;
-    private static ReservationAdapter mReservationAdapter = null;
-    private static List<Reservation> mReservationList = new ArrayList<>();
+    private View view = null;
+    private RecyclerView mReservationView = null;
+    private ReservationAdapter mReservationAdapter = null;
+    private List<Reservation> mReservationList = new ArrayList<>();
 
-    private static Context context = null;
-    private static RootFragment mRootFrament = null;
+    //private static RootFragment mRootFrament = null;
 
     public NotificationFragment() {}
 
@@ -52,11 +74,10 @@ public class NotificationFragment extends RootFragment {
         // Inflate the layout for this fragment
         view = inflater.inflate(R.layout.fragment_reservation, container, false);
 
+        mReservationView = view.findViewById(R.id.rv_reservation);
 
         mReservationAdapter = new ReservationAdapter(this, getActivity(),
                 mReservationList, Reservation.TYPE_NOTIFICATION);
-
-        mReservationView = view.findViewById(R.id.rv_reservation);
 
         // Set requirements to show recyclerview
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getContext());
@@ -75,17 +96,37 @@ public class NotificationFragment extends RootFragment {
     @Override
     public void onResume() {
         super.onResume();
-        this.mRootFrament = this;
-        this.context = getContext();
+        //this.mRootFrament = this;
         reservationTask();
     }
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (!EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().register(this);
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        EventBus.getDefault().unregister(this);
+        super.onDestroy();
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onNotificationEvent(Notification notification) {
+        int action = notification.getAction();
+        if (action == Util.ACTION_CREATE || action == Util.ACTION_UPDATE) {
+            reservationTask();
+        }
+    }
 
     /** Fetch reservations **/
-    private static void reservationTask(){
-        Util.showProgress(context, mReservationView, view, true);
+    private void reservationTask(){
+        Util.showProgress(getContext(), mReservationView, view, true);
 
-        SessionManager sessionManager = new SessionManager(context);
+        SessionManager sessionManager = new SessionManager(getContext());
         ApiService apiService = ServiceGenerator.createApiService();
         String token = sessionManager.getToken();
 
@@ -93,7 +134,7 @@ public class NotificationFragment extends RootFragment {
         call.enqueue(new Callback<List<Reservation>>() {
             @Override
             public void onResponse(Call<List<Reservation>> call, Response<List<Reservation>> response) {
-                Util.showProgress(context, mReservationView, view, false);
+                Util.showProgress(getContext(), mReservationView, view, false);
 
                 if (response.isSuccessful()) {
                     Log.i(Util.TAG_NOTIFICATION, "Notification result: success!");
@@ -109,47 +150,33 @@ public class NotificationFragment extends RootFragment {
                     } else {
 
                         Util.showMessage(mReservationView, view,
-                                context.getString(R.string.message_service_server_empty));
+                                getString(R.string.message_service_server_empty));
                     }
                 } else {
                     Log.i(Util.TAG_NOTIFICATION, "Notification result: " + response.toString());
                     Util.showMessage(mReservationView, view,
-                            context.getString(R.string.message_service_server_failed));
+                            getString(R.string.message_service_server_failed));
                 }
             }
 
             @Override
             public void onFailure(Call<List<Reservation>> call, Throwable t) {
                 Log.i(Util.TAG_NOTIFICATION, "Notification result: failed, " + t.getMessage());
-                Util.showProgress(context, mReservationView, view, false);
+                Util.showProgress(getContext(), mReservationView, view, false);
                 Util.showMessage(mReservationView, view,
-                        context.getString(R.string.message_network_local_failed));
+                        getString(R.string.message_network_local_failed));
             }
         });
     }
 
-    public static void updateReservations() {
-        final Activity activity = MainActivity.activity;
-
-        try {
-            activity.runOnUiThread(new Runnable() {
-                public void run() {
-                    reservationTask();
-                }
-            });
-        } catch (Exception e) {
-            e.getStackTrace();
-        }
-    }
-
-
+    /*
     public static void showPostDetail(Reservation reservation) {
 
         try {
             mRootFrament.setBackPressedIcon();
 
             Bundle bundle = new Bundle();
-            bundle.putSerializable("reservation", reservation);
+            bundle.putParcelable("reservation", reservation);
 
             ServiceDetailFragment mServiceDetailFragment = new ServiceDetailFragment();
             mServiceDetailFragment.setArguments(bundle);
@@ -162,5 +189,5 @@ public class NotificationFragment extends RootFragment {
         } catch (Exception e) {
             e.getStackTrace();
         }
-    }
+    }*/
 }

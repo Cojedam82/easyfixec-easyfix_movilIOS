@@ -1,6 +1,10 @@
 package com.easyfixapp.easyfix.util;
 
+import com.easyfixapp.easyfix.parser.DateTypeParser;
+import com.easyfixapp.easyfix.parser.TimeTypeParser;
 import com.google.gson.GsonBuilder;
+
+import java.util.Date;
 
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -18,6 +22,8 @@ public class ServiceGenerator {
     private static GsonConverterFactory gsonConverterFactory = GsonConverterFactory
             .create(new GsonBuilder()
                     .excludeFieldsWithoutExposeAnnotation()
+                    .registerTypeAdapter(Date.class, new DateTypeParser())
+                    .registerTypeAdapter(Long.class, new TimeTypeParser())
                     .create());
 
     private static Retrofit.Builder mRetrofitBuilder = new Retrofit.Builder()

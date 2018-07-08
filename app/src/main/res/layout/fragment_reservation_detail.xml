@@ -1,0 +1,71 @@
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/sub_container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?android:attr/windowBackground"
+    android:clickable="true">
+
+    <RelativeLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="?android:attr/windowBackground"
+        tools:context=".activities.MainActivity"
+        android:clickable="true">
+
+        <FrameLayout
+            android:id="@+id/reservation_map"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_alignParentTop="true"
+            android:layout_above="@+id/ly_info_container"/>
+
+        <LinearLayout
+            android:id="@+id/ly_info_container"
+            android:layout_width="match_parent"
+            android:layout_height="250dp"
+            android:orientation="vertical"
+            android:layout_alignParentBottom="true">
+
+            <View
+                android:id="@+id/top_separator"
+                android:layout_width="50dp"
+                android:layout_height="5dp"
+                android:layout_marginTop="@dimen/activity_vertical_min_margin"
+                android:background="@drawable/bg_tab_courner"
+                android:layout_gravity="center"/>
+
+            <TextView
+                android:id="@+id/txt_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingLeft="@dimen/fragment_horizontal_margin"
+                android:paddingBottom="5dp"
+                android:paddingTop="5dp"
+                android:textColor="@color/blackOverlayDark"
+                android:text="¿Dónde deseas al técnico?"
+                android:textSize="@dimen/auth_activity_action"
+                android:gravity="center" />
+
+            <View
+                android:id="@+id/separator"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/black_25"/>
+
+            <com.easyfixapp.easyfix.widget.CustomViewPager
+                android:id="@+id/vp_service_reservation"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+
+        </LinearLayout>
+
+    </RelativeLayout>
+
+</FrameLayout>

@@ -1,5 +1,6 @@
 package com.easyfixapp.easyfix.activities;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -265,6 +266,7 @@ public class SignupActivity extends AppCompatActivity {
         textView.setText(s);
     }
 
+    @SuppressLint("ParcelCreator")
     private class URLSpanNoUnderline extends URLSpan {
         public URLSpanNoUnderline(String url) {
             super(url);

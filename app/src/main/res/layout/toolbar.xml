@@ -8,6 +8,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_alignParentTop="true"
+    android:background="@color/colorPrimaryDark"
     android:paddingTop="@dimen/app_toolbar_button_menu_vertical_padding"
     android:paddingBottom="@dimen/app_toolbar_button_menu_vertical_padding"
     android:paddingLeft="@dimen/app_toolbar_button_menu_horizontal_padding"

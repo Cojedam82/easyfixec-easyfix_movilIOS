@@ -9,6 +9,9 @@ import android.support.v7.app.AppCompatActivity;
 import com.easyfixapp.easyfix.R;
 import com.easyfixapp.easyfix.fragments.MenuFragment;
 import com.easyfixapp.easyfix.util.SessionManager;
+import com.easyfixapp.easyfix.util.Util;
+
+import org.greenrobot.eventbus.EventBus;
 
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
@@ -42,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * Only Activity has this special callback method
+     * Only Activity has this speciwal callback method
      * Fragment doesn't have any onBackPressed callback
      *
      * Logic:
@@ -57,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
 
-        if (MenuFragment.hideProfileImgeZoom(MenuFragment.mStartAnimationView)) {
+        if (MenuFragment.hideProfileImgeZoom()) {
             // hide profile image zoom
         } else if (!mMenuFragment.onBackPressed()) {
 

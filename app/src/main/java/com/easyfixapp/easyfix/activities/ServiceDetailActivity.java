@@ -51,7 +51,7 @@ public class ServiceDetailActivity extends AppCompatActivity {
         setContentView(R.layout.activity_service_detail);
 
         try {
-            mReservation = (Reservation) getIntent().getExtras().getSerializable("reservation");
+            mReservation = getIntent().getExtras().getParcelable("reservation");
             mService = mReservation.getService();
         } catch (Exception ignore) {}
 
@@ -126,9 +126,9 @@ public class ServiceDetailActivity extends AppCompatActivity {
         for(int i=0; i < mTabLayout.getTabCount(); i++) {
             TabLayout.Tab tab = mTabLayout.getTabAt(i);
 
-            if (tab.getText().equals(mReservation.getType())) {
-                tab.select();
-            }
+            //if (tab.getText().equals(mReservation.getType())) {
+            //    tab.select();
+            //}
 
             ViewGroup viewGroup = (ViewGroup) ((ViewGroup) mTabLayout.getChildAt(0)).getChildAt(i);
             viewGroup.setOnTouchListener(new View.OnTouchListener() {
@@ -139,7 +139,7 @@ public class ServiceDetailActivity extends AppCompatActivity {
             });
         }
 
-        mArtifactView.setText(mReservation.getArtifact());
+        //mArtifactView.setText(mReservation.getArtifact());
         mArtifactView.setEnabled(false);
 
         mDescriptionView.setText(mReservation.getDescription());
@@ -148,6 +148,7 @@ public class ServiceDetailActivity extends AppCompatActivity {
         RequestOptions options = new RequestOptions()
                 .diskCacheStrategy(DiskCacheStrategy.ALL);
 
+        /*
         Glide.with(getApplicationContext())
                 .load(mReservation.getImage1())
                 .apply(options)
@@ -164,6 +165,7 @@ public class ServiceDetailActivity extends AppCompatActivity {
                 .load(mReservation.getImage4())
                 .apply(options)
                 .into(mImage4View);
+        */
     }
 
     private void populateInfo(){

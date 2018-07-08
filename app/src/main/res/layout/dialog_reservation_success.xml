@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    android:id="@+id/rl_reservation_success"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white_75"
+    android:layout_above="@+id/bottom_navigation"
+    android:clickable="true"
+    android:visibility="gone"
+    android:elevation="24dp">
+
+    <RelativeLayout
+        android:id="@+id/rl_reservation_success_msg"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="@dimen/activity_vertical_margin"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:paddingTop="@dimen/activity_vertical_margin"
+        android:background="@color/colorPrimary">
+
+        <ImageView
+            android:id="@+id/img_close_reservation_success"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
+            android:tint="@color/white"
+            android:backgroundTint="@color/white"
+            android:src="@drawable/ic_delete"/>
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center">
+
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/img_profile_reservation_success"
+                android:layout_width="125dp"
+                android:layout_height="125dp"
+                android:src="@drawable/ic_empty_profile"
+                app:civ_border_width="1dp"
+                app:civ_border_color="@color/textColorPrimary" />
+
+            <RatingBar
+                android:id="@+id/rb_calification_reservation_success"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:progressTint="@color/textColorPrimary"
+                android:progressBackgroundTint="@color/textColorPrimary"
+                android:secondaryProgressTint="@color/textColorPrimary"
+                android:numStars="5"
+                android:isIndicator="true"
+                android:scaleX="2"
+                android:scaleY="2"
+                style="?android:attr/ratingBarStyleSmall"
+                tools:rating="5"/>
+
+            <TextView
+                android:id="@+id/txt_msg_reservation_success"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="10dp"
+                android:layout_marginRight="30dp"
+                android:layout_marginLeft="30dp"
+                android:textSize="18sp"
+                android:textColor="@color/textColorPrimary"
+                android:gravity="center"
+                tools:text="Tu servicio se encuentra agendado!"/>
+
+            <TextView
+                android:id="@+id/txt_service_name_reservation_success"
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:layout_marginRight="40dp"
+                android:layout_marginLeft="40dp"
+                android:maxLines="1"
+                android:ellipsize="marquee"
+                android:gravity="center"
+                android:textSize="18sp"
+                tools:textColor="@android:color/holo_red_dark"
+                tools:text="Electrodomesticos - Lavadora" />
+
+        </LinearLayout>
+    </RelativeLayout>
+</RelativeLayout>

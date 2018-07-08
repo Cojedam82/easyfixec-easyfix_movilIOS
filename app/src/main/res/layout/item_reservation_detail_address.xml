@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_height="wrap_content"
+    android:layout_width="match_parent"
+    android:paddingLeft="@dimen/fragment_horizontal_margin"
+    android:paddingRight="@dimen/fragment_horizontal_margin"
+    android:orientation="horizontal">
+
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/img_status"
+        android:layout_height="@dimen/address_item_image_size"
+        android:layout_width="@dimen/address_item_image_size"
+        android:layout_margin="@dimen/notification_item_margin"
+        android:src="@drawable/address"
+        app:paddingEnd="10dp"
+        app:paddingStart="10dp"/>
+
+
+    <LinearLayout
+        android:layout_height="wrap_content"
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_gravity="center_vertical"
+        android:layout_margin="@dimen/notification_item_margin"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/txt_name"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:textSize="@dimen/notification_item_name_text_size"
+            android:textColor="@color/colorAccent"
+            tools:text="Abel Gilbert" />
+
+        <TextView
+            android:id="@+id/txt_address"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:textSize="@dimen/notification_item_info_text_size"
+            tools:text="Mz. 420 villa 29" />
+
+    </LinearLayout>
+
+</LinearLayout>

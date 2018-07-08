@@ -23,7 +23,7 @@
             android:layout_gravity="center"
             app:civ_border_width="1dp"
             app:civ_border_color="@color/colorPrimary"
-            tools:src="@drawable/logo"/>
+            tools:src="@drawable/ic_empty_profile" />
 
         <RatingBar
             android:id="@+id/rb_calification"

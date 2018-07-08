@@ -13,7 +13,7 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/profile_header_height"
         android:layout_alignParentTop="true"
-        android:background="@color/colorPrimaryDark"
+        android:background="@color/colorPrimary"
         android:theme="@style/ThemeOverlay.AppCompat.Dark"
         android:orientation="vertical"
         android:gravity="center">

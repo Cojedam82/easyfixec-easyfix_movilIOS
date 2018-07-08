@@ -25,8 +25,7 @@
         android:layout_gravity="center"
         android:textAlignment="center"
         android:textSize="@dimen/service_item_text_size"
-        android:maxLines="1"
         android:paddingTop="@dimen/service_item_padding"
-        tools:text="Electródomestico" />
+        tools:text="Internet y Computación" />
 
 </LinearLayout>

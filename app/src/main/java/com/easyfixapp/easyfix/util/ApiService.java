@@ -2,6 +2,7 @@ package com.easyfixapp.easyfix.util;
 
 import com.easyfixapp.easyfix.models.Address;
 import com.easyfixapp.easyfix.models.AuthResponse;
+import com.easyfixapp.easyfix.models.ProviderReservation;
 import com.easyfixapp.easyfix.models.Reservation;
 import com.easyfixapp.easyfix.models.Service;
 import com.easyfixapp.easyfix.models.User;
@@ -14,6 +15,7 @@ import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;
+import retrofit2.http.Field;
 import retrofit2.http.FieldMap;
 import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
@@ -43,15 +45,16 @@ public interface ApiService {
      *      4 --> No Realizada
      *      5 --> Realizada
      **/
-    @Multipart
+    @FormUrlEncoded
     @POST("reservations/")
     Call<Reservation> createReservation(
             @Header("Authorization") String authorization,
-            @PartMap() Map<String, RequestBody> params,
-            @Part MultipartBody.Part image1,
-            @Part MultipartBody.Part image2,
-            @Part MultipartBody.Part image3,
-            @Part MultipartBody.Part image4);
+            @FieldMap Map<String, Object> params);
+    //        @PartMap() Map<String, Object> params);
+    //        @Part MultipartBody.Part image1,
+    //        @Part MultipartBody.Part image2,
+    //        @Part MultipartBody.Part image3,
+    //       @Part MultipartBody.Part image4);
 
     @GET("reservations/?status__in=1,3")
     Call<List<Reservation>> getNotifications(@Header("Authorization") String authorization);
@@ -61,6 +64,14 @@ public interface ApiService {
 
     @DELETE("reservations/{pk}/")
     Call<Void> deleteReservation(@Path("pk") int pk, @Header("Authorization") String authorization);
+
+    @FormUrlEncoded
+    @PATCH("reservations/{pk}/")
+    Call<Reservation> updateReservation(@Path("pk") int pk, @Header("Authorization") String authorization,
+                                        @FieldMap Map<String, Object> params);
+
+    @GET("reservations/{pk}/providers")
+    Call<List<ProviderReservation>> getProviders(@Path("pk") int pk, @Header("Authorization") String authorization);
 
 
     /** Address **/

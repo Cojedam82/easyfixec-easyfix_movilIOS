@@ -7,8 +7,10 @@ import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
+import retrofit2.http.Field;
 import retrofit2.http.FieldMap;
 import retrofit2.http.FormUrlEncoded;
+import retrofit2.http.Header;
 import retrofit2.http.POST;
 
 /**
@@ -30,5 +32,10 @@ public interface AuthService {
 
     @POST("signup/")
     Call<AuthResponse<User>> signup(@Body User user);
+
+    /** Logout **/
+    @FormUrlEncoded
+    @POST("logout/")
+    Call<Void> logout(@Header("Authorization") String authorization, @Field("token") String token);
 }
 

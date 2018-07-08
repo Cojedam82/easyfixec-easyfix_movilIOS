@@ -22,6 +22,8 @@ import com.easyfixapp.easyfix.util.ServiceGenerator;
 import com.easyfixapp.easyfix.util.SessionManager;
 import com.easyfixapp.easyfix.util.Util;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -204,7 +206,7 @@ public class AddressAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 public void onClick(View v) {
 
                     Bundle bundle = new Bundle();
-                    bundle.putSerializable("address", address);
+                    bundle.putParcelable("address", address);
 
                     Intent intent = new Intent(mContext, MapActivity.class);
                     intent.putExtras(bundle);
@@ -287,6 +289,8 @@ public class AddressAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                             realm.commitTransaction();
                         }
                         removeItem(position);
+
+                        EventBus.getDefault().post(a);
                     } finally {
                         realm.close();
                     }
@@ -365,7 +369,7 @@ public class AddressAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                             updateItem(position2, address2);
                         }
 
-
+                        EventBus.getDefault().post(address2);
                     } catch (Exception e){
                         e.getStackTrace();
                         Log.i(Util.TAG_ADDRESS, e.getMessage());

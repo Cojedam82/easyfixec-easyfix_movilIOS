@@ -57,6 +57,8 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.util.List;
 import java.util.Locale;
 
@@ -108,7 +110,7 @@ public class MapActivity extends AppCompatActivity implements
         setContentView(R.layout.activity_map);
 
         try {
-            mAddress = (Address) getIntent().getExtras().getSerializable("address");
+            mAddress = (Address) getIntent().getExtras().getParcelable("address");
         } catch (Exception ignore) {}
 
         mAddressView = findViewById(R.id.txt_autocomplete);
@@ -452,9 +454,31 @@ public class MapActivity extends AppCompatActivity implements
      */
 
     public void onPlaceSelected(Place place) {
-        addressFromLatLong(place.getLatLng());
-        //mAddressView.setText(place.getAddress());
+        isDefault = true;
+        mLastLocation = place.getLatLng();
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(place.getLatLng(), CUSTOM_ZOOM));
+
+        try {
+            Geocoder geo = new Geocoder(getApplicationContext(), Locale.getDefault());
+            List<android.location.Address> addresses = geo.getFromLocation(
+                    place.getLatLng().latitude, place.getLatLng().longitude, 1);
+            if (addresses.isEmpty()) {
+                mAddressView.setText("Desconocido");
+            } else {
+                if (addresses.size() > 0) {
+
+                    android.location.Address address = addresses.get(0);
+                    mName = place.getName().toString();
+                    mDescription = address.getLocality() + ", " +
+                            addresses.get(0).getAdminArea();
+
+                    mAddressView.setText(mName + ", " + mDescription);
+                }
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace(); // getFromLocation() may sometimes fail
+        }
     }
 
     public void showAutocomplete(View view) {
@@ -508,7 +532,24 @@ public class MapActivity extends AppCompatActivity implements
     public void attemptCreate(View view) {
 
         if (mLastLocation != null && mName != null && mDescription != null) {
+            Address address = new Address();
+            address.setName(mName);
+            address.setDescription(mDescription);
+            address.setReference(mReferenceView.getText().toString());
+            address.setLatitude(mLastLocation.latitude);
+            address.setLongitude(mLastLocation.longitude);
 
+            address.setActive(true);
+            //address.setDefault(checkBox.isChecked());
+
+            if (mAddress == null) {
+                createAddressTask(address);
+            } else {
+                address.setId(mAddress.getId());
+                updateAddressTask(address);
+            }
+
+            /*
             final LayoutInflater adbInflater = LayoutInflater.from(getApplicationContext());
             View v = adbInflater.inflate(R.layout.dialog_checkbox, null);
             final CheckBox checkBox = (CheckBox) v.findViewById(R.id.location_default);
@@ -526,23 +567,6 @@ public class MapActivity extends AppCompatActivity implements
             displayAlert.setMessage("¿Esta seguro de agregar esta nueva dirección?")
                     .setPositiveButton(R.string.dialog_message_continue, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
-
-                            Address address = new Address();
-                            address.setName(mName);
-                            address.setDescription(mDescription);
-                            address.setReference(mReferenceView.getText().toString());
-                            address.setLatitude(String.valueOf(mLastLocation.latitude));
-                            address.setLongitude(String.valueOf(mLastLocation.longitude));
-
-                            address.setActive(true);
-                            address.setDefault(checkBox.isChecked());
-
-                            if (mAddress == null) {
-                                createAddressTask(address);
-                            } else {
-                                address.setId(mAddress.getId());
-                                updateAddressTask(address);
-                            }
                         }
                     })
                     .setNegativeButton(R.string.dialog_message_no, new DialogInterface.OnClickListener() {
@@ -551,6 +575,7 @@ public class MapActivity extends AppCompatActivity implements
                     });
 
             displayAlert.show();
+            */
         } else {
             Util.longToast(getApplicationContext(),
                     getString(R.string.address_message_create_error));
@@ -598,6 +623,7 @@ public class MapActivity extends AppCompatActivity implements
 
                         realm.commitTransaction();
 
+                        EventBus.getDefault().postSticky(address);
                         finish();
 
                     } catch (Exception e){
@@ -654,6 +680,7 @@ public class MapActivity extends AppCompatActivity implements
                         realm.close();
                     }
 
+                    EventBus.getDefault().post(address);
                     finish();
                 } else {
                     Log.i(Util.TAG_ADDRESS, "Address result: " + response.toString());

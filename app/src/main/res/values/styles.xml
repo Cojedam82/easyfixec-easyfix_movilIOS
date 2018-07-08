@@ -39,6 +39,9 @@
         <item name="android:textAllCaps">false</item>
     </style>
 
+    <style name="ScheduleTabLayout" parent="android:Widget">
+        <item name="android:textSize">24sp</item>
+    </style>
 
     <style name="CustomRadioButton">
         <item name="android:textColor">@drawable/bg_text_switch_time</item>

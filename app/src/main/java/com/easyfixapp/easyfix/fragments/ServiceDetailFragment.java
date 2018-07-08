@@ -13,6 +13,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Parcelable;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TabLayout;
@@ -138,13 +139,13 @@ public class ServiceDetailFragment extends RootFragment{
 
         if (mService==null && mReservation == null) {
             try {
-                Serializable serializable = getArguments().getSerializable("service");
-                if (serializable == null) {
-                    mReservation = (Reservation) getArguments().getSerializable("reservation");
+                Parcelable parcelable = getArguments().getParcelable("service");
+                if (parcelable == null) {
+                    mReservation = getArguments().getParcelable("reservation");
                     mService = mReservation.getService();
                     getArguments().remove("reservation");
                 } else {
-                    mService = (Service) serializable;
+                    mService = (Service) parcelable;
                     getArguments().remove("service");
                 }
             } catch (Exception ignore) {}
@@ -285,9 +286,9 @@ public class ServiceDetailFragment extends RootFragment{
             for(int i=0; i < mTabLayout.getTabCount(); i++) {
                 TabLayout.Tab tab = mTabLayout.getTabAt(i);
 
-                if (tab.getText().equals(mReservation.getType())) {
-                    tab.select();
-                }
+                //if (tab.getText().equals(mReservation.getType())) {
+                //    tab.select();
+                //}
 
                 ViewGroup viewGroup = (ViewGroup) ((ViewGroup) mTabLayout.getChildAt(0)).getChildAt(i);
                 viewGroup.setOnTouchListener(new View.OnTouchListener() {
@@ -298,7 +299,7 @@ public class ServiceDetailFragment extends RootFragment{
                 });
             }
 
-            mArtifactView.setText(mReservation.getArtifact());
+            //mArtifactView.setText(mReservation.getArtifact());
             mArtifactView.setEnabled(false);
 
             mDescriptionView.setText(mReservation.getDescription());
@@ -307,6 +308,7 @@ public class ServiceDetailFragment extends RootFragment{
             RequestOptions options = new RequestOptions()
                     .diskCacheStrategy(DiskCacheStrategy.ALL);
 
+            /*
             Glide.with(getContext())
                     .load(mReservation.getImage1())
                     .apply(options)
@@ -323,7 +325,7 @@ public class ServiceDetailFragment extends RootFragment{
                     .load(mReservation.getImage4())
                     .apply(options)
                     .into(mImage4View);
-
+            */
 
             mTimeView.setVisibility(View.GONE);
             mCustomRadioGroup.setVisibility(View.GONE);
@@ -387,8 +389,8 @@ public class ServiceDetailFragment extends RootFragment{
     }
 
     private void populateArtifacts(){
-        final ArrayAdapter<Artifact> adapter = new ArrayAdapter<Artifact>
-                (getContext(), android.R.layout.select_dialog_item, mService.getArtifactList());
+        //final ArrayAdapter<Artifact> adapter = new ArrayAdapter<Artifact>
+        //        (getContext(), android.R.layout.select_dialog_item, mService.getArtifactList());
 
         //Getting the instance of AutoCompleteTextView
         //mArtifactView.setThreshold(1);//will start working from first character
@@ -401,7 +403,7 @@ public class ServiceDetailFragment extends RootFragment{
                 return true;
             }
         });
-        mArtifactView.setAdapter(adapter);
+        //mArtifactView.setAdapter(adapter);
 
         mArtifactView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -467,13 +469,13 @@ public class ServiceDetailFragment extends RootFragment{
         } else {
 
             Reservation reservation = new Reservation();
-            reservation.setType(arr_text[mTabLayout.getSelectedTabPosition()]);
+            //reservation.setType(arr_text[mTabLayout.getSelectedTabPosition()]);
             reservation.setService(mService);
-            reservation.setArtifact(artifact);
+            //reservation.setArtifact(artifact);
             reservation.setDescription(description);
 
-            reservation.setImageByteList(mImageByteList);
-            reservation.setImageFileList(mImageFileList);
+            //reservation.setImageByteList(mImageByteList);
+            //reservation.setImageFileList(mImageFileList);
 
             if (actionID == R.id.rb_now) {
 
@@ -487,7 +489,7 @@ public class ServiceDetailFragment extends RootFragment{
                 ScheduleFragment mScheduleFragment = new ScheduleFragment();
 
                 Bundle bundle = new Bundle();
-                bundle.putSerializable("reservation", reservation);
+                bundle.putParcelable("reservation", reservation);
                 mScheduleFragment.setArguments(bundle);
 
                 FragmentTransaction transaction = getChildFragmentManager().beginTransaction();
@@ -645,7 +647,7 @@ public class ServiceDetailFragment extends RootFragment{
         return Bitmap.createBitmap(bitmap, 0, 0, w, h, mtx, true);
     }
 
-
+    /*
     public void createReservationTask(final Context context, final Reservation reservation){
         Util.showLoading(context, getString(R.string.reservation_message_create_request));
 
@@ -658,17 +660,17 @@ public class ServiceDetailFragment extends RootFragment{
         MediaType img = MediaType.parse("image/*");
         MediaType text = MediaType.parse("text/plain");
 
-        RequestBody type = RequestBody.create(text, reservation.getType());
+        //RequestBody type = RequestBody.create(text, reservation.getType());
         RequestBody description = RequestBody.create(text, reservation.getDescription());
-        RequestBody artifact = RequestBody.create(text, reservation.getArtifact());
+        //RequestBody artifact = RequestBody.create(text, reservation.getArtifact());
         RequestBody address = RequestBody.create(text, "" + reservation.getAddress().getId());
         RequestBody service = RequestBody.create(text, "" + reservation.getService().getId());
 
         HashMap<String, RequestBody> params = new HashMap<>();
 
-        params.put("type", type);
+        //params.put("type", type);
         params.put("description", description);
-        params.put("artifact", artifact);
+        //params.put("artifact", artifact);
         params.put("address", address);
         params.put("service", service);
 
@@ -726,7 +728,7 @@ public class ServiceDetailFragment extends RootFragment{
             }
         });
     }
-
+    */
 
     public void confirmAddress (final Context context, final Reservation reservation) {
         Address address = null;
@@ -756,7 +758,7 @@ public class ServiceDetailFragment extends RootFragment{
                         .setPositiveButton(R.string.dialog_yes, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 reservation.setAddress(finalAddress);
-                                createReservationTask(context, reservation);
+                                //createReservationTask(context, reservation);
                             }
                         })
                         .setNegativeButton(R.string.dialog_no, new DialogInterface.OnClickListener() {
@@ -777,7 +779,7 @@ public class ServiceDetailFragment extends RootFragment{
         AddressConfirmFragment mAddressConfirmFragment = new AddressConfirmFragment();
 
         Bundle bundle = new Bundle();
-        bundle.putSerializable("reservation", reservation);
+        bundle.putParcelable("reservation", reservation);
         mAddressConfirmFragment.setArguments(bundle);
 
         FragmentTransaction transaction = getChildFragmentManager().beginTransaction();

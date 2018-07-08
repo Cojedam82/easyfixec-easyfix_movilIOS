@@ -22,10 +22,9 @@
             android:layout_height="@dimen/profile_header_height"
             android:paddingLeft="@dimen/activity_horizontal_margin"
             android:paddingRight="@dimen/activity_horizontal_margin"
-            android:paddingTop="@dimen/activity_vertical_min_margin"
             android:paddingBottom="@dimen/activity_vertical_min_margin"
             android:layout_alignParentTop="true"
-            android:background="@color/colorPrimaryDark"
+            android:background="@color/colorPrimary"
             android:theme="@style/ThemeOverlay.AppCompat.Dark"
             android:orientation="vertical"
             android:gravity="center">
@@ -35,7 +34,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColor="@color/white"
-                android:textSize="30sp"
+                android:textSize="38sp"
                 tools:text="2017"/>
 
             <TextView
@@ -43,7 +42,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColor="@color/white"
-                android:textSize="22sp"
+                android:textSize="30sp"
                 tools:text="Noviembre"/>
 
 
@@ -79,7 +78,7 @@
             android:layout_above="@+id/btn_schedule"
             android:drawableTop="@drawable/border_top"
             android:textColor="@color/black_50"
-            android:textSize="34sp"
+            android:textSize="38sp"
             android:gravity="center"
             tools:text="13:00"/>
 
@@ -90,7 +89,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/activity_vertical_min_margin"
             android:layout_alignParentBottom="true"
-            android:background="@color/colorPrimaryDark"
+            android:background="@color/colorPrimary"
             android:text="Agendar"
             android:textAllCaps="false"
             android:textColor="@color/white"

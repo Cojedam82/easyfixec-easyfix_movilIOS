@@ -4,11 +4,14 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
+import android.annotation.SuppressLint;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Point;
 import android.graphics.Rect;
@@ -17,27 +20,39 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
+import android.support.design.internal.BottomNavigationItemView;
+import android.support.design.internal.BottomNavigationMenuView;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.FileProvider;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
 import android.view.animation.DecelerateInterpolator;
+import android.view.animation.TranslateAnimation;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RatingBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -47,9 +62,15 @@ import com.bumptech.glide.request.RequestOptions;
 import com.easyfixapp.easyfix.BuildConfig;
 import com.easyfixapp.easyfix.R;
 import com.easyfixapp.easyfix.activities.SettingsActivity;
+import com.easyfixapp.easyfix.adapters.ReservationAdapter;
+import com.easyfixapp.easyfix.adapters.ReservationProviderAdapter;
 import com.easyfixapp.easyfix.adapters.ViewPagerAdapter;
 import com.easyfixapp.easyfix.listeners.OnBackPressListener;
+import com.easyfixapp.easyfix.models.Address;
+import com.easyfixapp.easyfix.models.Notification;
 import com.easyfixapp.easyfix.models.Profile;
+import com.easyfixapp.easyfix.models.ProviderReservation;
+import com.easyfixapp.easyfix.models.Reservation;
 import com.easyfixapp.easyfix.models.Settings;
 import com.easyfixapp.easyfix.models.User;
 import com.easyfixapp.easyfix.util.ApiService;
@@ -58,13 +79,23 @@ import com.easyfixapp.easyfix.util.SessionManager;
 import com.easyfixapp.easyfix.util.Util;
 import com.easyfixapp.easyfix.widget.CustomViewPager;
 import com.github.chrisbanes.photoview.PhotoView;
+import com.google.android.gms.maps.SupportMapFragment;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Random;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import okhttp3.MediaType;
@@ -82,7 +113,6 @@ public class MenuFragment extends Fragment
 
     public static RelativeLayout mContainerView;
     public static PhotoView mImageZoomView;
-    public static View mStartAnimationView;
 
     private CustomViewPager mViewPager;
     private ViewPagerAdapter mViewPagerAdapter;
@@ -92,14 +122,13 @@ public class MenuFragment extends Fragment
     private View view;
     private File mFile;
 
-    private static LinearLayout mProfileImageContainerView;
+    //private static LinearLayout mProfileImageContainerView;
     private static CircleImageView mMenuProfileView;
-    private static Rect startBounds;
-    private static float startScaleFinal;
     private static Button mUpdateProfileImageView;
-    private static Animator mCurrentAnimator;
     private static BottomNavigationView bottomNavigationView;
-    //private static int mContainerColor;
+
+    private List<ProviderReservation> mProviderReservationList = new ArrayList<>();
+    private RecyclerView mProviderReservationView;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -137,11 +166,9 @@ public class MenuFragment extends Fragment
         mTitleView = view.findViewById(R.id.txt_toolbar_title);
 
         mContainerView = view.findViewById(R.id.rl_container);
-        mProfileImageContainerView = view.findViewById(R.id.ll_image_zoom);
+        //mProfileImageContainerView = view.findViewById(R.id.ll_image_zoom);
         mImageZoomView = view.findViewById(R.id.img_zoom);
         mUpdateProfileImageView = view.findViewById(R.id.btn_update_image);
-
-        //mContainerColor = getContext().getResources().getColor(R.color.black_35);
 
         return view;
     }
@@ -157,7 +184,7 @@ public class MenuFragment extends Fragment
         mContainerView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                hideProfileImgeZoom(null);
+                hideProfileImgeZoom();
             }
         });
 
@@ -174,8 +201,7 @@ public class MenuFragment extends Fragment
                 if (getChildFragmentCount() != 0)
                     getActivity().onBackPressed();
                 else {
-                    mStartAnimationView = v;
-                    showProfileImageZoom(mStartAnimationView);
+                    showProfileImageZoom();
                 }
             }
         });
@@ -212,16 +238,30 @@ public class MenuFragment extends Fragment
 
             @Override
             public void onPageSelected(int position) {
-                if (prevMenuItem != null) {
-                    prevMenuItem.setChecked(false);
+                final View mReservationSearchView = view.findViewById(R.id.rl_reservation_search);
+                final View mReservationProviderView = view.findViewById(R.id.rl_reservation_provider);
+                final View mReservationSuccessView = view.findViewById(R.id.rl_reservation_success);
+                if (mReservationSearchView.getVisibility() == View.VISIBLE) {
+                    mReservationSearchView.setVisibility(View.GONE);
+                } else if (mReservationProviderView.getVisibility() == View.VISIBLE) {
+                    mReservationProviderView.setVisibility(View.GONE);
+                } else if (mReservationSuccessView.getVisibility() == View.VISIBLE) {
+                    mReservationSuccessView.setVisibility(View.GONE);
                 } else {
-                    bottomNavigationView.getMenu().getItem(0).setChecked(false);
-                }
-                Log.d("Menu Tab", "onPageSelected: "+position);
-                bottomNavigationView.getMenu().getItem(position).setChecked(true);
-                prevMenuItem = bottomNavigationView.getMenu().getItem(position);
+                    if (prevMenuItem != null) {
+                        if(position == 0){
+                            EventBus.getDefault().post(new Address());
+                        }
+                        prevMenuItem.setChecked(false);
+                    } else {
+                        bottomNavigationView.getMenu().getItem(0).setChecked(false);
+                    }
+                    Log.d("Menu Tab", "onPageSelected: " + position);
+                    bottomNavigationView.getMenu().getItem(position).setChecked(true);
+                    prevMenuItem = bottomNavigationView.getMenu().getItem(position);
 
-                setBackPressedIcon();
+                    setBackPressedIcon();
+                }
             }
 
             @Override
@@ -229,6 +269,9 @@ public class MenuFragment extends Fragment
 
             }
         });
+
+        // Prevent pending provider
+        checkPendingReservationProviders();
     }
 
     /**
@@ -294,6 +337,26 @@ public class MenuFragment extends Fragment
         }
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        if (!EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().register(this);
+        }
+    }
+
+    @Override
+    public void onStop() {
+        EventBus.getDefault().unregister(this);
+        super.onStop();
+    }
+
     /**
      * Retrieve the currently visible Tab Fragment and propagate the onBackPressed callback
      *
@@ -305,16 +368,30 @@ public class MenuFragment extends Fragment
             drawer.closeDrawer(GravityCompat.END);
             return true;
         } else {
-            // currently visible tab Fragment
-            OnBackPressListener currentFragment = (OnBackPressListener)
-                    mViewPagerAdapter.getRegisteredFragment(mViewPager.getCurrentItem());
+            final View mReservationSearchView = view.findViewById(R.id.rl_reservation_search);
+            final View mReservationProviderView = view.findViewById(R.id.rl_reservation_provider);
+            final View mReservationSuccessView = view.findViewById(R.id.rl_reservation_success);
+            if (mReservationSearchView.getVisibility() == View.VISIBLE) {
+                mReservationSearchView.setVisibility(View.GONE);
+                return true;
+            } else if (mReservationProviderView.getVisibility() == View.VISIBLE) {
+                mReservationProviderView.setVisibility(View.GONE);
+                return true;
+            } else if (mReservationSuccessView.getVisibility() == View.VISIBLE) {
+                mReservationSuccessView.setVisibility(View.GONE);
+                return true;
+            } else {
+                // currently visible tab Fragment
+                OnBackPressListener currentFragment = (OnBackPressListener)
+                        mViewPagerAdapter.getRegisteredFragment(mViewPager.getCurrentItem());
 
-            if (currentFragment != null) {
-                // lets see if the currentFragment or any of its childFragment can handle onBackPressed
-                boolean isBackPressed = currentFragment.onBackPressed();
-                setBackPressedIcon();
+                if (currentFragment != null) {
+                    // lets see if the currentFragment or any of its childFragment can handle onBackPressed
+                    boolean isBackPressed = currentFragment.onBackPressed();
+                    setBackPressedIcon();
 
-                return isBackPressed;
+                    return isBackPressed;
+                }
             }
         }
 
@@ -523,7 +600,7 @@ public class MenuFragment extends Fragment
                 Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                 intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
 
-                //intent.putExtra(MediaStore.EXTRA_SCREEN_ORIENTATION, ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+                intent.putExtra(MediaStore.EXTRA_SCREEN_ORIENTATION, ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
                 intent.putExtra(MediaStore.EXTRA_OUTPUT, mImageUri);
                 startActivityForResult(intent, Util.IMAGE_CAMERA_REQUEST_CODE);
             } catch (Exception e) {
@@ -544,30 +621,41 @@ public class MenuFragment extends Fragment
         Bitmap bitmap = null;
 
         try {
-            Uri mImageUri = Uri.fromFile(file);
-            bitmap = BitmapFactory.decodeFile(mImageUri.getPath());
+            ExifInterface exif = new ExifInterface(file.getPath());
+            int orientation = exif.getAttributeInt(
+                    ExifInterface.TAG_ORIENTATION,
+                    ExifInterface.ORIENTATION_UNDEFINED);
 
-            FileOutputStream fOut = new FileOutputStream(file);
-            ExifInterface exif = new ExifInterface(file.toString());
-            String attr = exif.getAttribute(ExifInterface.TAG_ORIENTATION);
-
-            if(attr.equalsIgnoreCase("6")){
-                bitmap = rotate(bitmap, 90);
-            } else if(attr.equalsIgnoreCase("8")){
-                bitmap = rotate(bitmap, 270);
-            } else if(attr.equalsIgnoreCase("3")){
-                bitmap = rotate(bitmap, 180);
-            } else if(attr.equalsIgnoreCase("0")){
-                bitmap = rotate(bitmap, 90);
+            Matrix matrix = new Matrix();
+            switch (orientation) {
+                case ExifInterface.ORIENTATION_ROTATE_90:
+                    matrix.postRotate(90);
+                    break;
+                case ExifInterface.ORIENTATION_ROTATE_180:
+                    matrix.postRotate(180);
+                    break;
+                case ExifInterface.ORIENTATION_ROTATE_270:
+                    matrix.postRotate(270);
+                    break;
             }
 
-            bitmap = scaleImage(bitmap);
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inSampleSize = 2;
 
-            fOut.flush();
-            fOut.close();
+            Bitmap bmp = BitmapFactory.decodeStream(new FileInputStream(file),
+                    null, options);
 
-        } catch (Exception e) {
-            e.printStackTrace();
+            bitmap = scaleImage(bmp, matrix);
+
+            ByteArrayOutputStream outstudentstreamOutputStream = new ByteArrayOutputStream();
+
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100,
+                    outstudentstreamOutputStream);
+
+        } catch (IOException e) {
+            Log.w(Util.TAG_MENU, "-- Error in setting image");
+        } catch (OutOfMemoryError oom) {
+            Log.w(Util.TAG_MENU, "-- OOM Error in setting image");
         }
 
         return bitmap;
@@ -575,9 +663,15 @@ public class MenuFragment extends Fragment
 
     private Bitmap scaleImage(Bitmap bitmap) {
         int targetWidth = 800;
-        int targetHeight = 800; //(int) (bitmap.getHeight() * targetWidth / (double) bitmap.getWidth());
-
+        int targetHeight = 800;
         return Bitmap.createScaledBitmap(bitmap, targetWidth, targetHeight, true);
+    }
+
+    private Bitmap scaleImage(Bitmap bmp, Matrix matrix) {
+        int targetWidth = 800;
+        int targetHeight = 800;
+        return Bitmap.createBitmap(bmp, 0, 0, bmp.getWidth(),
+                bmp.getHeight(), matrix, true);
     }
 
     private Bitmap rotate(Bitmap bitmap, int degree) {
@@ -665,152 +759,308 @@ public class MenuFragment extends Fragment
         bottomNavigationView.setSelectedItemId(idTab);
     }
 
-    public static void showProfileImageZoom(final View mStartAnimationView) {
-
-        //mContainerView.setBackgroundColor(mContainerColor);
+    public static void showProfileImageZoom() {
         mContainerView.setVisibility(View.VISIBLE);
-
-        /*
-        // If there's an animation in progress, cancel it
-        // immediately and proceed with this one.
-        if (mCurrentAnimator != null) {
-            mCurrentAnimator.cancel();
-        }
-
-        // Calculate the starting and ending bounds for the zoomed-in image.
-        // This step involves lots of math. Yay, math.
-        startBounds = new Rect();
-        final Rect finalBounds = new Rect();
-        final Point globalOffset = new Point();
-
-        // The start bounds are the global visible rectangle of the thumbnail,
-        // and the final bounds are the global visible rectangle of the container
-        // view. Also set the container view's offset as the origin for the
-        // bounds, since that's the origin for the positioning animation
-        // properties (X, Y).
-        mMenuProfileView.getGlobalVisibleRect(startBounds);
-        mContainerView.getGlobalVisibleRect(finalBounds, globalOffset);
-        startBounds.offset(-globalOffset.x, -globalOffset.y);
-        finalBounds.offset(-globalOffset.x, -globalOffset.y);
-
-        // Adjust the start bounds to be the same aspect ratio as the final
-        // bounds using the "center crop" technique. This prevents undesirable
-        // stretching during the animation. Also calculate the start scaling
-        // factor (the end scaling factor is always 1.0).
-        float startScale;
-        if ((float) finalBounds.width() / finalBounds.height()
-                > (float) startBounds.width() / startBounds.height()) {
-            // Extend start bounds horizontally
-            startScale = (float) startBounds.height() / finalBounds.height();
-            float startWidth = startScale * finalBounds.width();
-            float deltaWidth = (startWidth - startBounds.width()) / 2;
-            startBounds.left -= deltaWidth;
-            startBounds.right += deltaWidth;
-        } else {
-            // Extend start bounds vertically
-            startScale = (float) startBounds.width() / finalBounds.width();
-            float startHeight = startScale * finalBounds.height();
-            float deltaHeight = (startHeight - startBounds.height()) / 2;
-            startBounds.top -= deltaHeight;
-            startBounds.bottom += deltaHeight;
-        }
-
-        // Hide the thumbnail and show the zoomed-in view. When the animation
-        // begins, it will position the zoomed-in view in the place of the
-        // thumbnail.
-        //mStartAnimationView.setAlpha(0f);
-        mContainerView.setVisibility(View.VISIBLE);
-
-        // Set the pivot point for SCALE_X and SCALE_Y transformations
-        // to the top-left corner of the zoomed-in view (the default
-        // is the center of the view).
-        mImageZoomView.setPivotX(0f);
-        mImageZoomView.setPivotY(0f);
-
-        // Construct and run the parallel animation of the four translation and
-        // scale properties (X, Y, SCALE_X, and SCALE_Y).
-        AnimatorSet set = new AnimatorSet();
-        set
-                .play(ObjectAnimator.ofFloat(mImageZoomView, View.X,
-                        startBounds.left, finalBounds.left))
-                .with(ObjectAnimator.ofFloat(mImageZoomView, View.Y,
-                        startBounds.top, finalBounds.top))
-                .with(ObjectAnimator.ofFloat(mImageZoomView, View.SCALE_X,
-                        startScale, 1f)).with(ObjectAnimator.ofFloat(mImageZoomView,
-                View.SCALE_Y, startScale, 1f));
-        set.setDuration(400);
-        set.setInterpolator(new DecelerateInterpolator());
-        set.addListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                mCurrentAnimator = null;
-            }
-
-            @Override
-            public void onAnimationCancel(Animator animation) {
-                mCurrentAnimator = null;
-            }
-        });
-        set.start();
-        mCurrentAnimator = set;
-
-        // Upon clicking the zoomed-in image, it should zoom back down
-        // to the original bounds and show the thumbnail instead of
-        // the expanded image.
-        startScaleFinal = startScale;*/
     }
 
-    public static boolean hideProfileImgeZoom(final View mStartAnimationView) {
-
-
+    public static boolean hideProfileImgeZoom() {
         if(mContainerView.getVisibility() == View.VISIBLE) {
-
             mContainerView.setVisibility(View.GONE);
-            //mContainerView.setBackgroundColor(mContainerColor);
-
-            /*
-            if (mCurrentAnimator != null) {
-                mCurrentAnimator.cancel();
-            }
-
-            // Animate the four positioning/sizing properties in parallel,
-            // back to their original values.
-            AnimatorSet set = new AnimatorSet();
-            set.play(ObjectAnimator
-                    .ofFloat(mImageZoomView, View.X, startBounds.left))
-                    .with(ObjectAnimator
-                            .ofFloat(mImageZoomView,
-                                    View.Y, startBounds.top))
-                    .with(ObjectAnimator
-                            .ofFloat(mImageZoomView,
-                                    View.SCALE_X, startScaleFinal))
-                    .with(ObjectAnimator
-                            .ofFloat(mImageZoomView,
-                                    View.SCALE_Y, startScaleFinal));
-            set.setDuration(400);
-            set.setInterpolator(new DecelerateInterpolator());
-            set.addListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    //mStartAnimationView.setAlpha(1f);
-                    mContainerView.setVisibility(View.GONE);
-                    mCurrentAnimator = null;
-                }
-
-                @Override
-                public void onAnimationCancel(Animator animation) {
-                    //mStartAnimationView.setAlpha(1f);
-                    mContainerView.setVisibility(View.GONE);
-                    mCurrentAnimator = null;
-                }
-            });
-            set.start();
-            mCurrentAnimator = set;
-            */
-
             return true;
         }
-
         return false;
+    }
+
+    @SuppressLint("RestrictedApi")
+    public void removeShiftMode(BottomNavigationView view) {
+        BottomNavigationMenuView menuView = (BottomNavigationMenuView) view.getChildAt(0);
+        try {
+            Field shiftingMode = menuView.getClass().getDeclaredField("mShiftingMode");
+            shiftingMode.setAccessible(true);
+            shiftingMode.setBoolean(menuView, false);
+            shiftingMode.setAccessible(false);
+            for (int i = 0; i < menuView.getChildCount(); i++) {
+                BottomNavigationItemView item = (BottomNavigationItemView) menuView.getChildAt(i);
+                //noinspection RestrictedApi
+                item.setShiftingMode(false);
+                // set once again checked value, so view will be updated
+                //noinspection RestrictedApi
+                item.setChecked(item.getItemData().isChecked());
+            }
+        } catch (NoSuchFieldException e) {
+            Log.e("BottomNav", "Unable to get shift mode field", e);
+        } catch (IllegalAccessException e) {
+            Log.e("BottomNav", "Unable to change value of shift mode", e);
+        }
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onMenu1Event(Notification notification) {
+        setSelectedTab(R.id.navigation_notification);
+
+        if (notification.getObject() != null) {
+            int action = notification.getAction();
+            if (action == Util.ACTION_CREATE) {
+                showReservationSearch((Reservation) notification.getObject());
+            } else if (action == Util.ACTION_PROVIDER) {
+                showReservationProviders((Reservation) notification.getObject());
+            } else if (action == Util.ACTION_UPDATE) {
+                showReservationSuccess((Reservation) notification.getObject());
+            }
+        }
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onMenu2Event(ProviderReservation pr) {
+        onBackPressed();
+        reservationTask(pr);
+    }
+
+    private int getScreenHeight() {
+
+        DisplayMetrics displaymetrics = new DisplayMetrics();
+        getActivity().getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
+        return displaymetrics.heightPixels;
+
+    }
+
+    private void showReservationSearch(Reservation reservation) {
+        Random random = new Random();
+
+        final View mReservationSearchView = view.findViewById(R.id.rl_reservation_search);
+        mReservationSearchView.setVisibility(View.VISIBLE);
+
+        final View mReservationSearchMsgView = view.findViewById(R.id.rl_reservation_search_msg);
+
+        final TextView mReservationSearchNameView = view.findViewById(R.id.txt_service_name_reservation_search);
+        mReservationSearchNameView.setText(reservation.getService().getName());
+        mReservationSearchNameView.setTextColor(Color.argb(255, random.nextInt(256), random.nextInt(256), random.nextInt(256)));
+
+        final ImageView mCloseView = view.findViewById(R.id.img_close_reservation_search);
+        mCloseView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mReservationSearchView.setVisibility(View.GONE);
+                mReservationSearchNameView.setText("");
+            }
+        });
+
+        final int screenHeight = getScreenHeight();
+        ObjectAnimator animator = ObjectAnimator.ofFloat(mReservationSearchMsgView,
+                "y", screenHeight, 0.0f);
+        animator.setInterpolator(new DecelerateInterpolator());
+        animator.start();
+
+
+        new Handler().postDelayed(new Runnable() {
+
+            @Override
+            public void run() {
+                mCloseView.performClick();
+            }
+        }, 5000);
+    }
+
+    private void showReservationProviders(Reservation reservation) {
+
+        SessionManager sessionManager = new SessionManager(getContext());
+        if (sessionManager.isNotificationProvider()) {
+            sessionManager.clearPendingReservation();
+        }
+
+        final View mReservationSearchView = view.findViewById(R.id.rl_reservation_provider);
+
+        if (mReservationSearchView.getVisibility() == View.GONE) {
+            mReservationSearchView.setVisibility(View.VISIBLE);
+
+            mProviderReservationView = view.findViewById(R.id.rv_provider_reservation_provider);
+
+            final View mReservationSearchMsgView = view.findViewById(R.id.rl_reservation_provider_msg);
+
+            ReservationProviderAdapter mReservationAdapter = new ReservationProviderAdapter(
+                    getContext(), mProviderReservationList);
+
+            RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getContext());
+            mProviderReservationView.setLayoutManager(mLayoutManager);
+            mProviderReservationView.setItemAnimator(new DefaultItemAnimator());
+            mProviderReservationView.setAdapter(mReservationAdapter);
+
+            final int screenHeight = getScreenHeight();
+            ObjectAnimator animator = ObjectAnimator.ofFloat(mReservationSearchView,
+                    "y", screenHeight, 0.0f);
+            animator.setInterpolator(new DecelerateInterpolator());
+            animator.start();
+        }
+
+        providerReservationTask(reservation.getId());
+    }
+
+    private void showReservationSuccess(Reservation reservation) {
+        final View mReservationSuccessView = view.findViewById(R.id.rl_reservation_success);
+        if (mReservationSuccessView.getVisibility() == View.GONE) {
+            mReservationSuccessView.setVisibility(View.VISIBLE);
+
+            Random random = new Random();
+            final TextView mReservationSuccessNameView = view.findViewById(R.id.txt_service_name_reservation_success);
+            mReservationSuccessNameView.setText(reservation.getService().getName());
+            mReservationSuccessNameView.setTextColor(Color.argb(255, random.nextInt(256), random.nextInt(256), random.nextInt(256)));
+
+            final TextView mReservationSuccessMsgView = view.findViewById(R.id.txt_msg_reservation_success);
+            mReservationSuccessMsgView.setText(
+                    reservation.isScheduled()? "Tu servicio se encuentra agendado!" : "Tu técnico esta en camino!");
+
+            final RatingBar mReservationSuccessRate = view.findViewById(R.id.rb_calification_reservation_success);
+            mReservationSuccessRate.setRating(reservation.getProvider().getScore());
+
+            final CircleImageView mProviderImageView = view.findViewById(R.id.img_profile_reservation_success);
+            if (reservation.getProvider().getProfile() != null) {
+                Glide.with(getContext())
+                        .load(reservation.getProvider().getProfile().getImage())
+                        .apply(new RequestOptions()
+                                .error(R.drawable.ic_empty_profile)
+                                .placeholder(R.drawable.ic_empty_profile)
+                                .diskCacheStrategy(DiskCacheStrategy.ALL))
+                        .into(mProviderImageView);
+            } else {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    mProviderImageView.setColorFilter(getContext().getColor(R.color.white));
+                } else {
+                    mProviderImageView.setColorFilter(getContext().getResources().getColor(R.color.white));
+                }
+            }
+
+            final ImageView mCloseView = view.findViewById(R.id.img_close_reservation_success);
+            mCloseView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mReservationSuccessView.setVisibility(View.GONE);
+                    mReservationSuccessNameView.setText("");
+                    mReservationSuccessMsgView.setText("");
+                    mReservationSuccessRate.setRating(0);
+                    mProviderImageView.setImageDrawable(null);
+                }
+            });
+
+            final int screenHeight = getScreenHeight();
+            ObjectAnimator animator = ObjectAnimator.ofFloat(mReservationSuccessView,
+                    "y", screenHeight, 0.0f);
+            animator.setInterpolator(new DecelerateInterpolator());
+            animator.start();
+
+
+            new Handler().postDelayed(new Runnable() {
+
+                @Override
+                public void run() {
+                    mCloseView.performClick();
+                }
+            }, 5000);
+        }
+    }
+
+    private void providerReservationTask(int id){
+        final View childView = view.findViewById(R.id.rl_reservation_provider);
+        Util.showProgress(getContext(), mProviderReservationView, childView, true);
+
+        SessionManager sessionManager = new SessionManager(getContext());
+        ApiService apiService = ServiceGenerator.createApiService();
+        String token = sessionManager.getToken();
+
+        Call<List<ProviderReservation>> call = apiService.getProviders(id, token);
+        call.enqueue(new Callback<List<ProviderReservation>>() {
+            @Override
+            public void onResponse(Call<List<ProviderReservation>> call, Response<List<ProviderReservation>> response) {
+                Util.showProgress(getContext(), mProviderReservationView, childView, false);
+
+                if (response.isSuccessful()) {
+                    Log.i(Util.TAG_MENU, "Provider Reservation result: success!");
+
+                    List<ProviderReservation> providerReservationList = response.body();
+                    if (!providerReservationList.isEmpty()) {
+                        mProviderReservationList.clear();
+
+                        for (ProviderReservation pr : providerReservationList){
+                            mProviderReservationList.add(pr);
+                        }
+                        mProviderReservationView.getAdapter().notifyDataSetChanged();
+
+                    } else {
+                        Util.showMessage(mProviderReservationView, childView, "Buscando técnicos");
+                    }
+                } else {
+                    Log.i(Util.TAG_MENU, "Provider Reservation result: " + response.toString());
+                    Util.showMessage(mProviderReservationView, childView,
+                            getString(R.string.message_service_server_failed));
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<ProviderReservation>> call, Throwable t) {
+                Util.showProgress(getActivity(), mProviderReservationView, childView, false);
+                Util.showMessage(mProviderReservationView, childView,
+                        getString(R.string.message_network_local_failed));
+            }
+        });
+    }
+
+    private void reservationTask(ProviderReservation pr) {
+        Util.showLoading(getContext(), "Asignando técnico....");
+
+        SessionManager sessionManager = new SessionManager(getContext());
+        ApiService apiService = ServiceGenerator.createApiService();
+        String token = sessionManager.getToken();
+
+        HashMap<String, Object> params = new HashMap<>();
+        params.put("provider", pr.getProvider().getId());
+        params.put("status", Reservation.Assigned);
+
+        Call<Reservation> call = apiService.updateReservation(
+                pr.getReservation().getId(), token, params);
+        call.enqueue(new Callback<Reservation>() {
+            @Override
+            public void onResponse(Call<Reservation> call, Response<Reservation> response) {
+                if (response.isSuccessful()) {
+                    Log.i(Util.TAG_MENU, "Reservation result: success!");
+
+                    Reservation reservation = response.body();
+                    if (reservation != null) {
+                        EventBus.getDefault().post(new Notification(Util.ACTION_UPDATE, reservation));
+                    } else {
+                        Util.longToast(getContext(),
+                                getString(R.string.message_service_server_empty));
+                    }
+                } else {
+                    Log.i(Util.TAG_MENU, "Reservation result: " + response.toString());
+                    Util.longToast(getContext(),
+                            getString(R.string.message_service_server_failed));
+                }
+                Util.hideLoading();
+            }
+
+            @Override
+            public void onFailure(Call<Reservation> call, Throwable t) {
+                Util.longToast(getContext(),
+                        getString(R.string.message_network_local_failed));
+                Util.hideLoading();
+            }
+        });
+    }
+
+    private void checkPendingReservationProviders() {
+
+        SessionManager sessionManager = new SessionManager(getContext());
+
+        if (sessionManager.isNotificationProvider()) {
+            setSelectedTab(R.id.navigation_notification);
+
+            int idReservation = sessionManager.getReservationId();
+            if (idReservation != 0) {
+                Reservation reservation = new Reservation();
+                reservation.setId(idReservation);
+                showReservationProviders(reservation);
+            }
+
+            sessionManager.clearPendingReservation();
+        }
     }
 }

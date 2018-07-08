@@ -17,6 +17,15 @@
         android:layout_above="@+id/bottom_navigation"
         app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
+    <include
+        layout="@layout/dialog_reservation_search" />
+
+    <include
+        layout="@layout/dialog_reservation_providers" />
+
+    <include
+        layout="@layout/dialog_reservation_success" />
+
     <android.support.design.widget.BottomNavigationView
         android:id="@+id/bottom_navigation"
         android:layout_width="match_parent"

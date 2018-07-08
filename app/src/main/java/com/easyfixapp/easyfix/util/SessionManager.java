@@ -95,6 +95,11 @@ public class SessionManager {
         mEditor.apply();
     }
 
+    public void removeFragment() {
+        mEditor.putInt(mResources.getString(R.string.preferences_number_fragment), getFragments() - 1);
+        mEditor.apply();
+    }
+
     public void resetFragment() {
         mEditor.putInt(mResources.getString(R.string.preferences_number_fragment), 0);
         mEditor.apply();
@@ -111,6 +116,48 @@ public class SessionManager {
 
     public void resetServiceDetail() {
         mEditor.putInt(mResources.getString(R.string.preferences_service_detail), 0);
+        mEditor.apply();
+    }
+
+    public void setReservationDetail(boolean isFocused) {
+        mEditor.putBoolean(mResources.getString(R.string.preferences_reservation_detail), isFocused);
+        mEditor.apply();
+    }
+
+    public boolean isReservationDetailFocused() {
+        return mSharedPreferences.getBoolean(mResources.getString(R.string.preferences_reservation_detail), false);
+    }
+
+    public void setReservationSchedule(boolean isFocused) {
+        mEditor.putBoolean(mResources.getString(R.string.preferences_reservation_schedule), isFocused);
+        mEditor.apply();
+    }
+
+    public boolean isReservationScheduleFocused() {
+        return mSharedPreferences.getBoolean(mResources.getString(R.string.preferences_reservation_schedule), false);
+    }
+
+    public void setNotificationProvider(boolean isNotificated) {
+        mEditor.putBoolean(mResources.getString(R.string.preferences_notification_provider), isNotificated);
+        mEditor.apply();
+    }
+
+    public boolean isNotificationProvider() {
+        return mSharedPreferences.getBoolean(mResources.getString(R.string.preferences_notification_provider), false);
+    }
+
+    public void setReservationId(int id) {
+        mEditor.putInt(mResources.getString(R.string.preferences_reservation_id), id);
+        mEditor.apply();
+    }
+
+    public int getReservationId() {
+        return mSharedPreferences.getInt(mResources.getString(R.string.preferences_reservation_id), 0);
+    }
+
+    public void clearPendingReservation(){
+        mEditor.putBoolean(mResources.getString(R.string.preferences_notification_provider), false);
+        mEditor.putInt(mResources.getString(R.string.preferences_reservation_id), 0);
         mEditor.apply();
     }
 

@@ -43,7 +43,7 @@ public class AddressConfirmFragment extends RootFragment{
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_address, container, false);
-        mReservation = (Reservation) getArguments().getSerializable("reservation");
+        mReservation = (Reservation) getArguments().getParcelable("reservation");
 
         mAddressView = view.findViewById(R.id.rv_address);
         mAddressAdapter = new AddressConfirmAdapter(getContext(), mReservation, mAddressList);

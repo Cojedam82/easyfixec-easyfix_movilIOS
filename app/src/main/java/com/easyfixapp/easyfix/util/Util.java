@@ -4,6 +4,7 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
@@ -11,6 +12,7 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.MediaStore;
+import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -22,18 +24,26 @@ import android.widget.Toast;
 import com.easyfixapp.easyfix.R;
 import com.easyfixapp.easyfix.activities.LoginActivity;
 import com.easyfixapp.easyfix.activities.MainActivity;
+import com.easyfixapp.easyfix.activities.MapActivity;
 import com.easyfixapp.easyfix.models.PaymentMethod;
 import com.easyfixapp.easyfix.models.Profile;
 import com.google.firebase.iid.FirebaseInstanceId;
 
 import java.io.IOException;
 import java.net.URI;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import io.realm.Realm;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 /**
  * Created by julio on 20/05/17.
@@ -51,6 +61,12 @@ public class Util {
      * URL
      **/
     public static final String BASE_URL = "http://206.225.95.194:8000";
+    //public static final String BASE_URL = "http://192.168.10.155:9000";
+    //public static final String BASE_URL = "http://192.168.0.106:9000"; //Casa
+    //public static final String BASE_URL = "http://192.168.100.148:9000"; //Damian
+    //public static final String BASE_URL = "http://192.168.43.34:9000"; // Xperia
+    //public static final String BASE_URL = "http://192.168.1.5:9000"; // Kokoa
+
     public static final String API_URL = BASE_URL + "/api/v1/";
 
     public static final String PRIVACY_POLICIES_URL = "file:///android_asset/htmls/policies.html";
@@ -61,6 +77,11 @@ public class Util {
     /**
      * CONSTANTS
      **/
+    public static final int ACTION_CREATE = 1;
+    public static final int ACTION_UPDATE = 2;
+    public static final int ACTION_DELETE = 3;
+    public static final int ACTION_PROVIDER = 4;
+
     public static final int MAX_IMAGES_SERVICE = 4;
     public static final int USER_ROLE = 1;
     public static final String TYPE_DEVICE = "android";
@@ -108,6 +129,16 @@ public class Util {
 
 
     /**
+     * TIME FORMAT
+     */
+
+    public static final long secondsInMilli = 1000;
+    public static final long minutesInMilli = secondsInMilli * 60;
+    public static final long hoursInMilli = minutesInMilli * 60;
+    public static final long daysInMilli = hoursInMilli * 24;
+
+
+    /**
      * EMAIL VALIDATOR
      **/
     public static boolean isEmailValid(String email) {
@@ -140,8 +171,20 @@ public class Util {
     /**
      * NAME VALIDATOR
      **/
+    private static boolean isAlpha(String name) {
+        char[] chars = name.toCharArray();
+
+        for (char c : chars) {
+            if(!Character.isLetter(c)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     public static boolean isNameValid(String name) {
-        if (TextUtils.isEmpty(name) || !(name.length()>4) || !name.replace(" ", "").matches("[a-zA-Z]+")) return false;
+        if (TextUtils.isEmpty(name) || name.length() < 3 || !isAlpha(name.trim().replaceAll(" ", ""))) return false; //.replace(" ", "").matches("[a-zA-Z]+")) return false;
         return true;
     }
 
@@ -185,9 +228,10 @@ public class Util {
      **/
     public static void showLoading(Context context, String message){
 
-        if (mLoading != null)
+        if (mLoading != null) {
             mLoading.dismiss();
             mLoading = null;
+        }
 
         mLoading = new ProgressDialog(context);
         mLoading.setCancelable(false);
@@ -305,63 +349,61 @@ public class Util {
 
 
     public static void logout(final Context context) {
+        Util.showLoading(context, context.getString(R.string.message_logout_request));
 
-        int message;
-        final Activity activity = MainActivity.activity;
+        final SessionManager sessionManager = new SessionManager(context);
 
-        try {
-            activity.runOnUiThread(new Runnable() {
-                public void run() {
-                    showLoading(activity, activity.getString(R.string.message_logout_request));
-                }
-            });
-        } catch (Exception ignore){}
+        String token = sessionManager.getToken();
+        String registrationId = FirebaseInstanceId.getInstance().getToken();
 
-        // Clean preferences
-        SessionManager sessionManager = new SessionManager(context);
-        sessionManager.clear();
-
-        // Reset FCM token
-        new Thread(new Runnable() {
+        AuthService authService = ServiceGenerator.createAuthService();
+        Call<Void> call = authService.logout(token, registrationId);
+        call.enqueue(new Callback<Void>() {
             @Override
-            public void run() {
-                try {
-                    FirebaseInstanceId.getInstance().deleteInstanceId();
-                } catch (IOException e) {
-                    Log.e(Util.TAG_MENU, e.getMessage());
-                }
-            }
-        }).start();
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
 
-        // Clean database
-        Realm realm = Realm.getDefaultInstance();
-        try {
-            realm.beginTransaction();
-            realm.deleteAll();
-            realm.commitTransaction();
+                    // Clean preferences
+                    sessionManager.clear();
 
-            message = R.string.message_logout;
-        } catch (Exception e){
-            Log.e(Util.TAG_MENU, e.toString());
-            message = R.string.message_service_server_failed;
-        } finally {
-            realm.close();
-        }
+                    // Clean database
+                    int message;
+                    Realm realm = Realm.getDefaultInstance();
+                    try {
+                        realm.beginTransaction();
+                        realm.deleteAll();
+                        realm.commitTransaction();
 
-        try {
-            final int finalMessage = message;
-            activity.runOnUiThread(new Runnable() {
-                public void run() {
-                    Intent intent = new Intent(activity, LoginActivity.class);
+                        message = R.string.message_logout;
+                    } catch (Exception e){
+                        Log.e(Util.TAG_MENU, e.toString());
+                        message = R.string.message_service_server_failed;
+                    } finally {
+                        realm.close();
+                    }
+
+                    Intent intent = new Intent(MainActivity.activity, LoginActivity.class);
                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                    activity.startActivity(intent);
-                    activity.finish();
+                    MainActivity.activity.startActivity(intent);
+                    MainActivity.activity.finish();
 
-                    hideLoading();
-                    longToast(context, context.getString(finalMessage));
+                    Util.longToast(context, context.getString(message));
+
+                } else {
+                    Log.i(Util.TAG_MENU,
+                            "Logout result: " + response.errorBody().toString());
                 }
-            });
-        } catch (Exception ignore){}
+                Util.hideLoading();
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                Log.i(Util.TAG_MENU, "Logout result: failed, " + t.getMessage());
+                Util.hideLoading();
+                Util.longToast(context,
+                        context.getString(R.string.message_service_server_failed));
+            }
+        });
     }
 
     public static List<PaymentMethod> getPaymentMethods() {
@@ -404,5 +446,99 @@ public class Util {
                 cursor.close();
             }
         }
+    }
+
+    public static String getTimeFormat(Long time) {
+        String txtTime = "";
+
+        if (time != null) {
+            try {
+                txtTime = new SimpleDateFormat("HH:mm").format(time);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        return txtTime;
+    }
+
+    public static Long getTimeFormat(Date date) {
+        Long time = null;
+
+        if (date != null) {
+            try {
+                String dateText = new SimpleDateFormat("HH:mm").format(date);
+                Date onlyTime = new SimpleDateFormat("HH:mm").parse(dateText);
+                time = onlyTime.getTime();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        return time;
+    }
+
+    public static String getDateFormat(Date date) {
+        SimpleDateFormat dateFormat =
+                new SimpleDateFormat("EEEE d MMM", new Locale("es", "ES"));
+        return  dateFormat.format(date);
+    }
+
+    public static String getDateFormat2(Date date) {
+        SimpleDateFormat dateFormat =
+                new SimpleDateFormat("yyyy-MM-dd");
+        return  dateFormat.format(date);
+    }
+
+    public static String getDateTimeFormat(Date date, Long time) {
+        String txtDateTime = "No hay fecha y hora";
+
+        if (date != null && time != null) {
+            try {
+                String txtDate = new SimpleDateFormat("EEEE d", new Locale("es", "ES")).format(date);
+                String txtTime = new SimpleDateFormat("HH:mm").format(time);
+                txtDateTime = txtDate + " - " + txtTime;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        return txtDateTime;
+    }
+
+    public static Date getDateTime(Date date, Long time) {
+        Date dateTime = new Date();
+
+        if (date != null && time != null) {
+            try {
+                String txtDate = new SimpleDateFormat("yyyy-MM-dd").format(date);
+                String txtTime = new SimpleDateFormat("HH:mm:ss").format(time);
+                dateTime = new SimpleDateFormat("yyyyy-MM-dd HH:mm:ss")
+                        .parse(txtDate + " " + txtTime);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        return dateTime;
+    }
+
+    public static String getElapsedFormatTime(Long different) {
+        String elapsed = "Calculando...";
+
+        try {
+            final long elapsedHours = different / Util.hoursInMilli;
+            different = different % Util.hoursInMilli;
+
+            final long elapsedMinutes = different / Util.minutesInMilli;
+            different = different % Util.minutesInMilli;
+
+            Date elapsedTime = new SimpleDateFormat("HH:mm")
+                    .parse(elapsedHours + ":" + elapsedMinutes);
+            elapsed = getTimeFormat(elapsedTime.getTime());
+
+        } catch (Exception e){}
+
+        return elapsed;
     }
 }

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_height="wrap_content"
+    android:layout_width="match_parent"
+    android:paddingLeft="@dimen/activity_vertical_min_margin"
+    android:paddingRight="@dimen/activity_vertical_min_margin"
+    android:orientation="horizontal"
+    android:background="@color/colorPrimary">
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/img_provider_item_reservation_provider"
+        android:layout_height="@dimen/notification_item_image_size"
+        android:layout_width="@dimen/notification_item_image_size"
+        android:layout_gravity="center"
+        android:layout_margin="@dimen/notification_item_margin"
+        app:civ_border_width="1dp"
+        android:src="@drawable/ic_empty_profile"
+        app:civ_border_color="@color/colorPrimary" />
+
+    <LinearLayout
+        android:layout_height="wrap_content"
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_gravity="center_vertical"
+        android:layout_margin="@dimen/notification_item_margin"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/txt_provider_name_item_reservation_provider"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:maxLines="1"
+            android:ellipsize="marquee"
+            android:textSize="18sp"
+            android:textColor="@color/white"
+            tools:text="Jose Estupinan" />
+
+        <RatingBar
+            android:id="@+id/rb_calification_item_reservation_provider"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:progressTint="@color/white"
+            android:progressBackgroundTint="@color/black"
+            android:numStars="5"
+            android:isIndicator="true"
+            android:scaleX="1"
+            android:scaleY="1"
+            style="?android:attr/ratingBarStyleSmall"
+            tools:rating="3"/>
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/txt_hour_item_reservation_provider"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_margin="@dimen/notification_item_margin"
+        android:maxLines="1"
+        android:ellipsize="marquee"
+        android:textSize="18sp"
+        android:textColor="@color/white"
+        tools:text="11:00" />
+
+</LinearLayout>

@@ -1,5 +1,8 @@
 package com.easyfixapp.easyfix.models;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
@@ -12,7 +15,7 @@ import io.realm.annotations.Ignore;
  * Created by julio on 16/05/17.
  */
 
-public class User implements Serializable {
+public class User implements Parcelable {
 
     @Expose
     @SerializedName("id")
@@ -43,6 +46,28 @@ public class User implements Serializable {
     private RealmList<Address> addresses;
 
     public User(){};
+
+    public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
+        public User createFromParcel(Parcel in) {
+            return new User(in);
+        }
+
+        public User[] newArray(int size) {
+            return new User[size];
+        }
+    };
+
+    public User(Parcel in) {
+        this.id = in.readInt();
+
+        this.firstName = in.readString();
+        this.lastName = in.readString();
+        this.email = in.readString();
+        this.password = in.readString();
+
+        this.addresses = new RealmList<>();
+        this.addresses.addAll(in.createTypedArrayList(User.CREATOR));
+    }
 
     public int getId() {
         return id;
@@ -116,5 +141,22 @@ public class User implements Serializable {
         } catch (Exception ignore) {}
 
         return score;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(this.id);
+
+        dest.writeString(this.firstName);
+        dest.writeString(this.lastName);
+        dest.writeString(this.email);
+        dest.writeString(this.password);
+
+        dest.writeTypedList(this.addresses);
     }
 }

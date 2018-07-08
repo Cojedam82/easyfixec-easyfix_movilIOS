@@ -7,5 +7,5 @@
 
     <stroke
         android:width="@dimen/sw_time_stroke_border"
-        android:color="@color/colorPrimaryDark" />
+        android:color="@color/colorPrimary" />
 </shape>

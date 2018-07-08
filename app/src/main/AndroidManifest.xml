@@ -26,7 +26,7 @@
     <!-- To make a call -->
     <uses-permission android:name="android.permission.CALL_PHONE" />
 
-    <!-- -->
+    <!-- To GPS -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
@@ -118,6 +118,18 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".activities.MainActivity" />
         </activity>
+
+        <activity
+            android:name=".activities.ReservationDescriptionActivity"
+            android:parentActivityName=".activities.MainActivity"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:screenOrientation="portrait">
+
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activities.MainActivity" />
+        </activity>
+
 
         <!-- Provider -->
         <provider
