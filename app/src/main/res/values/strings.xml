@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">EasyFix</string>
-    <string name="app_message">Tenemos la solución</string>
+    <string name="app_message">Repara todo</string>
 
     <!-- Strings related to login and signup -->
     <string name="prompt_first_name">Nombres</string>
@@ -51,7 +51,7 @@
     <string name="action_service_detail_now">Ahora</string>
     <string name="action_service_detail_schedule">Agendar</string>
     <string name="action_service_detail">Solicitar Técnico</string>
-    <string name="message_service_detail_empty">No se encontro servicio, intente nuevamente</string>
+    <string name="message_service_detail_empty">No se encontro servicio, intente nuevamente en unos minutos</string>
 
     <string name="message_services_request">Consultando servicios...</string>
 
@@ -87,7 +87,7 @@
 
 
     <!-- Network And Api -->
-    <string name="message_network_local_failed">Hubo problemas, revise su conexión a internet e intente nuevamente</string>
+    <string name="message_network_local_failed">Hubo problemas, revise su conexión a internet e intente nuevamente en unos minutos</string>
     <string name="message_network_connectivity_failed">No hay conexión a internet</string>
 
     <string name="message_service_server_empty">No se encontraron registros</string>
@@ -105,6 +105,7 @@
     <string name="setting_policies">Políticas de Privacidad</string>
     <string name="setting_terms">Términos y Condiciones</string>
     <string name="setting_help">Información de Ayuda</string>
+    <string name="setting_about">Acerca De</string>
     <string name="setting_logout">Cerrar Sesión</string>
 
 
@@ -174,6 +175,9 @@
 
     <string name="preferences_notification_provider">NOTIFICATION_PROVIDER</string>
 
+    <string name="preferences_reservation_rating_id">RESERVATION_RATING_ID</string>
+    <string name="preferences_provider_rating">PROVIDER_RATING</string>
+
     <array name="days_week">
         <item>D</item>
         <item>L</item>
@@ -183,4 +187,5 @@
         <item>V</item>
         <item>S</item>
     </array>
+    <string name="title_activity_about">AboutActivity</string>
 </resources>

@@ -58,7 +58,7 @@
                 android:layout_height="1dp"
                 android:background="@color/black_25"/>
 
-            <com.easyfixapp.easyfix.widget.CustomViewPager
+            <com.easyfix.client.widget.CustomViewPager
                 android:id="@+id/vp_service_reservation"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"

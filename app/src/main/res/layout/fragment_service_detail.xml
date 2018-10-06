@@ -147,7 +147,7 @@
                     android:gravity="center"
                     android:text="¿En cuánto tiempo lo necesitas?"/>
 
-                <com.easyfixapp.easyfix.widget.CustomRadioGroup
+                <com.easyfix.client.widget.CustomRadioGroup
                     android:id="@+id/rg_actions"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -169,7 +169,7 @@
                         android:layout_height="wrap_content"
                         android:text="@string/action_service_detail_schedule"
                         style="@style/CustomRadioButton" />
-                </com.easyfixapp.easyfix.widget.CustomRadioGroup>
+                </com.easyfix.client.widget.CustomRadioGroup>
 
             </LinearLayout>
 

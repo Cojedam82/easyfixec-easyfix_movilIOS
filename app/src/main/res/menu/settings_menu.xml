@@ -4,19 +4,21 @@
     <group
         android:id="@+id/group_info"
         android:checkableBehavior="single">
-        <item
+        <!--<item
             android:id="@+id/nav_policies"
-            android:title="@string/setting_policies" />
+            android:title="@string/setting_policies" />-->
         <item
             android:id="@+id/nav_terms"
             android:title="@string/setting_terms" />
         <item
             android:id="@+id/nav_help"
             android:title="@string/setting_help" />
-
         <group
             android:id="@+id/group_action"
             android:checkableBehavior="single">
+            <item
+                android:id="@+id/nav_about"
+                android:title="@string/setting_about" />
             <item
                 android:id="@+id/nav_logout"
                 android:title="@string/setting_logout" />

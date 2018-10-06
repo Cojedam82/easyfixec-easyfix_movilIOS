@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    android:id="@+id/rl_reservation_rating"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/black_85"
+    android:elevation="10dp"
+    android:clickable="true"
+    android:visibility="gone">
+
+    <TextView
+        android:id="@+id/txt_reservation_rating_omit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:textColor="@color/textColorPrimary"
+        android:padding="@dimen/activity_horizontal_margin"
+        android:textSize="26sp"
+        android:textStyle="bold"
+        android:text="OMITIR" />
+
+    <LinearLayout
+        android:id="@+id/ll_reservation_rating_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:orientation="vertical"
+        android:padding="@dimen/activity_horizontal_margin"
+        android:background="?android:attr/windowBackground">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?android:attr/windowBackground">
+
+            <LinearLayout
+                android:id="@+id/ll_progress_container"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:visibility="gone">
+
+                <!-- Login progress -->
+                <ProgressBar
+                    android:id="@+id/progress"
+                    style="?android:attr/progressBarStyleLarge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:visibility="visible"
+                    android:indeterminateTint="@color/black"/>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:textColor="@color/black"
+                    android:text="Cargando..."/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/ll_empty_container"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:visibility="gone">
+
+                <ImageView
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:padding="@dimen/activity_vertical_min_margin"
+                    android:layout_centerInParent="true"
+                    android:src="@drawable/logo"
+                    android:tint="@color/colorPrimary"/>
+
+                <TextView
+                    android:id="@+id/txt_message"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:textColor="@color/black"
+                    tools:text="No se encontro reservación"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/ll_reservation_rating_info"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:visibility="gone"
+                android:orientation="vertical"
+                android:background="?android:attr/windowBackground">
+
+                <de.hdodenhof.circleimageview.CircleImageView
+                    android:id="@+id/img_rating_provider"
+                    android:layout_width="125dp"
+                    android:layout_height="125dp"
+                    android:src="@drawable/ic_empty_profile"
+                    app:civ_border_width="2dp"
+                    app:civ_border_color="@color/colorPrimary" />
+
+                <TextView
+                    android:id="@+id/txt_reservation_rating_price"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:textSize="22sp"
+                    android:gravity="center"
+                    android:text="Valor: $40"/>
+
+                <TextView
+                    android:id="@+id/txt_reservation_rating_provider"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:textSize="22sp"
+                    android:gravity="center"
+                    android:text="Como estuvo Juan Alberto en la reparacion de hoy?"/>
+
+                <RatingBar
+                    android:id="@+id/rb_reservation_rating"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="30dp"
+                    android:progressTint="@color/colorPrimary"
+                    android:progressBackgroundTint="@color/black_35"
+                    android:secondaryProgressTint="@color/black_35"
+                    android:isIndicator="false"
+                    android:numStars="5"
+                    style="?android:attr/ratingBarStyle"
+                    tools:rating="0"/>
+
+            </LinearLayout>
+
+        </RelativeLayout>
+
+    </LinearLayout>
+
+</RelativeLayout>
